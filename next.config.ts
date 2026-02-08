@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['avatars.githubusercontent.com', 'github.com'],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'bullmq'],
-  },
 };
 
 export default nextConfig;
