@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== Organizations & Users ====================
+
+model Organization {
+  id                String   @id @default(cuid())
+  githubOrgId       Int      @unique
+  githubOrgLogin    String
+  installationId    Int      @unique
+  
+  encryptedToken    String   // Encrypted installation token
+  tokenExpiresAt    DateTime
+  
+  webhookSecret     String
+  settings          Json     @default("{}")
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  repositories      Repository[]
+  users             User[]
+  syncJobs          SyncJob[]
+  insights          Insight[]
+  
+  @@index([githubOrgLogin])
+}
+
+model User {
+  id              String   @id @default(cuid())
+  githubUserId    Int      @unique
+  githubLogin     String
+  email           String?
+  emailAliases    String[] @default([])
+  name            String?
+  avatarUrl       String?
+  
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  role            Role     @default(MEMBER)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  authoredPRs     PullRequest[] @relation("AuthoredPRs")
+  reviews         PullRequestReview[]
+  comments        PullRequestComment[]
+  
+  @@index([organizationId])
+  @@index([email])
+  @@index([githubLogin])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// ==================== Repositories ====================
+
+model Repository {
+  id              String   @id @default(cuid())
+  githubRepoId    Int      @unique
+  name            String
+  fullName        String
+  defaultBranch   String   @default("main")
+  
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  isActive        Boolean  @default(true)
+  lastSyncedAt    DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  pullRequests    PullRequest[]
+  
+  @@index([organizationId])
+  @@index([fullName])
+  @@index([lastSyncedAt])
+}
+
+// ==================== Pull Requests ====================
+
+model PullRequest {
+  id              String   @id @default(cuid())
+  githubPrId      Int
+  number          Int
+  title           String
+  body            String?  @db.Text
+  state           PRState
+  
+  repositoryId    String
+  repository      Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  
+  authorId        String
+  author          User     @relation("AuthoredPRs", fields: [authorId], references: [id])
+  
+  createdAt       DateTime
+  updatedAt       DateTime
+  closedAt        DateTime?
+  mergedAt        DateTime?
+  
+  // Computed metrics (denormalized for query performance)
+  linesAdded      Int      @default(0)
+  linesDeleted    Int      @default(0)
+  filesChanged    Int      @default(0)
+  commitsCount    Int      @default(0)
+  
+  timeToFirstReview     Int?  // minutes
+  timeToMerge          Int?  // minutes
+  reviewCycleCount     Int   @default(0)
+  
+  reviews         PullRequestReview[]
+  comments        PullRequestComment[]
+  
+  @@unique([repositoryId, number])
+  @@index([repositoryId, createdAt])
+  @@index([authorId, createdAt])
+  @@index([state, mergedAt])
+  @@index([githubPrId])
+}
+
+enum PRState {
+  OPEN
+  CLOSED
+  MERGED
+}
+
+model PullRequestReview {
+  id              String   @id @default(cuid())
+  githubReviewId  Int      @unique
+  
+  pullRequestId   String
+  pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+  
+  reviewerId      String
+  reviewer        User     @relation(fields: [reviewerId], references: [id])
+  
+  state           ReviewState
+  body            String?  @db.Text
+  submittedAt     DateTime
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([pullRequestId])
+  @@index([reviewerId, submittedAt])
+}
+
+enum ReviewState {
+  APPROVED
+  CHANGES_REQUESTED
+  COMMENTED
+  DISMISSED
+}
+
+model PullRequestComment {
+  id              String   @id @default(cuid())
+  githubCommentId Int      @unique
+  
+  pullRequestId   String
+  pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+  
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+  
+  body            String   @db.Text
+  createdAt       DateTime
+  updatedAt       DateTime
+  
+  @@index([pullRequestId])
+  @@index([authorId])
+}
+
+// ==================== Background Jobs ====================
+
+model SyncJob {
+  id              String   @id @default(cuid())
+  
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  jobType         String   // 'full_sync', 'incremental_sync', 'webhook_process'
+  status          JobStatus @default(PENDING)
+  
+  progress        Json     @default("{}")
+  error           String?  @db.Text
+  
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  
+  @@index([organizationId, status])
+  @@index([createdAt])
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ==================== AI Insights ====================
+
+model Insight {
+  id              String   @id @default(cuid())
+  
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  title           String
+  summary         String   @db.Text
+  action          String   @db.Text
+  severity        InsightSeverity
+  category        InsightCategory
+  
+  // Metric grounding - stores the actual metrics used to generate this insight
+  metricSnapshot  Json
+  referencedMetrics String[]
+  
+  // Metadata
+  timeRangeStart  DateTime
+  timeRangeEnd    DateTime
+  
+  isRead          Boolean  @default(false)
+  isDismissed     Boolean  @default(false)
+  
+  generatedAt     DateTime @default(now())
+  
+  @@index([organizationId, generatedAt])
+  @@index([organizationId, isRead])
+  @@index([severity, category])
+}
+
+enum InsightSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum InsightCategory {
+  VELOCITY
+  QUALITY
+  COLLABORATION
+  BURNOUT
+}
