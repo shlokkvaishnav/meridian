@@ -20,104 +20,102 @@ export type InsightModel = runtime.Types.Result.DefaultSelection<Prisma.$Insight
 
 export type AggregateInsight = {
   _count: InsightCountAggregateOutputType | null
+  _avg: InsightAvgAggregateOutputType | null
+  _sum: InsightSumAggregateOutputType | null
   _min: InsightMinAggregateOutputType | null
   _max: InsightMaxAggregateOutputType | null
 }
 
+export type InsightAvgAggregateOutputType = {
+  priority: number | null
+}
+
+export type InsightSumAggregateOutputType = {
+  priority: number | null
+}
+
 export type InsightMinAggregateOutputType = {
   id: string | null
-  organizationId: string | null
   title: string | null
-  summary: string | null
-  action: string | null
-  severity: $Enums.InsightSeverity | null
+  description: string | null
+  type: $Enums.InsightType | null
   category: $Enums.InsightCategory | null
-  timeRangeStart: Date | null
-  timeRangeEnd: Date | null
+  priority: number | null
+  generatedAt: Date | null
   isRead: boolean | null
   isDismissed: boolean | null
-  generatedAt: Date | null
 }
 
 export type InsightMaxAggregateOutputType = {
   id: string | null
-  organizationId: string | null
   title: string | null
-  summary: string | null
-  action: string | null
-  severity: $Enums.InsightSeverity | null
+  description: string | null
+  type: $Enums.InsightType | null
   category: $Enums.InsightCategory | null
-  timeRangeStart: Date | null
-  timeRangeEnd: Date | null
+  priority: number | null
+  generatedAt: Date | null
   isRead: boolean | null
   isDismissed: boolean | null
-  generatedAt: Date | null
 }
 
 export type InsightCountAggregateOutputType = {
   id: number
-  organizationId: number
   title: number
-  summary: number
-  action: number
-  severity: number
+  description: number
+  type: number
   category: number
-  metricSnapshot: number
-  referencedMetrics: number
-  timeRangeStart: number
-  timeRangeEnd: number
+  priority: number
+  data: number
+  generatedAt: number
   isRead: number
   isDismissed: number
-  generatedAt: number
   _all: number
 }
 
 
+export type InsightAvgAggregateInputType = {
+  priority?: true
+}
+
+export type InsightSumAggregateInputType = {
+  priority?: true
+}
+
 export type InsightMinAggregateInputType = {
   id?: true
-  organizationId?: true
   title?: true
-  summary?: true
-  action?: true
-  severity?: true
+  description?: true
+  type?: true
   category?: true
-  timeRangeStart?: true
-  timeRangeEnd?: true
+  priority?: true
+  generatedAt?: true
   isRead?: true
   isDismissed?: true
-  generatedAt?: true
 }
 
 export type InsightMaxAggregateInputType = {
   id?: true
-  organizationId?: true
   title?: true
-  summary?: true
-  action?: true
-  severity?: true
+  description?: true
+  type?: true
   category?: true
-  timeRangeStart?: true
-  timeRangeEnd?: true
+  priority?: true
+  generatedAt?: true
   isRead?: true
   isDismissed?: true
-  generatedAt?: true
 }
 
 export type InsightCountAggregateInputType = {
   id?: true
-  organizationId?: true
   title?: true
-  summary?: true
-  action?: true
-  severity?: true
+  description?: true
+  type?: true
   category?: true
-  metricSnapshot?: true
-  referencedMetrics?: true
-  timeRangeStart?: true
-  timeRangeEnd?: true
+  priority?: true
+  data?: true
+  generatedAt?: true
   isRead?: true
   isDismissed?: true
-  generatedAt?: true
   _all?: true
 }
 
@@ -159,6 +157,18 @@ export type InsightAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: InsightAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: InsightSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: InsightMinAggregateInputType
@@ -189,26 +199,26 @@ export type InsightGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: InsightCountAggregateInputType | true
+  _avg?: InsightAvgAggregateInputType
+  _sum?: InsightSumAggregateInputType
   _min?: InsightMinAggregateInputType
   _max?: InsightMaxAggregateInputType
 }
 
 export type InsightGroupByOutputType = {
   id: string
-  organizationId: string
   title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
+  description: string
+  type: $Enums.InsightType
   category: $Enums.InsightCategory
-  metricSnapshot: runtime.JsonValue
-  referencedMetrics: string[]
-  timeRangeStart: Date
-  timeRangeEnd: Date
+  priority: number
+  data: runtime.JsonValue
+  generatedAt: Date
   isRead: boolean
   isDismissed: boolean
-  generatedAt: Date
   _count: InsightCountAggregateOutputType | null
+  _avg: InsightAvgAggregateOutputType | null
+  _sum: InsightSumAggregateOutputType | null
   _min: InsightMinAggregateOutputType | null
   _max: InsightMaxAggregateOutputType | null
 }
@@ -233,38 +243,28 @@ export type InsightWhereInput = {
   OR?: Prisma.InsightWhereInput[]
   NOT?: Prisma.InsightWhereInput | Prisma.InsightWhereInput[]
   id?: Prisma.StringFilter<"Insight"> | string
-  organizationId?: Prisma.StringFilter<"Insight"> | string
   title?: Prisma.StringFilter<"Insight"> | string
-  summary?: Prisma.StringFilter<"Insight"> | string
-  action?: Prisma.StringFilter<"Insight"> | string
-  severity?: Prisma.EnumInsightSeverityFilter<"Insight"> | $Enums.InsightSeverity
+  description?: Prisma.StringFilter<"Insight"> | string
+  type?: Prisma.EnumInsightTypeFilter<"Insight"> | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryFilter<"Insight"> | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonFilter<"Insight">
-  referencedMetrics?: Prisma.StringNullableListFilter<"Insight">
-  timeRangeStart?: Prisma.DateTimeFilter<"Insight"> | Date | string
-  timeRangeEnd?: Prisma.DateTimeFilter<"Insight"> | Date | string
+  priority?: Prisma.IntFilter<"Insight"> | number
+  data?: Prisma.JsonFilter<"Insight">
+  generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
   isRead?: Prisma.BoolFilter<"Insight"> | boolean
   isDismissed?: Prisma.BoolFilter<"Insight"> | boolean
-  generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
-  organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
 }
 
 export type InsightOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  action?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  metricSnapshot?: Prisma.SortOrder
-  referencedMetrics?: Prisma.SortOrder
-  timeRangeStart?: Prisma.SortOrder
-  timeRangeEnd?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  data?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
-  generatedAt?: Prisma.SortOrder
-  organization?: Prisma.OrganizationOrderByWithRelationInput
 }
 
 export type InsightWhereUniqueInput = Prisma.AtLeast<{
@@ -272,40 +272,33 @@ export type InsightWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.InsightWhereInput | Prisma.InsightWhereInput[]
   OR?: Prisma.InsightWhereInput[]
   NOT?: Prisma.InsightWhereInput | Prisma.InsightWhereInput[]
-  organizationId?: Prisma.StringFilter<"Insight"> | string
   title?: Prisma.StringFilter<"Insight"> | string
-  summary?: Prisma.StringFilter<"Insight"> | string
-  action?: Prisma.StringFilter<"Insight"> | string
-  severity?: Prisma.EnumInsightSeverityFilter<"Insight"> | $Enums.InsightSeverity
+  description?: Prisma.StringFilter<"Insight"> | string
+  type?: Prisma.EnumInsightTypeFilter<"Insight"> | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryFilter<"Insight"> | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonFilter<"Insight">
-  referencedMetrics?: Prisma.StringNullableListFilter<"Insight">
-  timeRangeStart?: Prisma.DateTimeFilter<"Insight"> | Date | string
-  timeRangeEnd?: Prisma.DateTimeFilter<"Insight"> | Date | string
+  priority?: Prisma.IntFilter<"Insight"> | number
+  data?: Prisma.JsonFilter<"Insight">
+  generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
   isRead?: Prisma.BoolFilter<"Insight"> | boolean
   isDismissed?: Prisma.BoolFilter<"Insight"> | boolean
-  generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
-  organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
 }, "id">
 
 export type InsightOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  action?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  metricSnapshot?: Prisma.SortOrder
-  referencedMetrics?: Prisma.SortOrder
-  timeRangeStart?: Prisma.SortOrder
-  timeRangeEnd?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  data?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
-  generatedAt?: Prisma.SortOrder
   _count?: Prisma.InsightCountOrderByAggregateInput
+  _avg?: Prisma.InsightAvgOrderByAggregateInput
   _max?: Prisma.InsightMaxOrderByAggregateInput
   _min?: Prisma.InsightMinOrderByAggregateInput
+  _sum?: Prisma.InsightSumOrderByAggregateInput
 }
 
 export type InsightScalarWhereWithAggregatesInput = {
@@ -313,501 +306,231 @@ export type InsightScalarWhereWithAggregatesInput = {
   OR?: Prisma.InsightScalarWhereWithAggregatesInput[]
   NOT?: Prisma.InsightScalarWhereWithAggregatesInput | Prisma.InsightScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Insight"> | string
-  organizationId?: Prisma.StringWithAggregatesFilter<"Insight"> | string
   title?: Prisma.StringWithAggregatesFilter<"Insight"> | string
-  summary?: Prisma.StringWithAggregatesFilter<"Insight"> | string
-  action?: Prisma.StringWithAggregatesFilter<"Insight"> | string
-  severity?: Prisma.EnumInsightSeverityWithAggregatesFilter<"Insight"> | $Enums.InsightSeverity
+  description?: Prisma.StringWithAggregatesFilter<"Insight"> | string
+  type?: Prisma.EnumInsightTypeWithAggregatesFilter<"Insight"> | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryWithAggregatesFilter<"Insight"> | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonWithAggregatesFilter<"Insight">
-  referencedMetrics?: Prisma.StringNullableListFilter<"Insight">
-  timeRangeStart?: Prisma.DateTimeWithAggregatesFilter<"Insight"> | Date | string
-  timeRangeEnd?: Prisma.DateTimeWithAggregatesFilter<"Insight"> | Date | string
+  priority?: Prisma.IntWithAggregatesFilter<"Insight"> | number
+  data?: Prisma.JsonWithAggregatesFilter<"Insight">
+  generatedAt?: Prisma.DateTimeWithAggregatesFilter<"Insight"> | Date | string
   isRead?: Prisma.BoolWithAggregatesFilter<"Insight"> | boolean
   isDismissed?: Prisma.BoolWithAggregatesFilter<"Insight"> | boolean
-  generatedAt?: Prisma.DateTimeWithAggregatesFilter<"Insight"> | Date | string
 }
 
 export type InsightCreateInput = {
   id?: string
   title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
+  description: string
+  type: $Enums.InsightType
   category: $Enums.InsightCategory
-  metricSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightCreatereferencedMetricsInput | string[]
-  timeRangeStart: Date | string
-  timeRangeEnd: Date | string
+  priority: number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: Date | string
-  organization: Prisma.OrganizationCreateNestedOneWithoutInsightsInput
 }
 
 export type InsightUncheckedCreateInput = {
   id?: string
-  organizationId: string
   title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
+  description: string
+  type: $Enums.InsightType
   category: $Enums.InsightCategory
-  metricSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightCreatereferencedMetricsInput | string[]
-  timeRangeStart: Date | string
-  timeRangeEnd: Date | string
+  priority: number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: Date | string
 }
 
 export type InsightUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  organization?: Prisma.OrganizationUpdateOneRequiredWithoutInsightsNestedInput
 }
 
 export type InsightUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InsightCreateManyInput = {
   id?: string
-  organizationId: string
   title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
+  description: string
+  type: $Enums.InsightType
   category: $Enums.InsightCategory
-  metricSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightCreatereferencedMetricsInput | string[]
-  timeRangeStart: Date | string
-  timeRangeEnd: Date | string
+  priority: number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: Date | string
 }
 
 export type InsightUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InsightUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
   category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type InsightListRelationFilter = {
-  every?: Prisma.InsightWhereInput
-  some?: Prisma.InsightWhereInput
-  none?: Prisma.InsightWhereInput
-}
-
-export type InsightOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
 }
 
 export type InsightCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  action?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  metricSnapshot?: Prisma.SortOrder
-  referencedMetrics?: Prisma.SortOrder
-  timeRangeStart?: Prisma.SortOrder
-  timeRangeEnd?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  data?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
-  generatedAt?: Prisma.SortOrder
+}
+
+export type InsightAvgOrderByAggregateInput = {
+  priority?: Prisma.SortOrder
 }
 
 export type InsightMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  action?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  timeRangeStart?: Prisma.SortOrder
-  timeRangeEnd?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
-  generatedAt?: Prisma.SortOrder
 }
 
 export type InsightMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  action?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  timeRangeStart?: Prisma.SortOrder
-  timeRangeEnd?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
-  generatedAt?: Prisma.SortOrder
 }
 
-export type InsightCreateNestedManyWithoutOrganizationInput = {
-  create?: Prisma.XOR<Prisma.InsightCreateWithoutOrganizationInput, Prisma.InsightUncheckedCreateWithoutOrganizationInput> | Prisma.InsightCreateWithoutOrganizationInput[] | Prisma.InsightUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOrganizationInput | Prisma.InsightCreateOrConnectWithoutOrganizationInput[]
-  createMany?: Prisma.InsightCreateManyOrganizationInputEnvelope
-  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+export type InsightSumOrderByAggregateInput = {
+  priority?: Prisma.SortOrder
 }
 
-export type InsightUncheckedCreateNestedManyWithoutOrganizationInput = {
-  create?: Prisma.XOR<Prisma.InsightCreateWithoutOrganizationInput, Prisma.InsightUncheckedCreateWithoutOrganizationInput> | Prisma.InsightCreateWithoutOrganizationInput[] | Prisma.InsightUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOrganizationInput | Prisma.InsightCreateOrConnectWithoutOrganizationInput[]
-  createMany?: Prisma.InsightCreateManyOrganizationInputEnvelope
-  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-}
-
-export type InsightUpdateManyWithoutOrganizationNestedInput = {
-  create?: Prisma.XOR<Prisma.InsightCreateWithoutOrganizationInput, Prisma.InsightUncheckedCreateWithoutOrganizationInput> | Prisma.InsightCreateWithoutOrganizationInput[] | Prisma.InsightUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOrganizationInput | Prisma.InsightCreateOrConnectWithoutOrganizationInput[]
-  upsert?: Prisma.InsightUpsertWithWhereUniqueWithoutOrganizationInput | Prisma.InsightUpsertWithWhereUniqueWithoutOrganizationInput[]
-  createMany?: Prisma.InsightCreateManyOrganizationInputEnvelope
-  set?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  disconnect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  delete?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  update?: Prisma.InsightUpdateWithWhereUniqueWithoutOrganizationInput | Prisma.InsightUpdateWithWhereUniqueWithoutOrganizationInput[]
-  updateMany?: Prisma.InsightUpdateManyWithWhereWithoutOrganizationInput | Prisma.InsightUpdateManyWithWhereWithoutOrganizationInput[]
-  deleteMany?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
-}
-
-export type InsightUncheckedUpdateManyWithoutOrganizationNestedInput = {
-  create?: Prisma.XOR<Prisma.InsightCreateWithoutOrganizationInput, Prisma.InsightUncheckedCreateWithoutOrganizationInput> | Prisma.InsightCreateWithoutOrganizationInput[] | Prisma.InsightUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOrganizationInput | Prisma.InsightCreateOrConnectWithoutOrganizationInput[]
-  upsert?: Prisma.InsightUpsertWithWhereUniqueWithoutOrganizationInput | Prisma.InsightUpsertWithWhereUniqueWithoutOrganizationInput[]
-  createMany?: Prisma.InsightCreateManyOrganizationInputEnvelope
-  set?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  disconnect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  delete?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
-  update?: Prisma.InsightUpdateWithWhereUniqueWithoutOrganizationInput | Prisma.InsightUpdateWithWhereUniqueWithoutOrganizationInput[]
-  updateMany?: Prisma.InsightUpdateManyWithWhereWithoutOrganizationInput | Prisma.InsightUpdateManyWithWhereWithoutOrganizationInput[]
-  deleteMany?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
-}
-
-export type InsightCreatereferencedMetricsInput = {
-  set: string[]
-}
-
-export type EnumInsightSeverityFieldUpdateOperationsInput = {
-  set?: $Enums.InsightSeverity
+export type EnumInsightTypeFieldUpdateOperationsInput = {
+  set?: $Enums.InsightType
 }
 
 export type EnumInsightCategoryFieldUpdateOperationsInput = {
   set?: $Enums.InsightCategory
 }
 
-export type InsightUpdatereferencedMetricsInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
-export type InsightCreateWithoutOrganizationInput = {
-  id?: string
-  title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
-  category: $Enums.InsightCategory
-  metricSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightCreatereferencedMetricsInput | string[]
-  timeRangeStart: Date | string
-  timeRangeEnd: Date | string
-  isRead?: boolean
-  isDismissed?: boolean
-  generatedAt?: Date | string
-}
-
-export type InsightUncheckedCreateWithoutOrganizationInput = {
-  id?: string
-  title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
-  category: $Enums.InsightCategory
-  metricSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightCreatereferencedMetricsInput | string[]
-  timeRangeStart: Date | string
-  timeRangeEnd: Date | string
-  isRead?: boolean
-  isDismissed?: boolean
-  generatedAt?: Date | string
-}
-
-export type InsightCreateOrConnectWithoutOrganizationInput = {
-  where: Prisma.InsightWhereUniqueInput
-  create: Prisma.XOR<Prisma.InsightCreateWithoutOrganizationInput, Prisma.InsightUncheckedCreateWithoutOrganizationInput>
-}
-
-export type InsightCreateManyOrganizationInputEnvelope = {
-  data: Prisma.InsightCreateManyOrganizationInput | Prisma.InsightCreateManyOrganizationInput[]
-  skipDuplicates?: boolean
-}
-
-export type InsightUpsertWithWhereUniqueWithoutOrganizationInput = {
-  where: Prisma.InsightWhereUniqueInput
-  update: Prisma.XOR<Prisma.InsightUpdateWithoutOrganizationInput, Prisma.InsightUncheckedUpdateWithoutOrganizationInput>
-  create: Prisma.XOR<Prisma.InsightCreateWithoutOrganizationInput, Prisma.InsightUncheckedCreateWithoutOrganizationInput>
-}
-
-export type InsightUpdateWithWhereUniqueWithoutOrganizationInput = {
-  where: Prisma.InsightWhereUniqueInput
-  data: Prisma.XOR<Prisma.InsightUpdateWithoutOrganizationInput, Prisma.InsightUncheckedUpdateWithoutOrganizationInput>
-}
-
-export type InsightUpdateManyWithWhereWithoutOrganizationInput = {
-  where: Prisma.InsightScalarWhereInput
-  data: Prisma.XOR<Prisma.InsightUpdateManyMutationInput, Prisma.InsightUncheckedUpdateManyWithoutOrganizationInput>
-}
-
-export type InsightScalarWhereInput = {
-  AND?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
-  OR?: Prisma.InsightScalarWhereInput[]
-  NOT?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
-  id?: Prisma.StringFilter<"Insight"> | string
-  organizationId?: Prisma.StringFilter<"Insight"> | string
-  title?: Prisma.StringFilter<"Insight"> | string
-  summary?: Prisma.StringFilter<"Insight"> | string
-  action?: Prisma.StringFilter<"Insight"> | string
-  severity?: Prisma.EnumInsightSeverityFilter<"Insight"> | $Enums.InsightSeverity
-  category?: Prisma.EnumInsightCategoryFilter<"Insight"> | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonFilter<"Insight">
-  referencedMetrics?: Prisma.StringNullableListFilter<"Insight">
-  timeRangeStart?: Prisma.DateTimeFilter<"Insight"> | Date | string
-  timeRangeEnd?: Prisma.DateTimeFilter<"Insight"> | Date | string
-  isRead?: Prisma.BoolFilter<"Insight"> | boolean
-  isDismissed?: Prisma.BoolFilter<"Insight"> | boolean
-  generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
-}
-
-export type InsightCreateManyOrganizationInput = {
-  id?: string
-  title: string
-  summary: string
-  action: string
-  severity: $Enums.InsightSeverity
-  category: $Enums.InsightCategory
-  metricSnapshot: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightCreatereferencedMetricsInput | string[]
-  timeRangeStart: Date | string
-  timeRangeEnd: Date | string
-  isRead?: boolean
-  isDismissed?: boolean
-  generatedAt?: Date | string
-}
-
-export type InsightUpdateWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
-  category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type InsightUncheckedUpdateWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
-  category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type InsightUncheckedUpdateManyWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  summary?: Prisma.StringFieldUpdateOperationsInput | string
-  action?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
-  category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
-  metricSnapshot?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  referencedMetrics?: Prisma.InsightUpdatereferencedMetricsInput | string[]
-  timeRangeStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  timeRangeEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 
 
 export type InsightSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  organizationId?: boolean
   title?: boolean
-  summary?: boolean
-  action?: boolean
-  severity?: boolean
+  description?: boolean
+  type?: boolean
   category?: boolean
-  metricSnapshot?: boolean
-  referencedMetrics?: boolean
-  timeRangeStart?: boolean
-  timeRangeEnd?: boolean
+  priority?: boolean
+  data?: boolean
+  generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: boolean
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["insight"]>
 
 export type InsightSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  organizationId?: boolean
   title?: boolean
-  summary?: boolean
-  action?: boolean
-  severity?: boolean
+  description?: boolean
+  type?: boolean
   category?: boolean
-  metricSnapshot?: boolean
-  referencedMetrics?: boolean
-  timeRangeStart?: boolean
-  timeRangeEnd?: boolean
+  priority?: boolean
+  data?: boolean
+  generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: boolean
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["insight"]>
 
 export type InsightSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  organizationId?: boolean
   title?: boolean
-  summary?: boolean
-  action?: boolean
-  severity?: boolean
+  description?: boolean
+  type?: boolean
   category?: boolean
-  metricSnapshot?: boolean
-  referencedMetrics?: boolean
-  timeRangeStart?: boolean
-  timeRangeEnd?: boolean
+  priority?: boolean
+  data?: boolean
+  generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: boolean
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["insight"]>
 
 export type InsightSelectScalar = {
   id?: boolean
-  organizationId?: boolean
   title?: boolean
-  summary?: boolean
-  action?: boolean
-  severity?: boolean
+  description?: boolean
+  type?: boolean
   category?: boolean
-  metricSnapshot?: boolean
-  referencedMetrics?: boolean
-  timeRangeStart?: boolean
-  timeRangeEnd?: boolean
+  priority?: boolean
+  data?: boolean
+  generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
-  generatedAt?: boolean
 }
 
-export type InsightOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "title" | "summary" | "action" | "severity" | "category" | "metricSnapshot" | "referencedMetrics" | "timeRangeStart" | "timeRangeEnd" | "isRead" | "isDismissed" | "generatedAt", ExtArgs["result"]["insight"]>
-export type InsightInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-}
-export type InsightIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-}
-export type InsightIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-}
+export type InsightOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "type" | "category" | "priority" | "data" | "generatedAt" | "isRead" | "isDismissed", ExtArgs["result"]["insight"]>
 
 export type $InsightPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Insight"
-  objects: {
-    organization: Prisma.$OrganizationPayload<ExtArgs>
-  }
+  objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    organizationId: string
     title: string
-    summary: string
-    action: string
-    severity: $Enums.InsightSeverity
+    description: string
+    type: $Enums.InsightType
     category: $Enums.InsightCategory
-    metricSnapshot: runtime.JsonValue
-    referencedMetrics: string[]
-    timeRangeStart: Date
-    timeRangeEnd: Date
+    priority: number
+    data: runtime.JsonValue
+    generatedAt: Date
     isRead: boolean
     isDismissed: boolean
-    generatedAt: Date
   }, ExtArgs["result"]["insight"]>
   composites: {}
 }
@@ -1202,7 +925,6 @@ readonly fields: InsightFieldRefs;
  */
 export interface Prisma__InsightClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1233,19 +955,15 @@ export interface Prisma__InsightClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface InsightFieldRefs {
   readonly id: Prisma.FieldRef<"Insight", 'String'>
-  readonly organizationId: Prisma.FieldRef<"Insight", 'String'>
   readonly title: Prisma.FieldRef<"Insight", 'String'>
-  readonly summary: Prisma.FieldRef<"Insight", 'String'>
-  readonly action: Prisma.FieldRef<"Insight", 'String'>
-  readonly severity: Prisma.FieldRef<"Insight", 'InsightSeverity'>
+  readonly description: Prisma.FieldRef<"Insight", 'String'>
+  readonly type: Prisma.FieldRef<"Insight", 'InsightType'>
   readonly category: Prisma.FieldRef<"Insight", 'InsightCategory'>
-  readonly metricSnapshot: Prisma.FieldRef<"Insight", 'Json'>
-  readonly referencedMetrics: Prisma.FieldRef<"Insight", 'String[]'>
-  readonly timeRangeStart: Prisma.FieldRef<"Insight", 'DateTime'>
-  readonly timeRangeEnd: Prisma.FieldRef<"Insight", 'DateTime'>
+  readonly priority: Prisma.FieldRef<"Insight", 'Int'>
+  readonly data: Prisma.FieldRef<"Insight", 'Json'>
+  readonly generatedAt: Prisma.FieldRef<"Insight", 'DateTime'>
   readonly isRead: Prisma.FieldRef<"Insight", 'Boolean'>
   readonly isDismissed: Prisma.FieldRef<"Insight", 'Boolean'>
-  readonly generatedAt: Prisma.FieldRef<"Insight", 'DateTime'>
 }
     
 
@@ -1262,10 +980,6 @@ export type InsightFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * Filter, which Insight to fetch.
    */
@@ -1285,10 +999,6 @@ export type InsightFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
-  /**
    * Filter, which Insight to fetch.
    */
   where: Prisma.InsightWhereUniqueInput
@@ -1306,10 +1016,6 @@ export type InsightFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * Filter, which Insight to fetch.
    */
@@ -1359,10 +1065,6 @@ export type InsightFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
-  /**
    * Filter, which Insight to fetch.
    */
   where?: Prisma.InsightWhereInput
@@ -1411,10 +1113,6 @@ export type InsightFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
-  /**
    * Filter, which Insights to fetch.
    */
   where?: Prisma.InsightWhereInput
@@ -1458,10 +1156,6 @@ export type InsightCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
-  /**
    * The data needed to create a Insight.
    */
   data: Prisma.XOR<Prisma.InsightCreateInput, Prisma.InsightUncheckedCreateInput>
@@ -1495,10 +1189,6 @@ export type InsightCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    */
   data: Prisma.InsightCreateManyInput | Prisma.InsightCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1513,10 +1203,6 @@ export type InsightUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * The data needed to update a Insight.
    */
@@ -1569,10 +1255,6 @@ export type InsightUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many Insights to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1587,10 +1269,6 @@ export type InsightUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * The filter to search for the Insight to update in case it exists.
    */
@@ -1617,10 +1295,6 @@ export type InsightDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * Filter which Insight to delete.
    */
@@ -1653,8 +1327,4 @@ export type InsightDefaultArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InsightInclude<ExtArgs> | null
 }

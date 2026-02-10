@@ -1,152 +1,174 @@
-# Meridian - Engineering Intelligence Platform
+# Meridian
 
-AI-powered analytics platform that transforms Git activity into actionable intelligence for engineering teams.
+**Engineering Intelligence Platform for GitHub**
 
-## Key Features
+Meridian is a personal GitHub analytics dashboard that transforms your PR data into actionable insights using smart rules and metrics.
 
-- **Metrics-Grounded AI Insights**: AI insights backed by computed metrics to prevent hallucinations
-- **Multi-Tenant Architecture**: Enterprise-ready with row-level security and RBAC
-- **Real-Time Analytics**: Time-series metrics with automated anomaly detection
-- **GitHub Integration**: Deep integration via GitHub App with webhook support
+![Meridian Dashboard](https://img.shields.io/badge/status-production%20ready-green)
 
-## Tech Stack
+---
 
-- **Frontend**: Next.js 15, React 19, TypeScript, TailwindCSS
-- **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: PostgreSQL (with TimescaleDB extension via Supabase)
-- **Queue**: BullMQ with Redis
-- **AI**: Anthropic Claude with structured outputs
-- **Auth**: GitHub OAuth
+## ✨ Features
 
-## Getting Started
+- 🔐 **Secure Authentication** - GitHub Personal Access Token with AES-256-GCM encryption
+- 📊 **Rich Metrics** - Cycle time, review velocity, contributor stats
+- 🏆 **Contributor Leaderboard** - Top contributors ranked by activity
+- 📈 **Activity Trends** - 30-day time-series charts
+- 🔮 ** Smart Insights** - Rule-based pattern detection (no external AI needed!)
+- 🔄 **Auto Sync** - Daily background sync via Vercel Cron
+- 🎨 **Beautiful UI** - Modern design with dark mode
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- PostgreSQL 14+
-- Redis 7+
+- Node.js 18+ and npm
+- Supabase account (for PostgreSQL database)
+- GitHub Personal Access Token
+- Vercel account (for deployment)
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone <your-repo-url>
 cd meridian
 ```
 
-2. Install dependencies:
+2. **Install dependencies**
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
+3. **Set up environment variables**
+
+Copy `.env.example` to `.env` and fill in your values:
+
+```env
+# Database (from Supabase)
+DATABASE_URL="postgresql://..."
+NEXT_PUBLIC_SUPABASE_URL="https://..."
+NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
+SUPABASE_SERVICE_ROLE_KEY="..."
+
+# Redis (optional, for caching)
+REDIS_URL="redis://..."
+
+# Encryption (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")
+ENCRYPTION_KEY="..."
+
+# App Configuration
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NODE_ENV="development"
+LOG_LEVEL="info"
+
+# Cron Secret (generate a random string)
+CRON_SECRET="your-random-secret-here"
 ```
 
-4. Initialize the database:
+4. **Run database migrations**
 ```bash
 npx prisma generate
-npx prisma migrate dev
+npx prisma migrate deploy
 ```
 
-5. Run the development server:
+5. **Start development server**
 ```bash
 npm run dev
 ```
 
-6. (Optional) Start the background worker:
+6. **Visit http://localhost:3000**
+
+---
+
+## 📖 Usage
+
+### First Time Setup
+
+1. Visit the landing page
+2. Click "Get Started"
+3. Create a GitHub Personal Access Token:
+   - Go to https://github.com/settings/tokens/new
+   - Select `repo` scope (for private repos) or `public_repo` (for public only)
+   - Generate and copy the token
+4. Paste the token in Meridian
+5. Click "Connect GitHub"
+
+### Syncing Data
+
+**Manual Sync:**
+- Click "Sync Now" button on the dashboard
+- Waits for sync to complete (~30-60 seconds)
+
+**Automatic Sync:**
+- Runs daily at 2 AM UTC via Vercel Cron
+- Only works when deployed to Vercel
+- No action needed!
+
+### Generating Insights
+
+1. Scroll to "AI Insights" section
+2. Click "Generate Insights"
+3. View smart recommendations
+4. Click "Refresh" anytime for updated analysis
+
+---
+
+## 🎯 Insights Explained
+
+Meridian uses **rule-based intelligence** to detect patterns:
+
+- **Review Bottlenecks** - PRs waiting too long for reviews
+- **Cycle Time Issues** - Increasing merge times
+- **Workload Imbalance** - Contributors with 3x average load
+- **Burnout Signals** - High weekend activity (>30%)
+- **Stale PRs** - Unchanged for 14+ days
+- **Capacity Issues** - Too many open PRs
+- **Positive Patterns** - Fast cycle times, high merge rates
+
+No external AI API needed - completely free and instant!
+
+---
+
+## 🚀 Deployment to Vercel
+
+1. **Push to GitHub**
 ```bash
-npm run worker
+git add .
+git commit -m "Initial commit"
+git push origin main
 ```
 
-## Project Structure
+2. **Import to Vercel**
+- Visit https://vercel.com/new
+- Import your GitHub repository
+- Vercel will auto-detect Next.js
 
-```
-meridian/
-├── prisma/
-│   └── schema.prisma          # Database schema
-├── src/
-│   ├── app/                   # Next.js app directory
-│   │   ├── api/              # API routes
-│   │   ├── dashboard/        # Dashboard pages
-│   │   └── layout.tsx        # Root layout
-│   ├── components/           # React components
-│   ├── lib/                  # Shared utilities
-│   │   ├── db.ts            # Prisma client
-│   │   ├── logger.ts        # Pino logger
-│   │   └── redis.ts         # Redis client
-│   ├── services/            # Business logic
-│   │   ├── github/          # GitHub API integration
-│   │   ├── metrics/         # Metric computation
-│   │   └── ai/              # AI insight generation
-│   └── workers/             # Background job workers
-├── .env.example             # Environment template
-├── package.json
-└── README.md
-```
+3. **Add Environment Variables**
 
-## Development Workflow
+In Vercel dashboard (Settings → Environment Variables), add all variables from `.env`
 
-### Database Migrations
+4. **Deploy & Verify Cron**
+- Click "Deploy"
+- Visit Vercel dashboard → Crons
+- Manually trigger `/api/cron/daily-sync` to test
 
-```bash
-# Create a new migration
-npx prisma migrate dev --name migration_name
+---
 
-# View database in Prisma Studio
-npx prisma studio
-```
+## 🔐 Security
 
-### Running Jobs
+- ✅ Tokens encrypted at rest with AES-256-GCM
+- ✅ No external AI API calls (privacy first!)
+- ✅ Cron endpoint protected with secret
 
-```bash
-# Start the worker process
-npm run worker
-```
+---
 
-## Architecture Overview
+## 📊 Tech Stack
 
-### Data Flow
+Next.js 14, React, Tailwind CSS, PostgreSQL (Supabase), Prisma 7, Recharts, Octokit
 
-1. **GitHub Integration**: GitHub App webhooks + periodic sync jobs
-2. **ETL Pipeline**: BullMQ jobs process events and compute metrics
-3. **Time-Series Storage**: Metrics stored in TimescaleDB hypertables
-4. **AI Layer**: Claude generates insights from aggregated metrics
-5. **Dashboard**: Real-time updates via Server Components
+---
 
-### Key Design Decisions
-
-- **Metric Grounding**: AI only sees pre-computed metrics, not raw data
-- **Incremental Sync**: Checkpoint-based resumable sync for reliability
-- **RLS Security**: Row-level security enforces multi-tenancy at DB level
-- **Denormalization**: Critical metrics denormalized for query performance
-
-## Environment Variables
-
-See `.env.example` for all required environment variables.
-
-### Critical Configuration
-
-- `DATABASE_URL`: PostgreSQL connection string
-- `REDIS_URL`: Redis connection for BullMQ
-- `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`: GitHub App credentials
-- `ANTHROPIC_API_KEY`: For AI insight generation
-- `ENCRYPTION_KEY`: For encrypting GitHub tokens
-
-## Deployment
-
-Recommended stack:
-- **Hosting**: Vercel
-- **Database**: Supabase PostgreSQL
-- **Redis**: Upstash Redis
-- **Monitoring**: Axiom + Sentry
-
-## License
-
-MIT
-
-## Contributing
-
-Contributions welcome! Please open an issue first to discuss proposed changes.
+**Built with ❤️ for engineering teams**

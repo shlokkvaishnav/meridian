@@ -33,6 +33,9 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   
+  // Cron authentication
+  CRON_SECRET: z.string().min(16).optional(),
+  
   // Observability (Optional)
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),

@@ -5,65 +5,30 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// ==================== Organizations & Users ====================
+// ==================== App Settings ====================
 
-model Organization {
-  id                String   @id @default(cuid())
-  githubOrgId       Int      @unique
-  githubOrgLogin    String
-  installationId    Int      @unique
-  
-  encryptedToken    String   // Encrypted installation token
-  tokenExpiresAt    DateTime
-  
-  webhookSecret     String
-  settings          Json     @default("{}")
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  repositories      Repository[]
-  users             User[]
-  syncJobs          SyncJob[]
-  insights          Insight[]
-  
-  @@index([githubOrgLogin])
-}
-
-model User {
+model AppSettings {
   id              String   @id @default(cuid())
-  githubUserId    Int      @unique
-  githubLogin     String
+  
+  // Encrypted GitHub Personal Access Token
+  encryptedToken  String
+  tokenCreatedAt  DateTime @default(now())
+  
+  // GitHub user info
+  githubLogin     String?
+  githubUserId    Int?
   email           String?
-  emailAliases    String[] @default([])
   name            String?
   avatarUrl       String?
   
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  role            Role     @default(MEMBER)
+  lastSyncedAt    DateTime?
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  authoredPRs     PullRequest[] @relation("AuthoredPRs")
-  reviews         PullRequestReview[]
-  comments        PullRequestComment[]
-  
-  @@index([organizationId])
-  @@index([email])
   @@index([githubLogin])
-}
-
-enum Role {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
 }
 
 // ==================== Repositories ====================
@@ -72,12 +37,11 @@ model Repository {
   id              String   @id @default(cuid())
   githubRepoId    Int      @unique
   name            String
-  fullName        String
+  fullName        String   // e.g., "username/repo-name"
   defaultBranch   String   @default("main")
+  description     String?
   
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
+  isPrivate       Boolean  @default(false)
   isActive        Boolean  @default(true)
   lastSyncedAt    DateTime?
   
@@ -86,9 +50,9 @@ model Repository {
   
   pullRequests    PullRequest[]
   
-  @@index([organizationId])
   @@index([fullName])
   @@index([lastSyncedAt])
+  @@index([isActive])
 }
 
 // ==================== Pull Requests ====================
@@ -104,8 +68,9 @@ model PullRequest {
   repositoryId    String
   repository      Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
   
-  authorId        String
-  author          User     @relation("AuthoredPRs", fields: [authorId], references: [id])
+  // Author as simple string (GitHub login)
+  authorLogin     String
+  authorAvatarUrl String?
   
   createdAt       DateTime
   updatedAt       DateTime
@@ -122,12 +87,12 @@ model PullRequest {
   timeToMerge          Int?  // minutes
   reviewCycleCount     Int   @default(0)
   
-  reviews         PullRequestReview[]
-  comments        PullRequestComment[]
+  reviews         Review[]
+  comments        Comment[]
   
   @@unique([repositoryId, number])
   @@index([repositoryId, createdAt])
-  @@index([authorId, createdAt])
+  @@index([authorLogin, createdAt])
   @@index([state, mergedAt])
   @@index([githubPrId])
 }
@@ -138,15 +103,16 @@ enum PRState {
   MERGED
 }
 
-model PullRequestReview {
+model Review {
   id              String   @id @default(cuid())
   githubReviewId  Int      @unique
   
   pullRequestId   String
   pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
   
-  reviewerId      String
-  reviewer        User     @relation(fields: [reviewerId], references: [id])
+  // Reviewer as simple string (GitHub login)
+  reviewerLogin   String
+  reviewerAvatarUrl String?
   
   state           ReviewState
   body            String?  @db.Text
@@ -155,7 +121,7 @@ model PullRequestReview {
   createdAt       DateTime @default(now())
   
   @@index([pullRequestId])
-  @@index([reviewerId, submittedAt])
+  @@index([reviewerLogin, submittedAt])
 }
 
 enum ReviewState {
@@ -165,34 +131,35 @@ enum ReviewState {
   DISMISSED
 }
 
-model PullRequestComment {
+model Comment {
   id              String   @id @default(cuid())
   githubCommentId Int      @unique
   
   pullRequestId   String
   pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
   
-  authorId        String
-  author          User     @relation(fields: [authorId], references: [id])
+  // Author as simple string (GitHub login)
+  authorLogin     String
+  authorAvatarUrl String?
   
   body            String   @db.Text
   createdAt       DateTime
   updatedAt       DateTime
   
   @@index([pullRequestId])
-  @@index([authorId])
+  @@index([authorLogin])
 }
 
-// ==================== Background Jobs ====================
+// ==================== Sync Jobs ====================
 
 model SyncJob {
   id              String   @id @default(cuid())
   
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  jobType         String   // 'full_sync', 'incremental_sync', 'webhook_process'
+  jobType         String   // 'full_sync', 'repo_sync', 'pr_sync'
   status          JobStatus @default(PENDING)
+  
+  // Optional: which repo is being synced
+  repositoryId    String?
   
   progress        Json     @default("{}")
   error           String?  @db.Text
@@ -201,7 +168,7 @@ model SyncJob {
   completedAt     DateTime?
   createdAt       DateTime @default(now())
   
-  @@index([organizationId, status])
+  @@index([status])
   @@index([createdAt])
 }
 
@@ -218,42 +185,34 @@ enum JobStatus {
 model Insight {
   id              String   @id @default(cuid())
   
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
   title           String
-  summary         String   @db.Text
-  action          String   @db.Text
-  severity        InsightSeverity
+  description     String   @db.Text
+  type            InsightType
   category        InsightCategory
+  priority        Int      // 1-10
   
-  // Metric grounding - stores the actual metrics used to generate this insight
-  metricSnapshot  Json
-  referencedMetrics String[]
+  // Additional data (JSON for flexibility)
+  data            Json     @default("{}")
   
-  // Metadata
-  timeRangeStart  DateTime
-  timeRangeEnd    DateTime
-  
+  generatedAt     DateTime @default(now())
   isRead          Boolean  @default(false)
   isDismissed     Boolean  @default(false)
   
-  generatedAt     DateTime @default(now())
-  
-  @@index([organizationId, generatedAt])
-  @@index([organizationId, isRead])
-  @@index([severity, category])
+  @@index([generatedAt])
+  @@index([priority])
 }
 
-enum InsightSeverity {
-  LOW
-  MEDIUM
-  HIGH
+enum InsightType {
+  WARNING
+  CAUTION
+  INFO
+  SUCCESS
 }
 
 enum InsightCategory {
+  BOTTLENECK
+  WORKLOAD
   VELOCITY
-  QUALITY
   COLLABORATION
-  BURNOUT
+  QUALITY
 }

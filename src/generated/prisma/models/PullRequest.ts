@@ -58,7 +58,8 @@ export type PullRequestMinAggregateOutputType = {
   body: string | null
   state: $Enums.PRState | null
   repositoryId: string | null
-  authorId: string | null
+  authorLogin: string | null
+  authorAvatarUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
   closedAt: Date | null
@@ -80,7 +81,8 @@ export type PullRequestMaxAggregateOutputType = {
   body: string | null
   state: $Enums.PRState | null
   repositoryId: string | null
-  authorId: string | null
+  authorLogin: string | null
+  authorAvatarUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
   closedAt: Date | null
@@ -102,7 +104,8 @@ export type PullRequestCountAggregateOutputType = {
   body: number
   state: number
   repositoryId: number
-  authorId: number
+  authorLogin: number
+  authorAvatarUrl: number
   createdAt: number
   updatedAt: number
   closedAt: number
@@ -150,7 +153,8 @@ export type PullRequestMinAggregateInputType = {
   body?: true
   state?: true
   repositoryId?: true
-  authorId?: true
+  authorLogin?: true
+  authorAvatarUrl?: true
   createdAt?: true
   updatedAt?: true
   closedAt?: true
@@ -172,7 +176,8 @@ export type PullRequestMaxAggregateInputType = {
   body?: true
   state?: true
   repositoryId?: true
-  authorId?: true
+  authorLogin?: true
+  authorAvatarUrl?: true
   createdAt?: true
   updatedAt?: true
   closedAt?: true
@@ -194,7 +199,8 @@ export type PullRequestCountAggregateInputType = {
   body?: true
   state?: true
   repositoryId?: true
-  authorId?: true
+  authorLogin?: true
+  authorAvatarUrl?: true
   createdAt?: true
   updatedAt?: true
   closedAt?: true
@@ -303,7 +309,8 @@ export type PullRequestGroupByOutputType = {
   body: string | null
   state: $Enums.PRState
   repositoryId: string
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl: string | null
   createdAt: Date
   updatedAt: Date
   closedAt: Date | null
@@ -348,7 +355,8 @@ export type PullRequestWhereInput = {
   body?: Prisma.StringNullableFilter<"PullRequest"> | string | null
   state?: Prisma.EnumPRStateFilter<"PullRequest"> | $Enums.PRState
   repositoryId?: Prisma.StringFilter<"PullRequest"> | string
-  authorId?: Prisma.StringFilter<"PullRequest"> | string
+  authorLogin?: Prisma.StringFilter<"PullRequest"> | string
+  authorAvatarUrl?: Prisma.StringNullableFilter<"PullRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
   closedAt?: Prisma.DateTimeNullableFilter<"PullRequest"> | Date | string | null
@@ -361,9 +369,8 @@ export type PullRequestWhereInput = {
   timeToMerge?: Prisma.IntNullableFilter<"PullRequest"> | number | null
   reviewCycleCount?: Prisma.IntFilter<"PullRequest"> | number
   repository?: Prisma.XOR<Prisma.RepositoryScalarRelationFilter, Prisma.RepositoryWhereInput>
-  author?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  reviews?: Prisma.PullRequestReviewListRelationFilter
-  comments?: Prisma.PullRequestCommentListRelationFilter
+  reviews?: Prisma.ReviewListRelationFilter
+  comments?: Prisma.CommentListRelationFilter
 }
 
 export type PullRequestOrderByWithRelationInput = {
@@ -374,7 +381,8 @@ export type PullRequestOrderByWithRelationInput = {
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   repositoryId?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
+  authorLogin?: Prisma.SortOrder
+  authorAvatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -387,9 +395,8 @@ export type PullRequestOrderByWithRelationInput = {
   timeToMerge?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewCycleCount?: Prisma.SortOrder
   repository?: Prisma.RepositoryOrderByWithRelationInput
-  author?: Prisma.UserOrderByWithRelationInput
-  reviews?: Prisma.PullRequestReviewOrderByRelationAggregateInput
-  comments?: Prisma.PullRequestCommentOrderByRelationAggregateInput
+  reviews?: Prisma.ReviewOrderByRelationAggregateInput
+  comments?: Prisma.CommentOrderByRelationAggregateInput
 }
 
 export type PullRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -404,7 +411,8 @@ export type PullRequestWhereUniqueInput = Prisma.AtLeast<{
   body?: Prisma.StringNullableFilter<"PullRequest"> | string | null
   state?: Prisma.EnumPRStateFilter<"PullRequest"> | $Enums.PRState
   repositoryId?: Prisma.StringFilter<"PullRequest"> | string
-  authorId?: Prisma.StringFilter<"PullRequest"> | string
+  authorLogin?: Prisma.StringFilter<"PullRequest"> | string
+  authorAvatarUrl?: Prisma.StringNullableFilter<"PullRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
   closedAt?: Prisma.DateTimeNullableFilter<"PullRequest"> | Date | string | null
@@ -417,9 +425,8 @@ export type PullRequestWhereUniqueInput = Prisma.AtLeast<{
   timeToMerge?: Prisma.IntNullableFilter<"PullRequest"> | number | null
   reviewCycleCount?: Prisma.IntFilter<"PullRequest"> | number
   repository?: Prisma.XOR<Prisma.RepositoryScalarRelationFilter, Prisma.RepositoryWhereInput>
-  author?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  reviews?: Prisma.PullRequestReviewListRelationFilter
-  comments?: Prisma.PullRequestCommentListRelationFilter
+  reviews?: Prisma.ReviewListRelationFilter
+  comments?: Prisma.CommentListRelationFilter
 }, "id" | "repositoryId_number">
 
 export type PullRequestOrderByWithAggregationInput = {
@@ -430,7 +437,8 @@ export type PullRequestOrderByWithAggregationInput = {
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   repositoryId?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
+  authorLogin?: Prisma.SortOrder
+  authorAvatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -460,7 +468,8 @@ export type PullRequestScalarWhereWithAggregatesInput = {
   body?: Prisma.StringNullableWithAggregatesFilter<"PullRequest"> | string | null
   state?: Prisma.EnumPRStateWithAggregatesFilter<"PullRequest"> | $Enums.PRState
   repositoryId?: Prisma.StringWithAggregatesFilter<"PullRequest"> | string
-  authorId?: Prisma.StringWithAggregatesFilter<"PullRequest"> | string
+  authorLogin?: Prisma.StringWithAggregatesFilter<"PullRequest"> | string
+  authorAvatarUrl?: Prisma.StringNullableWithAggregatesFilter<"PullRequest"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PullRequest"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PullRequest"> | Date | string
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PullRequest"> | Date | string | null
@@ -481,6 +490,8 @@ export type PullRequestCreateInput = {
   title: string
   body?: string | null
   state: $Enums.PRState
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -493,9 +504,8 @@ export type PullRequestCreateInput = {
   timeToMerge?: number | null
   reviewCycleCount?: number
   repository: Prisma.RepositoryCreateNestedOneWithoutPullRequestsInput
-  author: Prisma.UserCreateNestedOneWithoutAuthoredPRsInput
-  reviews?: Prisma.PullRequestReviewCreateNestedManyWithoutPullRequestInput
-  comments?: Prisma.PullRequestCommentCreateNestedManyWithoutPullRequestInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutPullRequestInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestUncheckedCreateInput = {
@@ -506,7 +516,8 @@ export type PullRequestUncheckedCreateInput = {
   body?: string | null
   state: $Enums.PRState
   repositoryId: string
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -518,8 +529,8 @@ export type PullRequestUncheckedCreateInput = {
   timeToFirstReview?: number | null
   timeToMerge?: number | null
   reviewCycleCount?: number
-  reviews?: Prisma.PullRequestReviewUncheckedCreateNestedManyWithoutPullRequestInput
-  comments?: Prisma.PullRequestCommentUncheckedCreateNestedManyWithoutPullRequestInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutPullRequestInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestUpdateInput = {
@@ -529,6 +540,8 @@ export type PullRequestUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -541,9 +554,8 @@ export type PullRequestUpdateInput = {
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
   repository?: Prisma.RepositoryUpdateOneRequiredWithoutPullRequestsNestedInput
-  author?: Prisma.UserUpdateOneRequiredWithoutAuthoredPRsNestedInput
-  reviews?: Prisma.PullRequestReviewUpdateManyWithoutPullRequestNestedInput
-  comments?: Prisma.PullRequestCommentUpdateManyWithoutPullRequestNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutPullRequestNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestUncheckedUpdateInput = {
@@ -554,7 +566,8 @@ export type PullRequestUncheckedUpdateInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
   repositoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -566,8 +579,8 @@ export type PullRequestUncheckedUpdateInput = {
   timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviews?: Prisma.PullRequestReviewUncheckedUpdateManyWithoutPullRequestNestedInput
-  comments?: Prisma.PullRequestCommentUncheckedUpdateManyWithoutPullRequestNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutPullRequestNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestCreateManyInput = {
@@ -578,7 +591,8 @@ export type PullRequestCreateManyInput = {
   body?: string | null
   state: $Enums.PRState
   repositoryId: string
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -599,6 +613,8 @@ export type PullRequestUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -620,7 +636,8 @@ export type PullRequestUncheckedUpdateManyInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
   repositoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -657,7 +674,8 @@ export type PullRequestCountOrderByAggregateInput = {
   body?: Prisma.SortOrder
   state?: Prisma.SortOrder
   repositoryId?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
+  authorLogin?: Prisma.SortOrder
+  authorAvatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
@@ -691,7 +709,8 @@ export type PullRequestMaxOrderByAggregateInput = {
   body?: Prisma.SortOrder
   state?: Prisma.SortOrder
   repositoryId?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
+  authorLogin?: Prisma.SortOrder
+  authorAvatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
@@ -713,7 +732,8 @@ export type PullRequestMinOrderByAggregateInput = {
   body?: Prisma.SortOrder
   state?: Prisma.SortOrder
   repositoryId?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
+  authorLogin?: Prisma.SortOrder
+  authorAvatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
@@ -742,48 +762,6 @@ export type PullRequestSumOrderByAggregateInput = {
 export type PullRequestScalarRelationFilter = {
   is?: Prisma.PullRequestWhereInput
   isNot?: Prisma.PullRequestWhereInput
-}
-
-export type PullRequestCreateNestedManyWithoutAuthorInput = {
-  create?: Prisma.XOR<Prisma.PullRequestCreateWithoutAuthorInput, Prisma.PullRequestUncheckedCreateWithoutAuthorInput> | Prisma.PullRequestCreateWithoutAuthorInput[] | Prisma.PullRequestUncheckedCreateWithoutAuthorInput[]
-  connectOrCreate?: Prisma.PullRequestCreateOrConnectWithoutAuthorInput | Prisma.PullRequestCreateOrConnectWithoutAuthorInput[]
-  createMany?: Prisma.PullRequestCreateManyAuthorInputEnvelope
-  connect?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-}
-
-export type PullRequestUncheckedCreateNestedManyWithoutAuthorInput = {
-  create?: Prisma.XOR<Prisma.PullRequestCreateWithoutAuthorInput, Prisma.PullRequestUncheckedCreateWithoutAuthorInput> | Prisma.PullRequestCreateWithoutAuthorInput[] | Prisma.PullRequestUncheckedCreateWithoutAuthorInput[]
-  connectOrCreate?: Prisma.PullRequestCreateOrConnectWithoutAuthorInput | Prisma.PullRequestCreateOrConnectWithoutAuthorInput[]
-  createMany?: Prisma.PullRequestCreateManyAuthorInputEnvelope
-  connect?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-}
-
-export type PullRequestUpdateManyWithoutAuthorNestedInput = {
-  create?: Prisma.XOR<Prisma.PullRequestCreateWithoutAuthorInput, Prisma.PullRequestUncheckedCreateWithoutAuthorInput> | Prisma.PullRequestCreateWithoutAuthorInput[] | Prisma.PullRequestUncheckedCreateWithoutAuthorInput[]
-  connectOrCreate?: Prisma.PullRequestCreateOrConnectWithoutAuthorInput | Prisma.PullRequestCreateOrConnectWithoutAuthorInput[]
-  upsert?: Prisma.PullRequestUpsertWithWhereUniqueWithoutAuthorInput | Prisma.PullRequestUpsertWithWhereUniqueWithoutAuthorInput[]
-  createMany?: Prisma.PullRequestCreateManyAuthorInputEnvelope
-  set?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  disconnect?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  delete?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  connect?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  update?: Prisma.PullRequestUpdateWithWhereUniqueWithoutAuthorInput | Prisma.PullRequestUpdateWithWhereUniqueWithoutAuthorInput[]
-  updateMany?: Prisma.PullRequestUpdateManyWithWhereWithoutAuthorInput | Prisma.PullRequestUpdateManyWithWhereWithoutAuthorInput[]
-  deleteMany?: Prisma.PullRequestScalarWhereInput | Prisma.PullRequestScalarWhereInput[]
-}
-
-export type PullRequestUncheckedUpdateManyWithoutAuthorNestedInput = {
-  create?: Prisma.XOR<Prisma.PullRequestCreateWithoutAuthorInput, Prisma.PullRequestUncheckedCreateWithoutAuthorInput> | Prisma.PullRequestCreateWithoutAuthorInput[] | Prisma.PullRequestUncheckedCreateWithoutAuthorInput[]
-  connectOrCreate?: Prisma.PullRequestCreateOrConnectWithoutAuthorInput | Prisma.PullRequestCreateOrConnectWithoutAuthorInput[]
-  upsert?: Prisma.PullRequestUpsertWithWhereUniqueWithoutAuthorInput | Prisma.PullRequestUpsertWithWhereUniqueWithoutAuthorInput[]
-  createMany?: Prisma.PullRequestCreateManyAuthorInputEnvelope
-  set?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  disconnect?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  delete?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  connect?: Prisma.PullRequestWhereUniqueInput | Prisma.PullRequestWhereUniqueInput[]
-  update?: Prisma.PullRequestUpdateWithWhereUniqueWithoutAuthorInput | Prisma.PullRequestUpdateWithWhereUniqueWithoutAuthorInput[]
-  updateMany?: Prisma.PullRequestUpdateManyWithWhereWithoutAuthorInput | Prisma.PullRequestUpdateManyWithWhereWithoutAuthorInput[]
-  deleteMany?: Prisma.PullRequestScalarWhereInput | Prisma.PullRequestScalarWhereInput[]
 }
 
 export type PullRequestCreateNestedManyWithoutRepositoryInput = {
@@ -832,14 +810,6 @@ export type EnumPRStateFieldUpdateOperationsInput = {
   set?: $Enums.PRState
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type PullRequestCreateNestedOneWithoutReviewsInput = {
   create?: Prisma.XOR<Prisma.PullRequestCreateWithoutReviewsInput, Prisma.PullRequestUncheckedCreateWithoutReviewsInput>
   connectOrCreate?: Prisma.PullRequestCreateOrConnectWithoutReviewsInput
@@ -868,103 +838,6 @@ export type PullRequestUpdateOneRequiredWithoutCommentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PullRequestUpdateToOneWithWhereWithoutCommentsInput, Prisma.PullRequestUpdateWithoutCommentsInput>, Prisma.PullRequestUncheckedUpdateWithoutCommentsInput>
 }
 
-export type PullRequestCreateWithoutAuthorInput = {
-  id?: string
-  githubPrId: number
-  number: number
-  title: string
-  body?: string | null
-  state: $Enums.PRState
-  createdAt: Date | string
-  updatedAt: Date | string
-  closedAt?: Date | string | null
-  mergedAt?: Date | string | null
-  linesAdded?: number
-  linesDeleted?: number
-  filesChanged?: number
-  commitsCount?: number
-  timeToFirstReview?: number | null
-  timeToMerge?: number | null
-  reviewCycleCount?: number
-  repository: Prisma.RepositoryCreateNestedOneWithoutPullRequestsInput
-  reviews?: Prisma.PullRequestReviewCreateNestedManyWithoutPullRequestInput
-  comments?: Prisma.PullRequestCommentCreateNestedManyWithoutPullRequestInput
-}
-
-export type PullRequestUncheckedCreateWithoutAuthorInput = {
-  id?: string
-  githubPrId: number
-  number: number
-  title: string
-  body?: string | null
-  state: $Enums.PRState
-  repositoryId: string
-  createdAt: Date | string
-  updatedAt: Date | string
-  closedAt?: Date | string | null
-  mergedAt?: Date | string | null
-  linesAdded?: number
-  linesDeleted?: number
-  filesChanged?: number
-  commitsCount?: number
-  timeToFirstReview?: number | null
-  timeToMerge?: number | null
-  reviewCycleCount?: number
-  reviews?: Prisma.PullRequestReviewUncheckedCreateNestedManyWithoutPullRequestInput
-  comments?: Prisma.PullRequestCommentUncheckedCreateNestedManyWithoutPullRequestInput
-}
-
-export type PullRequestCreateOrConnectWithoutAuthorInput = {
-  where: Prisma.PullRequestWhereUniqueInput
-  create: Prisma.XOR<Prisma.PullRequestCreateWithoutAuthorInput, Prisma.PullRequestUncheckedCreateWithoutAuthorInput>
-}
-
-export type PullRequestCreateManyAuthorInputEnvelope = {
-  data: Prisma.PullRequestCreateManyAuthorInput | Prisma.PullRequestCreateManyAuthorInput[]
-  skipDuplicates?: boolean
-}
-
-export type PullRequestUpsertWithWhereUniqueWithoutAuthorInput = {
-  where: Prisma.PullRequestWhereUniqueInput
-  update: Prisma.XOR<Prisma.PullRequestUpdateWithoutAuthorInput, Prisma.PullRequestUncheckedUpdateWithoutAuthorInput>
-  create: Prisma.XOR<Prisma.PullRequestCreateWithoutAuthorInput, Prisma.PullRequestUncheckedCreateWithoutAuthorInput>
-}
-
-export type PullRequestUpdateWithWhereUniqueWithoutAuthorInput = {
-  where: Prisma.PullRequestWhereUniqueInput
-  data: Prisma.XOR<Prisma.PullRequestUpdateWithoutAuthorInput, Prisma.PullRequestUncheckedUpdateWithoutAuthorInput>
-}
-
-export type PullRequestUpdateManyWithWhereWithoutAuthorInput = {
-  where: Prisma.PullRequestScalarWhereInput
-  data: Prisma.XOR<Prisma.PullRequestUpdateManyMutationInput, Prisma.PullRequestUncheckedUpdateManyWithoutAuthorInput>
-}
-
-export type PullRequestScalarWhereInput = {
-  AND?: Prisma.PullRequestScalarWhereInput | Prisma.PullRequestScalarWhereInput[]
-  OR?: Prisma.PullRequestScalarWhereInput[]
-  NOT?: Prisma.PullRequestScalarWhereInput | Prisma.PullRequestScalarWhereInput[]
-  id?: Prisma.StringFilter<"PullRequest"> | string
-  githubPrId?: Prisma.IntFilter<"PullRequest"> | number
-  number?: Prisma.IntFilter<"PullRequest"> | number
-  title?: Prisma.StringFilter<"PullRequest"> | string
-  body?: Prisma.StringNullableFilter<"PullRequest"> | string | null
-  state?: Prisma.EnumPRStateFilter<"PullRequest"> | $Enums.PRState
-  repositoryId?: Prisma.StringFilter<"PullRequest"> | string
-  authorId?: Prisma.StringFilter<"PullRequest"> | string
-  createdAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
-  closedAt?: Prisma.DateTimeNullableFilter<"PullRequest"> | Date | string | null
-  mergedAt?: Prisma.DateTimeNullableFilter<"PullRequest"> | Date | string | null
-  linesAdded?: Prisma.IntFilter<"PullRequest"> | number
-  linesDeleted?: Prisma.IntFilter<"PullRequest"> | number
-  filesChanged?: Prisma.IntFilter<"PullRequest"> | number
-  commitsCount?: Prisma.IntFilter<"PullRequest"> | number
-  timeToFirstReview?: Prisma.IntNullableFilter<"PullRequest"> | number | null
-  timeToMerge?: Prisma.IntNullableFilter<"PullRequest"> | number | null
-  reviewCycleCount?: Prisma.IntFilter<"PullRequest"> | number
-}
-
 export type PullRequestCreateWithoutRepositoryInput = {
   id?: string
   githubPrId: number
@@ -972,6 +845,8 @@ export type PullRequestCreateWithoutRepositoryInput = {
   title: string
   body?: string | null
   state: $Enums.PRState
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -983,9 +858,8 @@ export type PullRequestCreateWithoutRepositoryInput = {
   timeToFirstReview?: number | null
   timeToMerge?: number | null
   reviewCycleCount?: number
-  author: Prisma.UserCreateNestedOneWithoutAuthoredPRsInput
-  reviews?: Prisma.PullRequestReviewCreateNestedManyWithoutPullRequestInput
-  comments?: Prisma.PullRequestCommentCreateNestedManyWithoutPullRequestInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutPullRequestInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestUncheckedCreateWithoutRepositoryInput = {
@@ -995,7 +869,8 @@ export type PullRequestUncheckedCreateWithoutRepositoryInput = {
   title: string
   body?: string | null
   state: $Enums.PRState
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -1007,8 +882,8 @@ export type PullRequestUncheckedCreateWithoutRepositoryInput = {
   timeToFirstReview?: number | null
   timeToMerge?: number | null
   reviewCycleCount?: number
-  reviews?: Prisma.PullRequestReviewUncheckedCreateNestedManyWithoutPullRequestInput
-  comments?: Prisma.PullRequestCommentUncheckedCreateNestedManyWithoutPullRequestInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutPullRequestInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestCreateOrConnectWithoutRepositoryInput = {
@@ -1037,6 +912,32 @@ export type PullRequestUpdateManyWithWhereWithoutRepositoryInput = {
   data: Prisma.XOR<Prisma.PullRequestUpdateManyMutationInput, Prisma.PullRequestUncheckedUpdateManyWithoutRepositoryInput>
 }
 
+export type PullRequestScalarWhereInput = {
+  AND?: Prisma.PullRequestScalarWhereInput | Prisma.PullRequestScalarWhereInput[]
+  OR?: Prisma.PullRequestScalarWhereInput[]
+  NOT?: Prisma.PullRequestScalarWhereInput | Prisma.PullRequestScalarWhereInput[]
+  id?: Prisma.StringFilter<"PullRequest"> | string
+  githubPrId?: Prisma.IntFilter<"PullRequest"> | number
+  number?: Prisma.IntFilter<"PullRequest"> | number
+  title?: Prisma.StringFilter<"PullRequest"> | string
+  body?: Prisma.StringNullableFilter<"PullRequest"> | string | null
+  state?: Prisma.EnumPRStateFilter<"PullRequest"> | $Enums.PRState
+  repositoryId?: Prisma.StringFilter<"PullRequest"> | string
+  authorLogin?: Prisma.StringFilter<"PullRequest"> | string
+  authorAvatarUrl?: Prisma.StringNullableFilter<"PullRequest"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PullRequest"> | Date | string
+  closedAt?: Prisma.DateTimeNullableFilter<"PullRequest"> | Date | string | null
+  mergedAt?: Prisma.DateTimeNullableFilter<"PullRequest"> | Date | string | null
+  linesAdded?: Prisma.IntFilter<"PullRequest"> | number
+  linesDeleted?: Prisma.IntFilter<"PullRequest"> | number
+  filesChanged?: Prisma.IntFilter<"PullRequest"> | number
+  commitsCount?: Prisma.IntFilter<"PullRequest"> | number
+  timeToFirstReview?: Prisma.IntNullableFilter<"PullRequest"> | number | null
+  timeToMerge?: Prisma.IntNullableFilter<"PullRequest"> | number | null
+  reviewCycleCount?: Prisma.IntFilter<"PullRequest"> | number
+}
+
 export type PullRequestCreateWithoutReviewsInput = {
   id?: string
   githubPrId: number
@@ -1044,6 +945,8 @@ export type PullRequestCreateWithoutReviewsInput = {
   title: string
   body?: string | null
   state: $Enums.PRState
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -1056,8 +959,7 @@ export type PullRequestCreateWithoutReviewsInput = {
   timeToMerge?: number | null
   reviewCycleCount?: number
   repository: Prisma.RepositoryCreateNestedOneWithoutPullRequestsInput
-  author: Prisma.UserCreateNestedOneWithoutAuthoredPRsInput
-  comments?: Prisma.PullRequestCommentCreateNestedManyWithoutPullRequestInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestUncheckedCreateWithoutReviewsInput = {
@@ -1068,7 +970,8 @@ export type PullRequestUncheckedCreateWithoutReviewsInput = {
   body?: string | null
   state: $Enums.PRState
   repositoryId: string
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -1080,7 +983,7 @@ export type PullRequestUncheckedCreateWithoutReviewsInput = {
   timeToFirstReview?: number | null
   timeToMerge?: number | null
   reviewCycleCount?: number
-  comments?: Prisma.PullRequestCommentUncheckedCreateNestedManyWithoutPullRequestInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestCreateOrConnectWithoutReviewsInput = {
@@ -1106,6 +1009,8 @@ export type PullRequestUpdateWithoutReviewsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1118,8 +1023,7 @@ export type PullRequestUpdateWithoutReviewsInput = {
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
   repository?: Prisma.RepositoryUpdateOneRequiredWithoutPullRequestsNestedInput
-  author?: Prisma.UserUpdateOneRequiredWithoutAuthoredPRsNestedInput
-  comments?: Prisma.PullRequestCommentUpdateManyWithoutPullRequestNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestUncheckedUpdateWithoutReviewsInput = {
@@ -1130,7 +1034,8 @@ export type PullRequestUncheckedUpdateWithoutReviewsInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
   repositoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1142,7 +1047,7 @@ export type PullRequestUncheckedUpdateWithoutReviewsInput = {
   timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  comments?: Prisma.PullRequestCommentUncheckedUpdateManyWithoutPullRequestNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestCreateWithoutCommentsInput = {
@@ -1152,6 +1057,8 @@ export type PullRequestCreateWithoutCommentsInput = {
   title: string
   body?: string | null
   state: $Enums.PRState
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -1164,8 +1071,7 @@ export type PullRequestCreateWithoutCommentsInput = {
   timeToMerge?: number | null
   reviewCycleCount?: number
   repository: Prisma.RepositoryCreateNestedOneWithoutPullRequestsInput
-  author: Prisma.UserCreateNestedOneWithoutAuthoredPRsInput
-  reviews?: Prisma.PullRequestReviewCreateNestedManyWithoutPullRequestInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestUncheckedCreateWithoutCommentsInput = {
@@ -1176,7 +1082,8 @@ export type PullRequestUncheckedCreateWithoutCommentsInput = {
   body?: string | null
   state: $Enums.PRState
   repositoryId: string
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -1188,7 +1095,7 @@ export type PullRequestUncheckedCreateWithoutCommentsInput = {
   timeToFirstReview?: number | null
   timeToMerge?: number | null
   reviewCycleCount?: number
-  reviews?: Prisma.PullRequestReviewUncheckedCreateNestedManyWithoutPullRequestInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutPullRequestInput
 }
 
 export type PullRequestCreateOrConnectWithoutCommentsInput = {
@@ -1214,6 +1121,8 @@ export type PullRequestUpdateWithoutCommentsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1226,8 +1135,7 @@ export type PullRequestUpdateWithoutCommentsInput = {
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
   repository?: Prisma.RepositoryUpdateOneRequiredWithoutPullRequestsNestedInput
-  author?: Prisma.UserUpdateOneRequiredWithoutAuthoredPRsNestedInput
-  reviews?: Prisma.PullRequestReviewUpdateManyWithoutPullRequestNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestUncheckedUpdateWithoutCommentsInput = {
@@ -1238,7 +1146,8 @@ export type PullRequestUncheckedUpdateWithoutCommentsInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
   repositoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1250,95 +1159,7 @@ export type PullRequestUncheckedUpdateWithoutCommentsInput = {
   timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviews?: Prisma.PullRequestReviewUncheckedUpdateManyWithoutPullRequestNestedInput
-}
-
-export type PullRequestCreateManyAuthorInput = {
-  id?: string
-  githubPrId: number
-  number: number
-  title: string
-  body?: string | null
-  state: $Enums.PRState
-  repositoryId: string
-  createdAt: Date | string
-  updatedAt: Date | string
-  closedAt?: Date | string | null
-  mergedAt?: Date | string | null
-  linesAdded?: number
-  linesDeleted?: number
-  filesChanged?: number
-  commitsCount?: number
-  timeToFirstReview?: number | null
-  timeToMerge?: number | null
-  reviewCycleCount?: number
-}
-
-export type PullRequestUpdateWithoutAuthorInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  githubPrId?: Prisma.IntFieldUpdateOperationsInput | number
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mergedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  linesAdded?: Prisma.IntFieldUpdateOperationsInput | number
-  linesDeleted?: Prisma.IntFieldUpdateOperationsInput | number
-  filesChanged?: Prisma.IntFieldUpdateOperationsInput | number
-  commitsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  repository?: Prisma.RepositoryUpdateOneRequiredWithoutPullRequestsNestedInput
-  reviews?: Prisma.PullRequestReviewUpdateManyWithoutPullRequestNestedInput
-  comments?: Prisma.PullRequestCommentUpdateManyWithoutPullRequestNestedInput
-}
-
-export type PullRequestUncheckedUpdateWithoutAuthorInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  githubPrId?: Prisma.IntFieldUpdateOperationsInput | number
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
-  repositoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mergedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  linesAdded?: Prisma.IntFieldUpdateOperationsInput | number
-  linesDeleted?: Prisma.IntFieldUpdateOperationsInput | number
-  filesChanged?: Prisma.IntFieldUpdateOperationsInput | number
-  commitsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviews?: Prisma.PullRequestReviewUncheckedUpdateManyWithoutPullRequestNestedInput
-  comments?: Prisma.PullRequestCommentUncheckedUpdateManyWithoutPullRequestNestedInput
-}
-
-export type PullRequestUncheckedUpdateManyWithoutAuthorInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  githubPrId?: Prisma.IntFieldUpdateOperationsInput | number
-  number?: Prisma.IntFieldUpdateOperationsInput | number
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
-  repositoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mergedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  linesAdded?: Prisma.IntFieldUpdateOperationsInput | number
-  linesDeleted?: Prisma.IntFieldUpdateOperationsInput | number
-  filesChanged?: Prisma.IntFieldUpdateOperationsInput | number
-  commitsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestCreateManyRepositoryInput = {
@@ -1348,7 +1169,8 @@ export type PullRequestCreateManyRepositoryInput = {
   title: string
   body?: string | null
   state: $Enums.PRState
-  authorId: string
+  authorLogin: string
+  authorAvatarUrl?: string | null
   createdAt: Date | string
   updatedAt: Date | string
   closedAt?: Date | string | null
@@ -1369,6 +1191,8 @@ export type PullRequestUpdateWithoutRepositoryInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1380,9 +1204,8 @@ export type PullRequestUpdateWithoutRepositoryInput = {
   timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  author?: Prisma.UserUpdateOneRequiredWithoutAuthoredPRsNestedInput
-  reviews?: Prisma.PullRequestReviewUpdateManyWithoutPullRequestNestedInput
-  comments?: Prisma.PullRequestCommentUpdateManyWithoutPullRequestNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutPullRequestNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestUncheckedUpdateWithoutRepositoryInput = {
@@ -1392,7 +1215,8 @@ export type PullRequestUncheckedUpdateWithoutRepositoryInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
-  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1404,8 +1228,8 @@ export type PullRequestUncheckedUpdateWithoutRepositoryInput = {
   timeToFirstReview?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timeToMerge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewCycleCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviews?: Prisma.PullRequestReviewUncheckedUpdateManyWithoutPullRequestNestedInput
-  comments?: Prisma.PullRequestCommentUncheckedUpdateManyWithoutPullRequestNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutPullRequestNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPullRequestNestedInput
 }
 
 export type PullRequestUncheckedUpdateManyWithoutRepositoryInput = {
@@ -1415,7 +1239,8 @@ export type PullRequestUncheckedUpdateManyWithoutRepositoryInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumPRStateFieldUpdateOperationsInput | $Enums.PRState
-  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorLogin?: Prisma.StringFieldUpdateOperationsInput | string
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1458,14 +1283,14 @@ export type PullRequestCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.
  * PullRequestCountOutputType without action
  */
 export type PullRequestCountOutputTypeCountReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PullRequestReviewWhereInput
+  where?: Prisma.ReviewWhereInput
 }
 
 /**
  * PullRequestCountOutputType without action
  */
 export type PullRequestCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PullRequestCommentWhereInput
+  where?: Prisma.CommentWhereInput
 }
 
 
@@ -1477,7 +1302,8 @@ export type PullRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   body?: boolean
   state?: boolean
   repositoryId?: boolean
-  authorId?: boolean
+  authorLogin?: boolean
+  authorAvatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   closedAt?: boolean
@@ -1490,7 +1316,6 @@ export type PullRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   timeToMerge?: boolean
   reviewCycleCount?: boolean
   repository?: boolean | Prisma.RepositoryDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   reviews?: boolean | Prisma.PullRequest$reviewsArgs<ExtArgs>
   comments?: boolean | Prisma.PullRequest$commentsArgs<ExtArgs>
   _count?: boolean | Prisma.PullRequestCountOutputTypeDefaultArgs<ExtArgs>
@@ -1504,7 +1329,8 @@ export type PullRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   body?: boolean
   state?: boolean
   repositoryId?: boolean
-  authorId?: boolean
+  authorLogin?: boolean
+  authorAvatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   closedAt?: boolean
@@ -1517,7 +1343,6 @@ export type PullRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   timeToMerge?: boolean
   reviewCycleCount?: boolean
   repository?: boolean | Prisma.RepositoryDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pullRequest"]>
 
 export type PullRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1528,7 +1353,8 @@ export type PullRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   body?: boolean
   state?: boolean
   repositoryId?: boolean
-  authorId?: boolean
+  authorLogin?: boolean
+  authorAvatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   closedAt?: boolean
@@ -1541,7 +1367,6 @@ export type PullRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   timeToMerge?: boolean
   reviewCycleCount?: boolean
   repository?: boolean | Prisma.RepositoryDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pullRequest"]>
 
 export type PullRequestSelectScalar = {
@@ -1552,7 +1377,8 @@ export type PullRequestSelectScalar = {
   body?: boolean
   state?: boolean
   repositoryId?: boolean
-  authorId?: boolean
+  authorLogin?: boolean
+  authorAvatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   closedAt?: boolean
@@ -1566,30 +1392,26 @@ export type PullRequestSelectScalar = {
   reviewCycleCount?: boolean
 }
 
-export type PullRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "githubPrId" | "number" | "title" | "body" | "state" | "repositoryId" | "authorId" | "createdAt" | "updatedAt" | "closedAt" | "mergedAt" | "linesAdded" | "linesDeleted" | "filesChanged" | "commitsCount" | "timeToFirstReview" | "timeToMerge" | "reviewCycleCount", ExtArgs["result"]["pullRequest"]>
+export type PullRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "githubPrId" | "number" | "title" | "body" | "state" | "repositoryId" | "authorLogin" | "authorAvatarUrl" | "createdAt" | "updatedAt" | "closedAt" | "mergedAt" | "linesAdded" | "linesDeleted" | "filesChanged" | "commitsCount" | "timeToFirstReview" | "timeToMerge" | "reviewCycleCount", ExtArgs["result"]["pullRequest"]>
 export type PullRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   repository?: boolean | Prisma.RepositoryDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   reviews?: boolean | Prisma.PullRequest$reviewsArgs<ExtArgs>
   comments?: boolean | Prisma.PullRequest$commentsArgs<ExtArgs>
   _count?: boolean | Prisma.PullRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PullRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   repository?: boolean | Prisma.RepositoryDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type PullRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   repository?: boolean | Prisma.RepositoryDefaultArgs<ExtArgs>
-  author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $PullRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PullRequest"
   objects: {
     repository: Prisma.$RepositoryPayload<ExtArgs>
-    author: Prisma.$UserPayload<ExtArgs>
-    reviews: Prisma.$PullRequestReviewPayload<ExtArgs>[]
-    comments: Prisma.$PullRequestCommentPayload<ExtArgs>[]
+    reviews: Prisma.$ReviewPayload<ExtArgs>[]
+    comments: Prisma.$CommentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1599,7 +1421,8 @@ export type $PullRequestPayload<ExtArgs extends runtime.Types.Extensions.Interna
     body: string | null
     state: $Enums.PRState
     repositoryId: string
-    authorId: string
+    authorLogin: string
+    authorAvatarUrl: string | null
     createdAt: Date
     updatedAt: Date
     closedAt: Date | null
@@ -2006,9 +1829,8 @@ readonly fields: PullRequestFieldRefs;
 export interface Prisma__PullRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   repository<T extends Prisma.RepositoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RepositoryDefaultArgs<ExtArgs>>): Prisma.Prisma__RepositoryClient<runtime.Types.Result.GetResult<Prisma.$RepositoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  author<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  reviews<T extends Prisma.PullRequest$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PullRequest$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PullRequestReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  comments<T extends Prisma.PullRequest$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PullRequest$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PullRequestCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviews<T extends Prisma.PullRequest$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PullRequest$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  comments<T extends Prisma.PullRequest$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PullRequest$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2045,7 +1867,8 @@ export interface PullRequestFieldRefs {
   readonly body: Prisma.FieldRef<"PullRequest", 'String'>
   readonly state: Prisma.FieldRef<"PullRequest", 'PRState'>
   readonly repositoryId: Prisma.FieldRef<"PullRequest", 'String'>
-  readonly authorId: Prisma.FieldRef<"PullRequest", 'String'>
+  readonly authorLogin: Prisma.FieldRef<"PullRequest", 'String'>
+  readonly authorAvatarUrl: Prisma.FieldRef<"PullRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"PullRequest", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PullRequest", 'DateTime'>
   readonly closedAt: Prisma.FieldRef<"PullRequest", 'DateTime'>
@@ -2457,23 +2280,23 @@ export type PullRequestDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
  */
 export type PullRequest$reviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PullRequestReview
+   * Select specific fields to fetch from the Review
    */
-  select?: Prisma.PullRequestReviewSelect<ExtArgs> | null
+  select?: Prisma.ReviewSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PullRequestReview
+   * Omit specific fields from the Review
    */
-  omit?: Prisma.PullRequestReviewOmit<ExtArgs> | null
+  omit?: Prisma.ReviewOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PullRequestReviewInclude<ExtArgs> | null
-  where?: Prisma.PullRequestReviewWhereInput
-  orderBy?: Prisma.PullRequestReviewOrderByWithRelationInput | Prisma.PullRequestReviewOrderByWithRelationInput[]
-  cursor?: Prisma.PullRequestReviewWhereUniqueInput
+  include?: Prisma.ReviewInclude<ExtArgs> | null
+  where?: Prisma.ReviewWhereInput
+  orderBy?: Prisma.ReviewOrderByWithRelationInput | Prisma.ReviewOrderByWithRelationInput[]
+  cursor?: Prisma.ReviewWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PullRequestReviewScalarFieldEnum | Prisma.PullRequestReviewScalarFieldEnum[]
+  distinct?: Prisma.ReviewScalarFieldEnum | Prisma.ReviewScalarFieldEnum[]
 }
 
 /**
@@ -2481,23 +2304,23 @@ export type PullRequest$reviewsArgs<ExtArgs extends runtime.Types.Extensions.Int
  */
 export type PullRequest$commentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PullRequestComment
+   * Select specific fields to fetch from the Comment
    */
-  select?: Prisma.PullRequestCommentSelect<ExtArgs> | null
+  select?: Prisma.CommentSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PullRequestComment
+   * Omit specific fields from the Comment
    */
-  omit?: Prisma.PullRequestCommentOmit<ExtArgs> | null
+  omit?: Prisma.CommentOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PullRequestCommentInclude<ExtArgs> | null
-  where?: Prisma.PullRequestCommentWhereInput
-  orderBy?: Prisma.PullRequestCommentOrderByWithRelationInput | Prisma.PullRequestCommentOrderByWithRelationInput[]
-  cursor?: Prisma.PullRequestCommentWhereUniqueInput
+  include?: Prisma.CommentInclude<ExtArgs> | null
+  where?: Prisma.CommentWhereInput
+  orderBy?: Prisma.CommentOrderByWithRelationInput | Prisma.CommentOrderByWithRelationInput[]
+  cursor?: Prisma.CommentWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PullRequestCommentScalarFieldEnum | Prisma.PullRequestCommentScalarFieldEnum[]
+  distinct?: Prisma.CommentScalarFieldEnum | Prisma.CommentScalarFieldEnum[]
 }
 
 /**

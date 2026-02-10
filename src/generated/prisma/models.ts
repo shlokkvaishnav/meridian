@@ -8,12 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Organization'
-export type * from './models/User'
+export type * from './models/AppSettings'
 export type * from './models/Repository'
 export type * from './models/PullRequest'
-export type * from './models/PullRequestReview'
-export type * from './models/PullRequestComment'
+export type * from './models/Review'
+export type * from './models/Comment'
 export type * from './models/SyncJob'
 export type * from './models/Insight'
 export type * from './commonInputTypes'

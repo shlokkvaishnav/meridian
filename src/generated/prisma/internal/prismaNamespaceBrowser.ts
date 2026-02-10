@@ -51,12 +51,11 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Organization: 'Organization',
-  User: 'User',
+  AppSettings: 'AppSettings',
   Repository: 'Repository',
   PullRequest: 'PullRequest',
-  PullRequestReview: 'PullRequestReview',
-  PullRequestComment: 'PullRequestComment',
+  Review: 'Review',
+  Comment: 'Comment',
   SyncJob: 'SyncJob',
   Insight: 'Insight'
 } as const
@@ -77,37 +76,21 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const OrganizationScalarFieldEnum = {
+export const AppSettingsScalarFieldEnum = {
   id: 'id',
-  githubOrgId: 'githubOrgId',
-  githubOrgLogin: 'githubOrgLogin',
-  installationId: 'installationId',
   encryptedToken: 'encryptedToken',
-  tokenExpiresAt: 'tokenExpiresAt',
-  webhookSecret: 'webhookSecret',
-  settings: 'settings',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
-
-
-export const UserScalarFieldEnum = {
-  id: 'id',
-  githubUserId: 'githubUserId',
+  tokenCreatedAt: 'tokenCreatedAt',
   githubLogin: 'githubLogin',
+  githubUserId: 'githubUserId',
   email: 'email',
-  emailAliases: 'emailAliases',
   name: 'name',
   avatarUrl: 'avatarUrl',
-  organizationId: 'organizationId',
-  role: 'role',
+  lastSyncedAt: 'lastSyncedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+export type AppSettingsScalarFieldEnum = (typeof AppSettingsScalarFieldEnum)[keyof typeof AppSettingsScalarFieldEnum]
 
 
 export const RepositoryScalarFieldEnum = {
@@ -116,7 +99,8 @@ export const RepositoryScalarFieldEnum = {
   name: 'name',
   fullName: 'fullName',
   defaultBranch: 'defaultBranch',
-  organizationId: 'organizationId',
+  description: 'description',
+  isPrivate: 'isPrivate',
   isActive: 'isActive',
   lastSyncedAt: 'lastSyncedAt',
   createdAt: 'createdAt',
@@ -134,7 +118,8 @@ export const PullRequestScalarFieldEnum = {
   body: 'body',
   state: 'state',
   repositoryId: 'repositoryId',
-  authorId: 'authorId',
+  authorLogin: 'authorLogin',
+  authorAvatarUrl: 'authorAvatarUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   closedAt: 'closedAt',
@@ -151,38 +136,40 @@ export const PullRequestScalarFieldEnum = {
 export type PullRequestScalarFieldEnum = (typeof PullRequestScalarFieldEnum)[keyof typeof PullRequestScalarFieldEnum]
 
 
-export const PullRequestReviewScalarFieldEnum = {
+export const ReviewScalarFieldEnum = {
   id: 'id',
   githubReviewId: 'githubReviewId',
   pullRequestId: 'pullRequestId',
-  reviewerId: 'reviewerId',
+  reviewerLogin: 'reviewerLogin',
+  reviewerAvatarUrl: 'reviewerAvatarUrl',
   state: 'state',
   body: 'body',
   submittedAt: 'submittedAt',
   createdAt: 'createdAt'
 } as const
 
-export type PullRequestReviewScalarFieldEnum = (typeof PullRequestReviewScalarFieldEnum)[keyof typeof PullRequestReviewScalarFieldEnum]
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
 
 
-export const PullRequestCommentScalarFieldEnum = {
+export const CommentScalarFieldEnum = {
   id: 'id',
   githubCommentId: 'githubCommentId',
   pullRequestId: 'pullRequestId',
-  authorId: 'authorId',
+  authorLogin: 'authorLogin',
+  authorAvatarUrl: 'authorAvatarUrl',
   body: 'body',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type PullRequestCommentScalarFieldEnum = (typeof PullRequestCommentScalarFieldEnum)[keyof typeof PullRequestCommentScalarFieldEnum]
+export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
 
 
 export const SyncJobScalarFieldEnum = {
   id: 'id',
-  organizationId: 'organizationId',
   jobType: 'jobType',
   status: 'status',
+  repositoryId: 'repositoryId',
   progress: 'progress',
   error: 'error',
   startedAt: 'startedAt',
@@ -195,19 +182,15 @@ export type SyncJobScalarFieldEnum = (typeof SyncJobScalarFieldEnum)[keyof typeo
 
 export const InsightScalarFieldEnum = {
   id: 'id',
-  organizationId: 'organizationId',
   title: 'title',
-  summary: 'summary',
-  action: 'action',
-  severity: 'severity',
+  description: 'description',
+  type: 'type',
   category: 'category',
-  metricSnapshot: 'metricSnapshot',
-  referencedMetrics: 'referencedMetrics',
-  timeRangeStart: 'timeRangeStart',
-  timeRangeEnd: 'timeRangeEnd',
+  priority: 'priority',
+  data: 'data',
+  generatedAt: 'generatedAt',
   isRead: 'isRead',
-  isDismissed: 'isDismissed',
-  generatedAt: 'generatedAt'
+  isDismissed: 'isDismissed'
 } as const
 
 export type InsightScalarFieldEnum = (typeof InsightScalarFieldEnum)[keyof typeof InsightScalarFieldEnum]
@@ -236,6 +219,14 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -243,12 +234,4 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

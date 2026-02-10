@@ -9,16 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const Role = {
-  OWNER: 'OWNER',
-  ADMIN: 'ADMIN',
-  MEMBER: 'MEMBER',
-  VIEWER: 'VIEWER'
-} as const
-
-export type Role = (typeof Role)[keyof typeof Role]
-
-
 export const PRState = {
   OPEN: 'OPEN',
   CLOSED: 'CLOSED',
@@ -49,20 +39,22 @@ export const JobStatus = {
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
 
 
-export const InsightSeverity = {
-  LOW: 'LOW',
-  MEDIUM: 'MEDIUM',
-  HIGH: 'HIGH'
+export const InsightType = {
+  WARNING: 'WARNING',
+  CAUTION: 'CAUTION',
+  INFO: 'INFO',
+  SUCCESS: 'SUCCESS'
 } as const
 
-export type InsightSeverity = (typeof InsightSeverity)[keyof typeof InsightSeverity]
+export type InsightType = (typeof InsightType)[keyof typeof InsightType]
 
 
 export const InsightCategory = {
+  BOTTLENECK: 'BOTTLENECK',
+  WORKLOAD: 'WORKLOAD',
   VELOCITY: 'VELOCITY',
-  QUALITY: 'QUALITY',
   COLLABORATION: 'COLLABORATION',
-  BURNOUT: 'BURNOUT'
+  QUALITY: 'QUALITY'
 } as const
 
 export type InsightCategory = (typeof InsightCategory)[keyof typeof InsightCategory]

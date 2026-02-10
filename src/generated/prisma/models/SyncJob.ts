@@ -26,9 +26,9 @@ export type AggregateSyncJob = {
 
 export type SyncJobMinAggregateOutputType = {
   id: string | null
-  organizationId: string | null
   jobType: string | null
   status: $Enums.JobStatus | null
+  repositoryId: string | null
   error: string | null
   startedAt: Date | null
   completedAt: Date | null
@@ -37,9 +37,9 @@ export type SyncJobMinAggregateOutputType = {
 
 export type SyncJobMaxAggregateOutputType = {
   id: string | null
-  organizationId: string | null
   jobType: string | null
   status: $Enums.JobStatus | null
+  repositoryId: string | null
   error: string | null
   startedAt: Date | null
   completedAt: Date | null
@@ -48,9 +48,9 @@ export type SyncJobMaxAggregateOutputType = {
 
 export type SyncJobCountAggregateOutputType = {
   id: number
-  organizationId: number
   jobType: number
   status: number
+  repositoryId: number
   progress: number
   error: number
   startedAt: number
@@ -62,9 +62,9 @@ export type SyncJobCountAggregateOutputType = {
 
 export type SyncJobMinAggregateInputType = {
   id?: true
-  organizationId?: true
   jobType?: true
   status?: true
+  repositoryId?: true
   error?: true
   startedAt?: true
   completedAt?: true
@@ -73,9 +73,9 @@ export type SyncJobMinAggregateInputType = {
 
 export type SyncJobMaxAggregateInputType = {
   id?: true
-  organizationId?: true
   jobType?: true
   status?: true
+  repositoryId?: true
   error?: true
   startedAt?: true
   completedAt?: true
@@ -84,9 +84,9 @@ export type SyncJobMaxAggregateInputType = {
 
 export type SyncJobCountAggregateInputType = {
   id?: true
-  organizationId?: true
   jobType?: true
   status?: true
+  repositoryId?: true
   progress?: true
   error?: true
   startedAt?: true
@@ -169,9 +169,9 @@ export type SyncJobGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type SyncJobGroupByOutputType = {
   id: string
-  organizationId: string
   jobType: string
   status: $Enums.JobStatus
+  repositoryId: string | null
   progress: runtime.JsonValue
   error: string | null
   startedAt: Date | null
@@ -202,28 +202,26 @@ export type SyncJobWhereInput = {
   OR?: Prisma.SyncJobWhereInput[]
   NOT?: Prisma.SyncJobWhereInput | Prisma.SyncJobWhereInput[]
   id?: Prisma.StringFilter<"SyncJob"> | string
-  organizationId?: Prisma.StringFilter<"SyncJob"> | string
   jobType?: Prisma.StringFilter<"SyncJob"> | string
   status?: Prisma.EnumJobStatusFilter<"SyncJob"> | $Enums.JobStatus
+  repositoryId?: Prisma.StringNullableFilter<"SyncJob"> | string | null
   progress?: Prisma.JsonFilter<"SyncJob">
   error?: Prisma.StringNullableFilter<"SyncJob"> | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"SyncJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"SyncJob"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SyncJob"> | Date | string
-  organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
 }
 
 export type SyncJobOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  repositoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   progress?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  organization?: Prisma.OrganizationOrderByWithRelationInput
 }
 
 export type SyncJobWhereUniqueInput = Prisma.AtLeast<{
@@ -231,22 +229,21 @@ export type SyncJobWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SyncJobWhereInput | Prisma.SyncJobWhereInput[]
   OR?: Prisma.SyncJobWhereInput[]
   NOT?: Prisma.SyncJobWhereInput | Prisma.SyncJobWhereInput[]
-  organizationId?: Prisma.StringFilter<"SyncJob"> | string
   jobType?: Prisma.StringFilter<"SyncJob"> | string
   status?: Prisma.EnumJobStatusFilter<"SyncJob"> | $Enums.JobStatus
+  repositoryId?: Prisma.StringNullableFilter<"SyncJob"> | string | null
   progress?: Prisma.JsonFilter<"SyncJob">
   error?: Prisma.StringNullableFilter<"SyncJob"> | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"SyncJob"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"SyncJob"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SyncJob"> | Date | string
-  organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
 }, "id">
 
 export type SyncJobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  repositoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   progress?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -262,9 +259,9 @@ export type SyncJobScalarWhereWithAggregatesInput = {
   OR?: Prisma.SyncJobScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SyncJobScalarWhereWithAggregatesInput | Prisma.SyncJobScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SyncJob"> | string
-  organizationId?: Prisma.StringWithAggregatesFilter<"SyncJob"> | string
   jobType?: Prisma.StringWithAggregatesFilter<"SyncJob"> | string
   status?: Prisma.EnumJobStatusWithAggregatesFilter<"SyncJob"> | $Enums.JobStatus
+  repositoryId?: Prisma.StringNullableWithAggregatesFilter<"SyncJob"> | string | null
   progress?: Prisma.JsonWithAggregatesFilter<"SyncJob">
   error?: Prisma.StringNullableWithAggregatesFilter<"SyncJob"> | string | null
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SyncJob"> | Date | string | null
@@ -276,19 +273,19 @@ export type SyncJobCreateInput = {
   id?: string
   jobType: string
   status?: $Enums.JobStatus
+  repositoryId?: string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
-  organization: Prisma.OrganizationCreateNestedOneWithoutSyncJobsInput
 }
 
 export type SyncJobUncheckedCreateInput = {
   id?: string
-  organizationId: string
   jobType: string
   status?: $Enums.JobStatus
+  repositoryId?: string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: string | null
   startedAt?: Date | string | null
@@ -300,19 +297,19 @@ export type SyncJobUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  repositoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  organization?: Prisma.OrganizationUpdateOneRequiredWithoutSyncJobsNestedInput
 }
 
 export type SyncJobUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  repositoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -322,9 +319,9 @@ export type SyncJobUncheckedUpdateInput = {
 
 export type SyncJobCreateManyInput = {
   id?: string
-  organizationId: string
   jobType: string
   status?: $Enums.JobStatus
+  repositoryId?: string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: string | null
   startedAt?: Date | string | null
@@ -336,6 +333,7 @@ export type SyncJobUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  repositoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -345,9 +343,9 @@ export type SyncJobUpdateManyMutationInput = {
 
 export type SyncJobUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   jobType?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  repositoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -355,21 +353,11 @@ export type SyncJobUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SyncJobListRelationFilter = {
-  every?: Prisma.SyncJobWhereInput
-  some?: Prisma.SyncJobWhereInput
-  none?: Prisma.SyncJobWhereInput
-}
-
-export type SyncJobOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type SyncJobCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  repositoryId?: Prisma.SortOrder
   progress?: Prisma.SortOrder
   error?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
@@ -379,9 +367,9 @@ export type SyncJobCountOrderByAggregateInput = {
 
 export type SyncJobMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  repositoryId?: Prisma.SortOrder
   error?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -390,214 +378,62 @@ export type SyncJobMaxOrderByAggregateInput = {
 
 export type SyncJobMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   jobType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  repositoryId?: Prisma.SortOrder
   error?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
-export type SyncJobCreateNestedManyWithoutOrganizationInput = {
-  create?: Prisma.XOR<Prisma.SyncJobCreateWithoutOrganizationInput, Prisma.SyncJobUncheckedCreateWithoutOrganizationInput> | Prisma.SyncJobCreateWithoutOrganizationInput[] | Prisma.SyncJobUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.SyncJobCreateOrConnectWithoutOrganizationInput | Prisma.SyncJobCreateOrConnectWithoutOrganizationInput[]
-  createMany?: Prisma.SyncJobCreateManyOrganizationInputEnvelope
-  connect?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-}
-
-export type SyncJobUncheckedCreateNestedManyWithoutOrganizationInput = {
-  create?: Prisma.XOR<Prisma.SyncJobCreateWithoutOrganizationInput, Prisma.SyncJobUncheckedCreateWithoutOrganizationInput> | Prisma.SyncJobCreateWithoutOrganizationInput[] | Prisma.SyncJobUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.SyncJobCreateOrConnectWithoutOrganizationInput | Prisma.SyncJobCreateOrConnectWithoutOrganizationInput[]
-  createMany?: Prisma.SyncJobCreateManyOrganizationInputEnvelope
-  connect?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-}
-
-export type SyncJobUpdateManyWithoutOrganizationNestedInput = {
-  create?: Prisma.XOR<Prisma.SyncJobCreateWithoutOrganizationInput, Prisma.SyncJobUncheckedCreateWithoutOrganizationInput> | Prisma.SyncJobCreateWithoutOrganizationInput[] | Prisma.SyncJobUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.SyncJobCreateOrConnectWithoutOrganizationInput | Prisma.SyncJobCreateOrConnectWithoutOrganizationInput[]
-  upsert?: Prisma.SyncJobUpsertWithWhereUniqueWithoutOrganizationInput | Prisma.SyncJobUpsertWithWhereUniqueWithoutOrganizationInput[]
-  createMany?: Prisma.SyncJobCreateManyOrganizationInputEnvelope
-  set?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  disconnect?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  delete?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  connect?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  update?: Prisma.SyncJobUpdateWithWhereUniqueWithoutOrganizationInput | Prisma.SyncJobUpdateWithWhereUniqueWithoutOrganizationInput[]
-  updateMany?: Prisma.SyncJobUpdateManyWithWhereWithoutOrganizationInput | Prisma.SyncJobUpdateManyWithWhereWithoutOrganizationInput[]
-  deleteMany?: Prisma.SyncJobScalarWhereInput | Prisma.SyncJobScalarWhereInput[]
-}
-
-export type SyncJobUncheckedUpdateManyWithoutOrganizationNestedInput = {
-  create?: Prisma.XOR<Prisma.SyncJobCreateWithoutOrganizationInput, Prisma.SyncJobUncheckedCreateWithoutOrganizationInput> | Prisma.SyncJobCreateWithoutOrganizationInput[] | Prisma.SyncJobUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.SyncJobCreateOrConnectWithoutOrganizationInput | Prisma.SyncJobCreateOrConnectWithoutOrganizationInput[]
-  upsert?: Prisma.SyncJobUpsertWithWhereUniqueWithoutOrganizationInput | Prisma.SyncJobUpsertWithWhereUniqueWithoutOrganizationInput[]
-  createMany?: Prisma.SyncJobCreateManyOrganizationInputEnvelope
-  set?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  disconnect?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  delete?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  connect?: Prisma.SyncJobWhereUniqueInput | Prisma.SyncJobWhereUniqueInput[]
-  update?: Prisma.SyncJobUpdateWithWhereUniqueWithoutOrganizationInput | Prisma.SyncJobUpdateWithWhereUniqueWithoutOrganizationInput[]
-  updateMany?: Prisma.SyncJobUpdateManyWithWhereWithoutOrganizationInput | Prisma.SyncJobUpdateManyWithWhereWithoutOrganizationInput[]
-  deleteMany?: Prisma.SyncJobScalarWhereInput | Prisma.SyncJobScalarWhereInput[]
-}
-
 export type EnumJobStatusFieldUpdateOperationsInput = {
   set?: $Enums.JobStatus
-}
-
-export type SyncJobCreateWithoutOrganizationInput = {
-  id?: string
-  jobType: string
-  status?: $Enums.JobStatus
-  progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  startedAt?: Date | string | null
-  completedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type SyncJobUncheckedCreateWithoutOrganizationInput = {
-  id?: string
-  jobType: string
-  status?: $Enums.JobStatus
-  progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  startedAt?: Date | string | null
-  completedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type SyncJobCreateOrConnectWithoutOrganizationInput = {
-  where: Prisma.SyncJobWhereUniqueInput
-  create: Prisma.XOR<Prisma.SyncJobCreateWithoutOrganizationInput, Prisma.SyncJobUncheckedCreateWithoutOrganizationInput>
-}
-
-export type SyncJobCreateManyOrganizationInputEnvelope = {
-  data: Prisma.SyncJobCreateManyOrganizationInput | Prisma.SyncJobCreateManyOrganizationInput[]
-  skipDuplicates?: boolean
-}
-
-export type SyncJobUpsertWithWhereUniqueWithoutOrganizationInput = {
-  where: Prisma.SyncJobWhereUniqueInput
-  update: Prisma.XOR<Prisma.SyncJobUpdateWithoutOrganizationInput, Prisma.SyncJobUncheckedUpdateWithoutOrganizationInput>
-  create: Prisma.XOR<Prisma.SyncJobCreateWithoutOrganizationInput, Prisma.SyncJobUncheckedCreateWithoutOrganizationInput>
-}
-
-export type SyncJobUpdateWithWhereUniqueWithoutOrganizationInput = {
-  where: Prisma.SyncJobWhereUniqueInput
-  data: Prisma.XOR<Prisma.SyncJobUpdateWithoutOrganizationInput, Prisma.SyncJobUncheckedUpdateWithoutOrganizationInput>
-}
-
-export type SyncJobUpdateManyWithWhereWithoutOrganizationInput = {
-  where: Prisma.SyncJobScalarWhereInput
-  data: Prisma.XOR<Prisma.SyncJobUpdateManyMutationInput, Prisma.SyncJobUncheckedUpdateManyWithoutOrganizationInput>
-}
-
-export type SyncJobScalarWhereInput = {
-  AND?: Prisma.SyncJobScalarWhereInput | Prisma.SyncJobScalarWhereInput[]
-  OR?: Prisma.SyncJobScalarWhereInput[]
-  NOT?: Prisma.SyncJobScalarWhereInput | Prisma.SyncJobScalarWhereInput[]
-  id?: Prisma.StringFilter<"SyncJob"> | string
-  organizationId?: Prisma.StringFilter<"SyncJob"> | string
-  jobType?: Prisma.StringFilter<"SyncJob"> | string
-  status?: Prisma.EnumJobStatusFilter<"SyncJob"> | $Enums.JobStatus
-  progress?: Prisma.JsonFilter<"SyncJob">
-  error?: Prisma.StringNullableFilter<"SyncJob"> | string | null
-  startedAt?: Prisma.DateTimeNullableFilter<"SyncJob"> | Date | string | null
-  completedAt?: Prisma.DateTimeNullableFilter<"SyncJob"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"SyncJob"> | Date | string
-}
-
-export type SyncJobCreateManyOrganizationInput = {
-  id?: string
-  jobType: string
-  status?: $Enums.JobStatus
-  progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  startedAt?: Date | string | null
-  completedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type SyncJobUpdateWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  jobType?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
-  progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type SyncJobUncheckedUpdateWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  jobType?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
-  progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type SyncJobUncheckedUpdateManyWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  jobType?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
-  progress?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type SyncJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  organizationId?: boolean
   jobType?: boolean
   status?: boolean
+  repositoryId?: boolean
   progress?: boolean
   error?: boolean
   startedAt?: boolean
   completedAt?: boolean
   createdAt?: boolean
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["syncJob"]>
 
 export type SyncJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  organizationId?: boolean
   jobType?: boolean
   status?: boolean
+  repositoryId?: boolean
   progress?: boolean
   error?: boolean
   startedAt?: boolean
   completedAt?: boolean
   createdAt?: boolean
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["syncJob"]>
 
 export type SyncJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  organizationId?: boolean
   jobType?: boolean
   status?: boolean
+  repositoryId?: boolean
   progress?: boolean
   error?: boolean
   startedAt?: boolean
   completedAt?: boolean
   createdAt?: boolean
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["syncJob"]>
 
 export type SyncJobSelectScalar = {
   id?: boolean
-  organizationId?: boolean
   jobType?: boolean
   status?: boolean
+  repositoryId?: boolean
   progress?: boolean
   error?: boolean
   startedAt?: boolean
@@ -605,27 +441,16 @@ export type SyncJobSelectScalar = {
   createdAt?: boolean
 }
 
-export type SyncJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "jobType" | "status" | "progress" | "error" | "startedAt" | "completedAt" | "createdAt", ExtArgs["result"]["syncJob"]>
-export type SyncJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-}
-export type SyncJobIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-}
-export type SyncJobIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-}
+export type SyncJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobType" | "status" | "repositoryId" | "progress" | "error" | "startedAt" | "completedAt" | "createdAt", ExtArgs["result"]["syncJob"]>
 
 export type $SyncJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SyncJob"
-  objects: {
-    organization: Prisma.$OrganizationPayload<ExtArgs>
-  }
+  objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    organizationId: string
     jobType: string
     status: $Enums.JobStatus
+    repositoryId: string | null
     progress: runtime.JsonValue
     error: string | null
     startedAt: Date | null
@@ -1025,7 +850,6 @@ readonly fields: SyncJobFieldRefs;
  */
 export interface Prisma__SyncJobClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1056,9 +880,9 @@ export interface Prisma__SyncJobClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface SyncJobFieldRefs {
   readonly id: Prisma.FieldRef<"SyncJob", 'String'>
-  readonly organizationId: Prisma.FieldRef<"SyncJob", 'String'>
   readonly jobType: Prisma.FieldRef<"SyncJob", 'String'>
   readonly status: Prisma.FieldRef<"SyncJob", 'JobStatus'>
+  readonly repositoryId: Prisma.FieldRef<"SyncJob", 'String'>
   readonly progress: Prisma.FieldRef<"SyncJob", 'Json'>
   readonly error: Prisma.FieldRef<"SyncJob", 'String'>
   readonly startedAt: Prisma.FieldRef<"SyncJob", 'DateTime'>
@@ -1081,10 +905,6 @@ export type SyncJobFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
-  /**
    * Filter, which SyncJob to fetch.
    */
   where: Prisma.SyncJobWhereUniqueInput
@@ -1103,10 +923,6 @@ export type SyncJobFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
-  /**
    * Filter, which SyncJob to fetch.
    */
   where: Prisma.SyncJobWhereUniqueInput
@@ -1124,10 +940,6 @@ export type SyncJobFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the SyncJob
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
   /**
    * Filter, which SyncJob to fetch.
    */
@@ -1177,10 +989,6 @@ export type SyncJobFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
-  /**
    * Filter, which SyncJob to fetch.
    */
   where?: Prisma.SyncJobWhereInput
@@ -1229,10 +1037,6 @@ export type SyncJobFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
-  /**
    * Filter, which SyncJobs to fetch.
    */
   where?: Prisma.SyncJobWhereInput
@@ -1276,10 +1080,6 @@ export type SyncJobCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
-  /**
    * The data needed to create a SyncJob.
    */
   data: Prisma.XOR<Prisma.SyncJobCreateInput, Prisma.SyncJobUncheckedCreateInput>
@@ -1313,10 +1113,6 @@ export type SyncJobCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    */
   data: Prisma.SyncJobCreateManyInput | Prisma.SyncJobCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1331,10 +1127,6 @@ export type SyncJobUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the SyncJob
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
   /**
    * The data needed to update a SyncJob.
    */
@@ -1387,10 +1179,6 @@ export type SyncJobUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many SyncJobs to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1405,10 +1193,6 @@ export type SyncJobUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the SyncJob
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
   /**
    * The filter to search for the SyncJob to update in case it exists.
    */
@@ -1435,10 +1219,6 @@ export type SyncJobDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the SyncJob
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
   /**
    * Filter which SyncJob to delete.
    */
@@ -1471,8 +1251,4 @@ export type SyncJobDefaultArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the SyncJob
    */
   omit?: Prisma.SyncJobOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SyncJobInclude<ExtArgs> | null
 }

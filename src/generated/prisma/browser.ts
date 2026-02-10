@@ -18,15 +18,10 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
- * Model Organization
+ * Model AppSettings
  * 
  */
-export type Organization = Prisma.OrganizationModel
-/**
- * Model User
- * 
- */
-export type User = Prisma.UserModel
+export type AppSettings = Prisma.AppSettingsModel
 /**
  * Model Repository
  * 
@@ -38,15 +33,15 @@ export type Repository = Prisma.RepositoryModel
  */
 export type PullRequest = Prisma.PullRequestModel
 /**
- * Model PullRequestReview
+ * Model Review
  * 
  */
-export type PullRequestReview = Prisma.PullRequestReviewModel
+export type Review = Prisma.ReviewModel
 /**
- * Model PullRequestComment
+ * Model Comment
  * 
  */
-export type PullRequestComment = Prisma.PullRequestCommentModel
+export type Comment = Prisma.CommentModel
 /**
  * Model SyncJob
  * 
