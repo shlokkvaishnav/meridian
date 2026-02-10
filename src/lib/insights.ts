@@ -31,11 +31,19 @@ export async function generateInsights(): Promise<Insight[]> {
   const insights: Insight[] = [];
 
   // Fetch data needed for analysis
+  // Fetch data needed for analysis (optimized: last 30 days only)
+  const now = new Date();
+  const startDate = subDays(now, 30);
+
   const pullRequests = await db.pullRequest.findMany({
+    where: {
+      createdAt: { gte: startDate },
+    },
     include: {
       repository: true,
       reviews: true,
     },
+    orderBy: { createdAt: 'desc' },
   });
 
   // Early return if no data
@@ -43,10 +51,7 @@ export async function generateInsights(): Promise<Insight[]> {
     return insights;
   }
 
-  const now = new Date();
-  const recentPRs = pullRequests.filter(
-    (pr) => differenceInDays(now, pr.createdAt) <= 30
-  );
+  const recentPRs = pullRequests;
 
   // Run all insight rules (each is safe with empty arrays)
   try {
@@ -54,7 +59,7 @@ export async function generateInsights(): Promise<Insight[]> {
     insights.push(...detectCycleTimeIssues(recentPRs));
     insights.push(...detectWorkloadImbalance(recentPRs));
     insights.push(...detectBurnoutSignals(recentPRs));
-    insights.push(...detectStalePRs(pullRequests));
+    insights.push(...detectStalePRs(recentPRs));
     insights.push(...detectReviewCapacityIssues(recentPRs));
     insights.push(...detectPositivePatterns(recentPRs));
   } catch (error) {

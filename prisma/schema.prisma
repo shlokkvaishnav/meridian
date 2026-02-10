@@ -91,10 +91,12 @@ model PullRequest {
   comments        Comment[]
   
   @@unique([repositoryId, number])
+  @@index([repositoryId])
   @@index([repositoryId, createdAt])
-  @@index([authorLogin, createdAt])
-  @@index([state, mergedAt])
-  @@index([githubPrId])
+  @@index([authorLogin])
+  @@index([state])
+  @@index([mergedAt])
+  @@index([updatedAt])
 }
 
 enum PRState {
@@ -121,7 +123,8 @@ model Review {
   createdAt       DateTime @default(now())
   
   @@index([pullRequestId])
-  @@index([reviewerLogin, submittedAt])
+  @@index([reviewerLogin])
+  @@index([submittedAt])
 }
 
 enum ReviewState {

@@ -17,42 +17,59 @@ export default async function DashboardPage() {
     redirect('/setup');
   }
 
-  const repositories = await db.repository.findMany({
-    where: { isActive: true },
-    orderBy: { lastSyncedAt: 'desc' },
-    include: {
-      _count: {
-        select: { pullRequests: true },
-      },
-    },
-  });
-
-  const recentPRs = await db.pullRequest.findMany({
-    take: 10,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      repository: {
-        select: {
-          name: true,
-          fullName: true,
+  // Parallelize independent data fetching
+  const [
+    repositories,
+    recentPRs,
+    totalPRs,
+    mergedPRs,
+    openPRs,
+    contributors,
+    timeSeriesData,
+    insights
+  ] = await Promise.all([
+    // 1. Repositories
+    db.repository.findMany({
+      where: { isActive: true },
+      orderBy: { lastSyncedAt: 'desc' },
+      include: {
+        _count: {
+          select: { pullRequests: true },
         },
       },
-    },
-  });
+    }),
 
-  const totalPRs = await db.pullRequest.count();
-  const mergedPRs = await db.pullRequest.count({ where: { state: 'MERGED' } });
-  const openPRs = await db.pullRequest.count({ where: { state: 'OPEN' } });
+    // 2. Recent PRs
+    db.pullRequest.findMany({
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        repository: {
+          select: {
+            name: true,
+            fullName: true,
+          },
+        },
+      },
+    }),
 
-  const contributors = await getTopContributors(10);
-  const timeSeriesData = await getTimeSeriesData(30);
+    // 3. Stats counts
+    db.pullRequest.count(),
+    db.pullRequest.count({ where: { state: 'MERGED' } }),
+    db.pullRequest.count({ where: { state: 'OPEN' } }),
 
-  let insights: Awaited<ReturnType<typeof generateInsights>> = [];
-  try {
-    insights = await generateInsights();
-  } catch (e) {
-    console.error('Failed to generate insights for dashboard:', e);
-  }
+    // 4. Contributors
+    getTopContributors(10),
+
+    // 5. Charts
+    getTimeSeriesData(30),
+
+    // 6. Insights
+    generateInsights().catch((e) => {
+      console.error('Failed to generate insights for dashboard:', e);
+      return [];
+    }),
+  ]);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative">
