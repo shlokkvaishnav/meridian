@@ -1,35 +1,12 @@
 import { db } from './db';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 
-export interface ContributorStats {
-  login: string;
-  avatarUrl: string | null;
-  prsOpened: number;
-  prsMerged: number;
-  reviewsGiven: number;
-  linesAdded: number;
-  linesDeleted: number;
-  avgTimeToMerge: number | null; // minutes
-}
+// Re-export types and utilities for backward compatibility
+export type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from './metricsTypes';
+export { formatDuration } from './metricsTypes';
 
-export interface RepositoryMetrics {
-  repositoryId: string;
-  repositoryName: string;
-  totalPRs: number;
-  mergedPRs: number;
-  openPRs: number;
-  avgCycleTime: number | null; // minutes
-  p50CycleTime: number | null;
-  p75CycleTime: number | null;
-  avgTimeToFirstReview: number | null;
-}
-
-export interface TimeSeriesDataPoint {
-  date: string;
-  prsOpened: number;
-  prsMerged: number;
-  avgCycleTime: number | null;
-}
+// Import types for use in this file
+import type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from './metricsTypes';
 
 /**
  * Get top contributors by PR count
@@ -241,27 +218,3 @@ export async function getTimeSeriesData(days: number = 30): Promise<TimeSeriesDa
   return Array.from(dataByDate.values());
 }
 
-/**
- * Format minutes to human-readable string
- */
-export function formatDuration(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes}m`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  if (hours < 24) {
-    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-  }
-
-  const days = Math.floor(hours / 24);
-  const remainingHours = hours % 24;
-
-  if (remainingHours > 0) {
-    return `${days}d ${remainingHours}h`;
-  }
-
-  return `${days}d`;
-}

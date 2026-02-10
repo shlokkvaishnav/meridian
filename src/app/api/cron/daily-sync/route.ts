@@ -121,7 +121,13 @@ export async function GET(request: NextRequest) {
                     ...review,
                     pullRequestId: dbPR.id,
                   },
-                  update: review,
+                  update: {
+                    reviewerLogin: review.reviewerLogin,
+                    reviewerAvatarUrl: review.reviewerAvatarUrl,
+                    state: review.state,
+                    body: review.body,
+                    submittedAt: review.submittedAt,
+                  },
                 });
                 totalReviews++;
               }

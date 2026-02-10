@@ -4,42 +4,49 @@ import { db } from '@/lib/db';
 
 /**
  * Generate and store AI/rule-based insights
+ * Cleans up old insights before generating new ones
  */
 export async function POST() {
   try {
     // Generate insights
     const insights = await generateInsights();
 
+    // Clean up old insights before inserting new ones (keep only latest batch)
+    await db.insight.deleteMany({
+      where: {
+        isDismissed: false,
+        isRead: false,
+      },
+    });
+
     // Store insights in database
-    const storedInsights = await Promise.all(
-      insights.map((insight) =>
-        db.insight.create({
+    if (insights.length > 0) {
+      await db.insight.createMany({
+        data: insights.map((insight) => ({
+          title: insight.title,
+          description: insight.description,
+          type: insight.type,
+          category: insight.category,
+          priority: insight.priority,
           data: {
-            title: insight.title,
-            description: insight.description,
-            type: insight.type,
-            category: insight.category,
-            priority: insight.priority,
-            data: {
-              action: insight.action,
-              metric: insight.metric,
-              affectedContributors: insight.affectedContributors,
-            },
-            generatedAt: new Date(),
+            action: insight.action,
+            metric: insight.metric,
+            affectedContributors: insight.affectedContributors,
           },
-        })
-      )
-    );
+          generatedAt: new Date(),
+        })),
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      count: storedInsights.length,
+      count: insights.length,
       insights: insights,
     });
   } catch (error: any) {
     console.error('Insights generation error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate insights' },
+      { error: error.message || 'Failed to generate insights' },
       { status: 500 }
     );
   }
@@ -51,7 +58,8 @@ export async function POST() {
 export async function GET() {
   try {
     const insights = await db.insight.findMany({
-      orderBy: { generatedAt: 'desc' },
+      where: { isDismissed: false },
+      orderBy: [{ priority: 'desc' }, { generatedAt: 'desc' }],
       take: 20,
     });
 

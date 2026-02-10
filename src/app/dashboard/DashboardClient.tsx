@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw, GitPullRequest, GitMerge, GitBranch, Folder } from 'lucide-react';
+import { RefreshCw, GitPullRequest, GitMerge, GitBranch, Folder, ArrowUpRight } from 'lucide-react';
 
 interface Repository {
   id: string;
@@ -53,7 +53,6 @@ export default function DashboardClient({ repositories, recentPRs, stats, hasDat
         throw new Error(data.error || 'Sync failed');
       }
 
-      // Reload page to show new data
       window.location.reload();
     } catch (error: any) {
       setSyncError(error.message);
@@ -64,24 +63,26 @@ export default function DashboardClient({ repositories, recentPRs, stats, hasDat
 
   if (!hasData) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-16">
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-12">
-          <GitBranch className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">
-            No Data Yet
+      <div className="max-w-md mx-auto text-center py-20 animate-fade-in-up">
+        <div className="glass-card noise p-12">
+          <div className="h-14 w-14 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-5 animate-float">
+            <GitBranch className="h-7 w-7 text-violet-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-white mb-2 tracking-tight">
+            No data yet
           </h2>
-          <p className="text-slate-400 mb-6">
-            Start by syncing your GitHub repositories
+          <p className="text-sm text-slate-400 mb-8 leading-relaxed">
+            Sync your GitHub repositories to start tracking metrics
           </p>
-          
+
           <button
             onClick={handleSync}
             disabled={syncing}
-            className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold transition-all disabled:opacity-50 inline-flex items-center gap-2"
+            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-all duration-300 disabled:opacity-40 inline-flex items-center gap-2 shadow-glow hover:shadow-glow-lg"
           >
             {syncing ? (
               <>
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                 Syncing...
               </>
             ) : (
@@ -93,75 +94,97 @@ export default function DashboardClient({ repositories, recentPRs, stats, hasDat
           </button>
 
           {syncError && (
-            <p className="text-red-400 text-sm mt-4">{syncError}</p>
+            <p className="text-red-400 text-xs mt-4">{syncError}</p>
           )}
         </div>
       </div>
     );
   }
 
+  const statItems = [
+    {
+      label: 'Total PRs',
+      value: stats.total,
+      icon: GitPullRequest,
+      accent: 'text-violet-400',
+      bar: 'bg-violet-500',
+    },
+    {
+      label: 'Merged',
+      value: stats.merged,
+      icon: GitMerge,
+      accent: 'text-emerald-400',
+      bar: 'bg-emerald-500',
+    },
+    {
+      label: 'Open',
+      value: stats.open,
+      icon: GitBranch,
+      accent: 'text-sky-400',
+      bar: 'bg-sky-500',
+    },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Total PRs</p>
-              <p className="text-3xl font-bold text-white">{stats.total}</p>
-            </div>
-            <GitPullRequest className="h-8 w-8 text-purple-400" />
-          </div>
-        </div>
+      <div className="grid md:grid-cols-3 gap-4">
+        {statItems.map((item, i) => (
+          <div
+            key={item.label}
+            className={`glass-card noise p-5 relative overflow-hidden animate-fade-in-up stagger-${i + 1}`}
+          >
+            {/* Accent bar */}
+            <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full ${item.bar} opacity-60`} />
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Merged</p>
-              <p className="text-3xl font-bold text-white">{stats.merged}</p>
+            <div className="flex items-center justify-between pl-3">
+              <div>
+                <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">{item.label}</p>
+                <p className="text-3xl font-semibold text-white font-mono font-mono-num">{item.value}</p>
+              </div>
+              <item.icon className={`h-7 w-7 ${item.accent} opacity-50`} />
             </div>
-            <GitMerge className="h-8 w-8 text-green-400" />
           </div>
-        </div>
-
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Open</p>
-              <p className="text-3xl font-bold text-white">{stats.open}</p>
-            </div>
-            <GitBranch className="h-8 w-8 text-blue-400" />
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Sync Button */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Repositories</h2>
+      {/* Repositories Header */}
+      <div className="flex justify-between items-center animate-fade-in-up stagger-4">
+        <h2 className="text-lg font-semibold text-white tracking-tight">Repositories</h2>
         <button
           onClick={handleSync}
           disabled={syncing}
-          className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all disabled:opacity-50 inline-flex items-center gap-2"
+          className="px-4 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 disabled:opacity-40 inline-flex items-center gap-2"
         >
-          <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-          {syncing ? 'Syncing...' : 'Sync Now'}
+          <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync'}
         </button>
       </div>
 
-      {/* Repositories List */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {repositories.map((repo) => (
+      {syncError && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3 text-red-400 text-xs">
+          {syncError}
+        </div>
+      )}
+
+      {/* Repositories Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {repositories.map((repo, i) => (
           <div
             key={repo.id}
-            className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all"
+            className={`glass-card noise p-5 group animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}
           >
             <div className="flex items-start gap-3">
-              <Folder className="h-5 w-5 text-purple-400 flex-shrink-0 mt-1" />
+              <div className="h-8 w-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Folder className="h-4 w-4 text-violet-400" />
+              </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-semibold truncate">{repo.name}</h3>
-                <p className="text-slate-400 text-sm truncate">{repo.fullName}</p>
-                <p className="text-slate-500 text-xs mt-2">
-                  {repo._count.pullRequests} PRs
+                <h3 className="text-sm font-medium text-white truncate group-hover:text-violet-300 transition-colors">
+                  {repo.name}
+                </h3>
+                <p className="text-xs text-slate-500 truncate mt-0.5">{repo.fullName}</p>
+                <p className="text-xs text-slate-400 mt-2 font-mono">
+                  {repo._count.pullRequests} <span className="text-slate-500">PRs</span>
                 </p>
               </div>
             </div>
@@ -171,28 +194,31 @@ export default function DashboardClient({ repositories, recentPRs, stats, hasDat
 
       {/* Recent PRs */}
       {recentPRs.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-4">Recent Pull Requests</h2>
-          <div className="space-y-2">
+        <div className="animate-fade-in-up stagger-5">
+          <h2 className="text-lg font-semibold text-white mb-4 tracking-tight">Recent Pull Requests</h2>
+          <div className="space-y-1.5">
             {recentPRs.map((pr) => (
               <div
                 key={pr.id}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-all"
+                className="glass-card noise !rounded-xl p-4 !bg-white/[0.02] hover:!bg-white/[0.04]"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">{pr.title}</p>
-                    <p className="text-slate-400 text-sm mt-1">
-                      {pr.repository.name} #{pr.number} by {pr.authorLogin}
+                    <p className="text-sm text-white truncate">{pr.title}</p>
+                    <p className="text-xs text-slate-500 mt-1 font-mono">
+                      {pr.repository.name}
+                      <span className="text-slate-600"> #{pr.number}</span>
+                      <span className="text-slate-600"> · </span>
+                      {pr.authorLogin}
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider flex-shrink-0 ${
                       pr.state === 'MERGED'
-                        ? 'bg-purple-500/20 text-purple-400'
+                        ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
                         : pr.state === 'OPEN'
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-slate-500/20 text-slate-400'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
                     }`}
                   >
                     {pr.state}

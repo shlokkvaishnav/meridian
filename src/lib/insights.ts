@@ -38,18 +38,28 @@ export async function generateInsights(): Promise<Insight[]> {
     },
   });
 
+  // Early return if no data
+  if (pullRequests.length === 0) {
+    return insights;
+  }
+
+  const now = new Date();
   const recentPRs = pullRequests.filter(
-    (pr) => differenceInDays(new Date(), pr.createdAt) <= 30
+    (pr) => differenceInDays(now, pr.createdAt) <= 30
   );
 
-  // Run all insight rules
-  insights.push(...detectReviewBottlenecks(recentPRs));
-  insights.push(...detectCycleTimeIssues(recentPRs));
-  insights.push(...detectWorkloadImbalance(recentPRs));
-  insights.push(...detectBurnoutSignals(recentPRs));
-  insights.push(...detectStalePRs(pullRequests));
-  insights.push(...detectReviewCapacityIssues(recentPRs));
-  insights.push(...detectPositivePatterns(recentPRs));
+  // Run all insight rules (each is safe with empty arrays)
+  try {
+    insights.push(...detectReviewBottlenecks(recentPRs));
+    insights.push(...detectCycleTimeIssues(recentPRs));
+    insights.push(...detectWorkloadImbalance(recentPRs));
+    insights.push(...detectBurnoutSignals(recentPRs));
+    insights.push(...detectStalePRs(pullRequests));
+    insights.push(...detectReviewCapacityIssues(recentPRs));
+    insights.push(...detectPositivePatterns(recentPRs));
+  } catch (error) {
+    console.error('Error running insight rules:', error);
+  }
 
   // Sort by priority
   return insights.sort((a, b) => b.priority - a.priority);
@@ -60,13 +70,13 @@ export async function generateInsights(): Promise<Insight[]> {
  */
 function detectReviewBottlenecks(prs: any[]): Insight[] {
   const insights: Insight[] = [];
+  if (prs.length === 0) return insights;
   
   const openPRs = prs.filter((pr) => pr.state === 'OPEN');
-  const avgTimeToFirstReview =
-    prs
-      .filter((pr) => pr.timeToFirstReview)
-      .reduce((sum, pr) => sum + pr.timeToFirstReview!, 0) /
-      Math.max(1, prs.filter((pr) => pr.timeToFirstReview).length) || 0;
+  const prsWithReviewTime = prs.filter((pr) => pr.timeToFirstReview != null && pr.timeToFirstReview > 0);
+  const avgTimeToFirstReview = prsWithReviewTime.length > 0
+    ? prsWithReviewTime.reduce((sum, pr) => sum + pr.timeToFirstReview!, 0) / prsWithReviewTime.length
+    : 0;
 
   // Check for PRs waiting much longer than average
   const slowReviewPRs = openPRs.filter(

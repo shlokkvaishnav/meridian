@@ -90,15 +90,16 @@ export class GitHubClient {
       body: pr.body,
       state: pr.state === 'open' ? 'OPEN' : pr.merged_at ? 'MERGED' : 'CLOSED',
       authorLogin: pr.user?.login || 'unknown',
-      authorAvatarUrl: pr.user?.avatar_url,
+      authorAvatarUrl: pr.user?.avatar_url || null,
       createdAt: new Date(pr.created_at),
       updatedAt: new Date(pr.updated_at),
       closedAt: pr.closed_at ? new Date(pr.closed_at) : null,
       mergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
-      linesAdded: pr.additions || 0,
-      linesDeleted: pr.deletions || 0,
-      filesChanged: pr.changed_files || 0,
-      commitsCount: pr.commits || 0,
+      // These fields may be undefined from list endpoint (only available on single PR detail)
+      linesAdded: (pr as any).additions ?? 0,
+      linesDeleted: (pr as any).deletions ?? 0,
+      filesChanged: (pr as any).changed_files ?? 0,
+      commitsCount: (pr as any).commits ?? 0,
     }));
   }
 
@@ -116,14 +117,24 @@ export class GitHubClient {
       }
     );
 
-    return reviews.map((review) => ({
-      githubReviewId: review.id,
-      reviewerLogin: review.user?.login || 'unknown',
-      reviewerAvatarUrl: review.user?.avatar_url,
-      state: review.state as any, // APPROVED, CHANGES_REQUESTED, COMMENTED, DISMISSED
-      body: review.body,
-      submittedAt: new Date(review.submitted_at!),
-    }));
+    // Map GitHub review states to our ReviewState enum
+    const validStates: Record<string, string> = {
+      'APPROVED': 'APPROVED',
+      'CHANGES_REQUESTED': 'CHANGES_REQUESTED',
+      'COMMENTED': 'COMMENTED',
+      'DISMISSED': 'DISMISSED',
+    };
+
+    return reviews
+      .filter((review) => review.submitted_at && validStates[review.state])
+      .map((review) => ({
+        githubReviewId: review.id,
+        reviewerLogin: review.user?.login || 'unknown',
+        reviewerAvatarUrl: review.user?.avatar_url || null,
+        state: validStates[review.state] as 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED' | 'DISMISSED',
+        body: review.body,
+        submittedAt: new Date(review.submitted_at!),
+      }));
   }
 
   /**

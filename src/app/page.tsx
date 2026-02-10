@@ -1,21 +1,25 @@
 import Link from 'next/link';
-import { Github, TrendingUp, Zap, Brain } from 'lucide-react';
+import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity } from 'lucide-react';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-violet-500/[0.07] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-teal-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
+
       {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-white" />
+      <header className="relative z-10 border-b border-white/[0.06]">
+        <div className="container mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+              <Activity className="h-4 w-4 text-violet-400" />
             </div>
-            <span className="text-xl font-bold text-white">Meridian</span>
+            <span className="text-lg font-semibold text-white tracking-tight">Meridian</span>
           </div>
-          <Link 
-            href="/setup" 
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all"
+          <Link
+            href="/setup"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300"
           >
             Get Started
           </Link>
@@ -23,125 +27,120 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Your GitHub Activity,
-            <br />
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Analyzed by AI
+      <main className="relative z-10 container mx-auto px-6 pt-24 pb-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/[0.06] text-violet-300 text-xs font-medium mb-8 tracking-wide uppercase">
+              <div className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+              Engineering Intelligence
+            </div>
+          </div>
+
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight animate-fade-in-up stagger-1">
+            Your GitHub,{' '}
+            <span className="bg-gradient-to-r from-violet-400 via-violet-300 to-slate-400 bg-clip-text text-transparent">
+              decoded
             </span>
           </h1>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-2xl mx-auto">
-            Transform Git commits and pull requests into actionable insights. 
-            Track metrics, detect patterns, and improve your engineering workflow—all in one beautiful dashboard.
+
+          <p className="text-lg text-slate-400 mb-12 max-w-xl mx-auto leading-relaxed animate-fade-in-up stagger-2">
+            Transform commits and pull requests into clear, actionable insights.
+            Track what matters. Ship with confidence.
           </p>
 
-          <Link 
-            href="/setup"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold text-lg transition-all shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60"
-          >
-            <Github className="h-5 w-5" />
-            Start Analyzing Your Repos
-          </Link>
+          <div className="flex items-center justify-center gap-4 animate-fade-in-up stagger-3">
+            <Link
+              href="/setup"
+              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-white font-medium bg-violet-600 hover:bg-violet-500 transition-all duration-300 shadow-glow hover:shadow-glow-lg"
+            >
+              <Github className="h-4 w-4" />
+              Start Analyzing
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mt-24 max-w-5xl mx-auto">
-          <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
-            <div className="h-12 w-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4">
-              <TrendingUp className="h-6 w-6 text-purple-400" />
+        <div className="grid md:grid-cols-3 gap-5 mt-28 max-w-4xl mx-auto">
+          {[
+            {
+              icon: TrendingUp,
+              title: 'Track Metrics',
+              desc: 'Cycle time, review velocity, and PR throughput — visualized beautifully.',
+              color: 'violet',
+            },
+            {
+              icon: Brain,
+              title: 'Smart Insights',
+              desc: 'Pattern detection backed by real data. No noise, no hallucinations.',
+              color: 'teal',
+            },
+            {
+              icon: Zap,
+              title: 'Instant Setup',
+              desc: 'Paste your token, sync repos. Under 60 seconds to your first dashboard.',
+              color: 'amber',
+            },
+          ].map((feature, i) => (
+            <div
+              key={feature.title}
+              className={`glass-card noise p-6 animate-fade-in-up stagger-${i + 4}`}
+            >
+              <div className={`h-10 w-10 rounded-xl flex items-center justify-center mb-4 ${
+                feature.color === 'violet'
+                  ? 'bg-violet-500/10 text-violet-400'
+                  : feature.color === 'teal'
+                  ? 'bg-teal-500/10 text-teal-400'
+                  : 'bg-amber-500/10 text-amber-400'
+              }`}>
+                <feature.icon className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-semibold text-white mb-1.5 tracking-tight">
+                {feature.title}
+              </h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {feature.desc}
+              </p>
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Track Metrics
-            </h3>
-            <p className="text-slate-400">
-              Monitor cycle time, review velocity, and PR throughput with beautiful charts.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
-            <div className="h-12 w-12 rounded-xl bg-pink-500/20 flex items-center justify-center mb-4">
-              <Brain className="h-6 w-6 text-pink-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              AI Insights
-            </h3>
-            <p className="text-slate-400">
-              Get intelligent recommendations backed by real metrics—no hallucinations.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
-            <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4">
-              <Zap className="h-6 w-6 text-blue-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Simple Setup
-            </h3>
-            <p className="text-slate-400">
-              Just paste your GitHub token and start syncing. No complex OAuth flows.
-            </p>
-          </div>
+          ))}
         </div>
 
-        {/* How It Works */}
-        <div className="mt-24 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            How It Works
+        {/* How It Works — Horizontal Steps */}
+        <div className="mt-28 max-w-3xl mx-auto animate-fade-in-up stagger-6">
+          <h2 className="text-2xl font-semibold text-white text-center mb-14 tracking-tight">
+            Three steps to clarity
           </h2>
-          
-          <div className="space-y-6">
-            <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-semibold">
-                1
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-1">
-                  Connect GitHub
-                </h4>
-                <p className="text-slate-400">
-                  Create a personal access token with repo read permissions
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-semibold">
-                2
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-1">
-                  Sync Your Data
-                </h4>
-                <p className="text-slate-400">
-                  Meridian fetches your PRs, commits, and reviews
-                </p>
-              </div>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden md:block absolute top-5 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-violet-500/30 via-violet-500/20 to-violet-500/30" />
 
-            <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-semibold">
-                3
+            {[
+              { num: '01', title: 'Connect', desc: 'Create a GitHub token with repo read access' },
+              { num: '02', title: 'Sync', desc: 'Meridian pulls your PRs, reviews, and commits' },
+              { num: '03', title: 'Discover', desc: 'View metrics and intelligent recommendations' },
+            ].map((step, i) => (
+              <div key={step.num} className="text-center relative">
+                <div className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-sm font-mono font-medium mb-4 relative z-10">
+                  {step.num}
+                </div>
+                <h4 className="text-white font-medium mb-1.5">{step.title}</h4>
+                <p className="text-sm text-slate-400">{step.desc}</p>
               </div>
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-1">
-                  Get Insights
-                </h4>
-                <p className="text-slate-400">
-                  View metrics and AI-powered recommendations
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 mt-24">
-        <div className="container mx-auto px-4 py-8 text-center text-slate-400">
-          <p>Built with Next.js, Supabase, and Claude AI</p>
+      <footer className="relative z-10 border-t border-white/[0.06] mt-12">
+        <div className="container mx-auto px-6 py-8 flex items-center justify-between">
+          <p className="text-xs text-slate-500">
+            Built with Next.js, Supabase & Prisma
+          </p>
+          <p className="text-xs text-slate-500">
+            Meridian
+          </p>
         </div>
       </footer>
     </div>

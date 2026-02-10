@@ -1,10 +1,38 @@
 'use client';
 
-import { TimeSeriesDataPoint } from '@/lib/metrics';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { TimeSeriesDataPoint } from '@/lib/metricsTypes';
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid, Area, AreaChart
+} from 'recharts';
+import { TrendingUp } from 'lucide-react';
 
 interface MetricsChartProps {
   data: TimeSeriesDataPoint[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+
+  const date = new Date(label);
+  const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  return (
+    <div className="bg-[#141418] border border-white/[0.08] rounded-xl px-4 py-3 shadow-xl">
+      <p className="text-xs text-slate-400 mb-2 font-mono">{formatted}</p>
+      {payload.map((entry: any, i: number) => (
+        <div key={i} className="flex items-center gap-2 text-xs">
+          <div
+            className="h-2 w-2 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
+          <span className="text-slate-300">{entry.name}</span>
+          <span className="text-white font-mono font-semibold ml-auto">{entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function MetricsChart({ data }: MetricsChartProps) {
@@ -13,59 +41,85 @@ export default function MetricsChart({ data }: MetricsChartProps) {
   }
 
   return (
-    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Activity Trends (Last 30 Days)</h2>
+    <div className="glass-card noise p-6 animate-fade-in-up">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-violet-400" />
+          <h2 className="text-base font-semibold text-white tracking-tight">Activity Trends</h2>
+        </div>
+        <span className="text-xs text-slate-500 font-mono">30 days</span>
+      </div>
 
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="gradientOpened" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.15} />
+                <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="gradientMerged" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity={0.1} />
+                <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.03)"
+              vertical={false}
+            />
             <XAxis
               dataKey="date"
-              stroke="#94a3b8"
-              fontSize={12}
+              stroke="rgba(255,255,255,0.1)"
+              fontSize={10}
+              tickLine={false}
+              axisLine={false}
+              dy={8}
               tickFormatter={(value) => {
                 const date = new Date(value);
                 return `${date.getMonth() + 1}/${date.getDate()}`;
               }}
             />
-            <YAxis stroke="#94a3b8" fontSize={12} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#1e293b',
-                border: '1px solid #334155',
-                borderRadius: '8px',
-              }}
-              labelStyle={{ color: '#e2e8f0' }}
+            <YAxis
+              stroke="rgba(255,255,255,0.1)"
+              fontSize={10}
+              tickLine={false}
+              axisLine={false}
+              dx={-8}
             />
-            <Line
+            <Tooltip content={<CustomTooltip />} />
+            <Area
               type="monotone"
               dataKey="prsOpened"
-              stroke="#a855f7"
-              strokeWidth={2}
-              name="PRs Opened"
+              stroke="#8b5cf6"
+              strokeWidth={1.5}
+              fill="url(#gradientOpened)"
+              name="Opened"
               dot={false}
+              activeDot={{ r: 3, fill: '#8b5cf6', stroke: '#0a0a0f', strokeWidth: 2 }}
             />
-            <Line
+            <Area
               type="monotone"
               dataKey="prsMerged"
-              stroke="#22c55e"
-              strokeWidth={2}
-              name="PRs Merged"
+              stroke="#10b981"
+              strokeWidth={1.5}
+              fill="url(#gradientMerged)"
+              name="Merged"
               dot={false}
+              activeDot={{ r: 3, fill: '#10b981', stroke: '#0a0a0f', strokeWidth: 2 }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
 
       <div className="flex justify-center gap-6 mt-4">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-purple-500"></div>
-          <span className="text-sm text-slate-400">PRs Opened</span>
+          <div className="h-1.5 w-6 rounded-full bg-violet-500" />
+          <span className="text-[11px] text-slate-400">Opened</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-green-500"></div>
-          <span className="text-sm text-slate-400">PRs Merged</span>
+          <div className="h-1.5 w-6 rounded-full bg-emerald-500" />
+          <span className="text-[11px] text-slate-400">Merged</span>
         </div>
       </div>
     </div>

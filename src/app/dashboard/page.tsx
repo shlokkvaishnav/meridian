@@ -7,16 +7,16 @@ import ContributorLeaderboard from '@/components/ContributorLeaderboard';
 import MetricsChart from '@/components/MetricsChart';
 import InsightsDisplay from '@/components/InsightsDisplay';
 import { generateInsights } from '@/lib/insights';
+import { Activity, Clock } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function DashboardPage() {
-  // Check if setup is complete
   const settings = await db.appSettings.findFirst();
-  
+
   if (!settings) {
     redirect('/setup');
   }
 
-  // Fetch repositories
   const repositories = await db.repository.findMany({
     where: { isActive: true },
     orderBy: { lastSyncedAt: 'desc' },
@@ -27,7 +27,6 @@ export default async function DashboardPage() {
     },
   });
 
-  // Fetch recent PRs
   const recentPRs = await db.pullRequest.findMany({
     take: 10,
     orderBy: { createdAt: 'desc' },
@@ -41,56 +40,64 @@ export default async function DashboardPage() {
     },
   });
 
-  // Calculate basic metrics
   const totalPRs = await db.pullRequest.count();
-  const mergedPRs = await db.pullRequest.count({
-    where: { state: 'MERGED' },
-  });
-  const openPRs = await db.pullRequest.count({
-    where: { state: 'OPEN' },
-  });
+  const mergedPRs = await db.pullRequest.count({ where: { state: 'MERGED' } });
+  const openPRs = await db.pullRequest.count({ where: { state: 'OPEN' } });
 
-  // Get contributor stats and time-series data
   const contributors = await getTopContributors(10);
   const timeSeriesData = await getTimeSeriesData(30);
-  
-  // Generate insights
-  const insights = await generateInsights();
+
+  let insights: Awaited<ReturnType<typeof generateInsights>> = [];
+  try {
+    insights = await generateInsights();
+  } catch (e) {
+    console.error('Failed to generate insights for dashboard:', e);
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-[#0a0a0f] relative">
+      {/* Ambient glow */}
+      <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-violet-500/[0.04] rounded-full blur-[120px] pointer-events-none" />
+
       {/* Header */}
-      <header className="border-b border-white/10 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-white">Meridian</h1>
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              {settings.githubLogin && (
-                <>
+      <header className="relative z-10 border-b border-white/[0.06] sticky top-0 bg-[#0a0a0f]/80 backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-5">
+            <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+              <div className="h-7 w-7 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+                <Activity className="h-3.5 w-3.5 text-violet-400" />
+              </div>
+              <span className="text-base font-semibold text-white tracking-tight">Meridian</span>
+            </Link>
+
+            {settings.githubLogin && (
+              <div className="flex items-center gap-2 pl-5 border-l border-white/[0.06]">
+                {settings.avatarUrl && (
                   <img
-                    src={settings.avatarUrl || ''}
+                    src={settings.avatarUrl}
                     alt={settings.githubLogin}
-                    className="h-6 w-6 rounded-full"
+                    className="h-6 w-6 rounded-full ring-1 ring-white/10"
                   />
-                  <span>{settings.githubLogin}</span>
-                </>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            {settings.lastSyncedAt && (
-              <span>
-                Last synced {formatDistanceToNow(new Date(settings.lastSyncedAt), { addSuffix: true })}
-              </span>
+                )}
+                <span className="text-sm text-slate-400">{settings.githubLogin}</span>
+              </div>
             )}
           </div>
+
+          {settings.lastSyncedAt && (
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <Clock className="h-3 w-3" />
+              <span className="font-mono">
+                {formatDistanceToNow(new Date(settings.lastSyncedAt), { addSuffix: true })}
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        <DashboardClient 
+      <main className="relative z-10 container mx-auto px-6 py-8 space-y-8">
+        <DashboardClient
           repositories={repositories}
           recentPRs={recentPRs}
           stats={{
@@ -101,16 +108,10 @@ export default async function DashboardPage() {
           hasData={repositories.length > 0}
         />
 
-        {/* Additional sections only shown when there's data */}
         {repositories.length > 0 && (
           <>
-            {/* AI Insights */}
             <InsightsDisplay initialInsights={insights} />
-
-            {/* Metrics Chart */}
             <MetricsChart data={timeSeriesData} />
-
-            {/* Contributor Leaderboard */}
             <ContributorLeaderboard contributors={contributors} />
           </>
         )}

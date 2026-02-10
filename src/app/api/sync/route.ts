@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { GitHubClient } from '@/lib/github';
 
+// Maximum repos and PRs per sync to avoid timeout
+const MAX_REPOS = 10;
+const MAX_PRS_PER_REPO = 50;
+
 export async function POST(request: NextRequest) {
   try {
     // Get GitHub client
@@ -20,6 +24,22 @@ export async function POST(request: NextRequest) {
       // Step 1: Fetch and store repositories
       console.log('Fetching repositories...');
       const repos = await github.fetchUserRepos();
+
+      if (repos.length === 0) {
+        // Complete the sync job with 0 repos
+        await db.syncJob.update({
+          where: { id: syncJob.id },
+          data: {
+            status: 'COMPLETED',
+            completedAt: new Date(),
+            progress: { repos: 0, prs: 0 },
+          },
+        });
+        return NextResponse.json({
+          success: true,
+          stats: { repositories: 0, pullRequests: 0 },
+        });
+      }
       
       for (const repo of repos) {
         await db.repository.upsert({
@@ -85,7 +105,7 @@ export async function POST(request: NextRequest) {
 
             totalPRs++;
 
-            // Fetch and store reviews
+            // Fetch and store reviews (skip if too many PRs to avoid rate limiting)
             try {
               const reviews = await github.fetchReviews(owner, repoName, pr.number);
               
@@ -96,7 +116,13 @@ export async function POST(request: NextRequest) {
                     ...review,
                     pullRequestId: dbPR.id,
                   },
-                  update: review,
+                  update: {
+                    reviewerLogin: review.reviewerLogin,
+                    reviewerAvatarUrl: review.reviewerAvatarUrl,
+                    state: review.state,
+                    body: review.body,
+                    submittedAt: review.submittedAt,
+                  },
                 });
                 totalReviews++;
               }
