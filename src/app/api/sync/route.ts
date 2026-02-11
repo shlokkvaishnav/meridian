@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { GitHubClient } from '@/lib/github';
+import { SyncService } from '@/features/sync';
 import { cookies } from 'next/headers';
-
-// Maximum repos and PRs per sync to avoid timeout
-const MAX_REPOS = 10;
-const MAX_PRS_PER_REPO = 50;
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,181 +29,13 @@ export async function POST(request: NextRequest) {
         jobType: 'full_sync',
         status: 'RUNNING',
         startedAt: new Date(),
-        // TODO: Associate SyncJob with ownerId if we update schema
+        ownerId: settings.id,
       },
     });
 
     try {
-      // Step 1: Fetch and store repositories
-      console.log('Fetching repositories...');
-      const repos = await github.fetchUserRepos();
-
-      if (repos.length === 0) {
-        // Complete the sync job with 0 repos
-        await db.syncJob.update({
-          where: { id: syncJob.id },
-          data: {
-            status: 'COMPLETED',
-            completedAt: new Date(),
-            progress: { repos: 0, prs: 0 },
-          },
-        });
-        return NextResponse.json({
-          success: true,
-          stats: { repositories: 0, pullRequests: 0 },
-        });
-      }
-      
-      for (const repo of repos) {
-        await db.repository.upsert({
-          where: { 
-            ownerId_githubRepoId: {
-              ownerId: settings.id,
-              githubRepoId: repo.githubRepoId
-            }
-          },
-          create: {
-            ...repo,
-            ownerId: settings.id,
-          },
-          update: {
-            ...repo,
-            lastSyncedAt: new Date(),
-          },
-        });
-      }
-
-      // Step 2: Fetch PRs for each repository (limit to 50 PRs per repo for now)
-      console.log(`Fetching PRs for ${repos.length} repositories...`);
-      let totalPRs = 0;
-      let totalReviews = 0;
-
-      for (const repo of repos.slice(0, 10)) { // Start with first 10 repos
-        const [owner, repoName] = repo.fullName.split('/');
-        
-        try {
-          // Verify we have the repo in DB with correct owner
-          const dbRepo = await db.repository.findUnique({
-            where: { 
-              ownerId_githubRepoId: {
-                ownerId: settings.id,
-                githubRepoId: repo.githubRepoId
-              }
-            },
-          });
-
-          if (!dbRepo) continue;
-
-          const prs = await github.fetchPRs(owner, repoName);
-          
-          for (const pr of prs.slice(0, 50)) { // Limit to 50 PRs per repo
-            // Upsert PR with proper typing
-            const prData = {
-              githubPrId: pr.githubPrId,
-              number: pr.number,
-              title: pr.title,
-              body: pr.body,
-              state: pr.state as 'OPEN' | 'MERGED' | 'CLOSED',
-              authorLogin: pr.authorLogin,
-              authorAvatarUrl: pr.authorAvatarUrl,
-              createdAt: pr.createdAt,
-              updatedAt: pr.updatedAt,
-              closedAt: pr.closedAt,
-              mergedAt: pr.mergedAt,
-              linesAdded: pr.linesAdded,
-              linesDeleted: pr.linesDeleted,
-              filesChanged: pr.filesChanged,
-              commitsCount: pr.commitsCount,
-            };
-
-            const dbPR = await db.pullRequest.upsert({
-              where: { 
-                repositoryId_number: {
-                  repositoryId: dbRepo.id,
-                  number: pr.number,
-                },
-              },
-              create: {
-                ...prData,
-                repositoryId: dbRepo.id,
-              },
-              update: prData,
-            });
-
-            totalPRs++;
-
-            // Fetch and store reviews (skip if too many PRs to avoid rate limiting)
-            try {
-              const reviews = await github.fetchReviews(owner, repoName, pr.number);
-              
-              for (const review of reviews) {
-                await db.review.upsert({
-                  where: { githubReviewId: review.githubReviewId },
-                  create: {
-                    ...review,
-                    pullRequestId: dbPR.id,
-                  },
-                  update: {
-                    reviewerLogin: review.reviewerLogin,
-                    reviewerAvatarUrl: review.reviewerAvatarUrl,
-                    state: review.state,
-                    body: review.body,
-                    submittedAt: review.submittedAt,
-                  },
-                });
-                totalReviews++;
-              }
-
-              // Compute time to first review
-              if (reviews.length > 0) {
-                const firstReview = reviews.sort((a, b) => 
-                  a.submittedAt.getTime() - b.submittedAt.getTime()
-                )[0];
-                
-                const timeToFirstReview = Math.floor(
-                  (firstReview.submittedAt.getTime() - pr.createdAt.getTime()) / 1000 / 60
-                ); // minutes
-
-                await db.pullRequest.update({
-                  where: { id: dbPR.id },
-                  data: { 
-                    timeToFirstReview,
-                    reviewCycleCount: reviews.length,
-                  },
-                });
-              }
-
-              // Compute time to merge for merged PRs
-              if (pr.mergedAt) {
-                const timeToMerge = Math.floor(
-                  (pr.mergedAt.getTime() - pr.createdAt.getTime()) / 1000 / 60
-                ); // minutes
-
-                await db.pullRequest.update({
-                  where: { id: dbPR.id },
-                  data: { timeToMerge },
-                });
-              }
-            } catch (reviewError) {
-              console.error(`Error fetching reviews for PR #${pr.number}:`, reviewError);
-            }
-          }
-
-          // Update repo sync time
-          await db.repository.update({
-            where: { id: dbRepo.id },
-            data: { lastSyncedAt: new Date() },
-          });
-        } catch (error) {
-          console.error(`Error fetching PRs for ${repo.fullName}:`, error);
-        }
-      }
-
-      // Update app settings
-      await db.appSettings.update({
-        where: { id: settings.id },
-        data: { lastSyncedAt: new Date() },
-      });
+      // Use SyncService to perform the sync
+      const results = await SyncService.syncUser(settings.id);
 
       // Complete sync job
       await db.syncJob.update({
@@ -215,37 +43,37 @@ export async function POST(request: NextRequest) {
         data: {
           status: 'COMPLETED',
           completedAt: new Date(),
-          progress: {
-            repos: repos.length,
-            prs: totalPRs,
-          },
+          progress: results,
         },
       });
 
       return NextResponse.json({
         success: true,
         stats: {
-          repositories: repos.length,
-          pullRequests: totalPRs,
+          repositories: results.repos,
+          pullRequests: results.prs,
+          reviews: results.reviews,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Fail the sync job
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await db.syncJob.update({
         where: { id: syncJob.id },
         data: {
           status: 'FAILED',
           completedAt: new Date(),
-          error: error.message,
+          error: errorMessage,
         },
       });
 
       throw error;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sync error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Sync failed';
     return NextResponse.json(
-      { error: error.message || 'Sync failed' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

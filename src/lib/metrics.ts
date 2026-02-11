@@ -4,9 +4,11 @@ import { subDays, startOfDay, endOfDay } from 'date-fns';
 // Re-export types and utilities for backward compatibility
 export type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from './metricsTypes';
 export { formatDuration } from './metricsTypes';
+import { calculatePercentile } from './stats';
 
 // Import types for use in this file
 import type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from './metricsTypes';
+import { calculateContributorRisk } from './risk';
 
 /**
  * Get top contributors by PR count
@@ -80,6 +82,7 @@ export async function getTopContributors(ownerId: string, limit: number = 10): P
       linesAdded: stat._sum.linesAdded || 0,
       linesDeleted: stat._sum.linesDeleted || 0,
       avgTimeToMerge: null,
+      riskScore: 0,
     });
   }
 
@@ -109,12 +112,26 @@ export async function getTopContributors(ownerId: string, limit: number = 10): P
         linesAdded: 0,
         linesDeleted: 0,
         avgTimeToMerge: null,
+        riskScore: 0,
       });
     }
   }
 
-  // Sort by activity (weighted score: PRs * 2 + Reviews)
-  return Array.from(contributorMap.values())
+  // Calculate team stats for risk scoring
+  const allStats = Array.from(contributorMap.values());
+  const maxPrs = Math.max(...allStats.map(s => s.prsOpened));
+  const maxReviews = Math.max(...allStats.map(s => s.reviewsGiven));
+  const validMergeTimes = allStats.map(s => s.avgTimeToMerge).filter(t => t !== null) as number[];
+  const avgMergeTime = validMergeTimes.length > 0
+    ? validMergeTimes.reduce((a, b) => a + b, 0) / validMergeTimes.length
+    : 0;
+
+  // Calculate risk scores and sort
+  return allStats
+    .map(stat => ({
+      ...stat,
+      riskScore: calculateContributorRisk(stat, { maxPrs, maxReviews, avgMergeTime }),
+    }))
     .sort((a, b) => (b.prsOpened * 2 + b.reviewsGiven) - (a.prsOpened * 2 + a.reviewsGiven))
     .slice(0, limit);
 }
@@ -249,3 +266,42 @@ export async function getTimeSeriesData(ownerId: string, days: number = 30): Pro
 
   return Array.from(dataByDate.values());
 }
+
+/**
+ * Snapshot metrics for a specific repository for the current day
+ */
+export async function snapshotDailyMetrics(repositoryId: string): Promise<void> {
+  const now = new Date();
+  const dayStart = startOfDay(now);
+  const dayEnd = endOfDay(now);
+
+  // 1. Get PRs opened/merged today
+  const [prsOpened, prsMerged, closedUnmerged] = await Promise.all([
+    db.pullRequest.count({ where: { repositoryId, createdAt: { gte: dayStart, lte: dayEnd } } }),
+    db.pullRequest.count({ where: { repositoryId, state: 'MERGED', mergedAt: { gte: dayStart, lte: dayEnd } } }),
+    db.pullRequest.count({ where: { repositoryId, state: 'CLOSED', closedAt: { gte: dayStart, lte: dayEnd } } }),
+  ]);
+
+  // 2. Cycle Time P50/P95 for merged PRs today
+  const mergedToday = await db.pullRequest.findMany({
+    where: { repositoryId, state: 'MERGED', mergedAt: { gte: dayStart, lte: dayEnd }, timeToMerge: { not: null } },
+    select: { timeToMerge: true },
+  });
+  
+  const mergeTimes = mergedToday.map((pr: { timeToMerge: number | null }) => pr.timeToMerge!);
+  const cycleTimeP50 = calculatePercentile(mergeTimes, 0.5);
+  const cycleTimeP95 = calculatePercentile(mergeTimes, 0.95);
+
+  // 3. Merge Rate (Merged / (Merged + ClosedWithoutMerge))
+  const totalClosed = prsMerged + closedUnmerged;
+  const mergeRate = totalClosed > 0 ? prsMerged / totalClosed : null;
+
+  // 4. Save
+  await db.metricSnapshot.upsert({
+    where: { repositoryId_date: { repositoryId, date: dayStart } },
+    update: { prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate },
+    create: { repositoryId, date: dayStart, prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate },
+  });
+}
+
+

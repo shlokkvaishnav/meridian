@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { GitHubClient } from '@/lib/github';
-import { generateInsights } from '@/lib/insights';
+import { generateInsights } from '@/features/insights';
+import { snapshotDailyMetrics } from '@/lib/metrics';
 
 /**
  * Vercel Cron endpoint for daily sync
@@ -80,6 +81,13 @@ export async function GET(request: NextRequest) {
 
           // Sync each repository
           for (const repo of repos) {
+            // Check rate limit before starting a repo sync
+            const rateLimit = await github.checkRateLimit();
+            if (rateLimit.remaining < 50) {
+              console.warn(`Rate limit low (${rateLimit.remaining}), stopping sync early.`);
+              break; 
+            }
+
             const [owner, repoName] = repo.fullName.split('/');
 
             try {
@@ -204,6 +212,9 @@ export async function GET(request: NextRequest) {
                 where: { id: dbRepo.id },
                 data: { lastSyncedAt: new Date() },
               });
+
+              // Snapshot daily metrics
+              await snapshotDailyMetrics(dbRepo.id);
             } catch (error) {
               console.error(`Error syncing repo ${repo.fullName}:`, error);
             }
@@ -276,23 +287,25 @@ export async function GET(request: NextRequest) {
           insights: totalInsights,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Fail the sync job
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await db.syncJob.update({
         where: { id: syncJob.id },
         data: {
           status: 'FAILED',
           completedAt: new Date(),
-          error: error.message,
+          error: errorMessage,
         },
       });
 
       throw error;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Daily sync error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Sync failed';
     return NextResponse.json(
-      { error: error.message || 'Sync failed' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

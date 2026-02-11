@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  previewFeatures = ["driverAdapters"]
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -11,29 +11,30 @@ datasource db {
 // ==================== App Settings ====================
 
 model AppSettings {
-  id              String   @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Session ID to identify the browser session
-  sessionId       String   @unique
-  
+  sessionId String @unique
+
   // Encrypted GitHub Personal Access Token
-  encryptedToken  String
-  tokenCreatedAt  DateTime @default(now())
-  
+  encryptedToken String
+  tokenCreatedAt DateTime @default(now())
+
   // GitHub user info
-  githubLogin     String?
-  githubUserId    Int?
-  email           String?
-  name            String?
-  avatarUrl       String?
-  
-  lastSyncedAt    DateTime?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  repositories    Repository[]
-  insights        Insight[]
+  githubLogin  String?
+  githubUserId Int?
+  email        String?
+  name         String?
+  avatarUrl    String?
+
+  lastSyncedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  repositories Repository[]
+  insights     Insight[]
+  syncJobs     SyncJob[]
 
   @@index([githubLogin])
   @@index([sessionId])
@@ -42,30 +43,31 @@ model AppSettings {
 // ==================== Repositories ====================
 
 model Repository {
-  id              String   @id @default(cuid())
-  githubRepoId    Int      // Removed @unique because multiple users might track the same repo? 
-                           // Actually, for now let's keep it simple. If User A and User B both track "facebook/react", 
-                           // we probably want separate rows so they have their own sync state.
-                           // So yes, remove @unique from githubRepoId, or scope it to ownerId.
-  
-  name            String
-  fullName        String   // e.g., "username/repo-name"
-  defaultBranch   String   @default("main")
-  description     String?
-  
-  isPrivate       Boolean  @default(false)
-  isActive        Boolean  @default(true)
-  lastSyncedAt    DateTime?
-  
+  id           String @id @default(cuid())
+  githubRepoId Int // Removed @unique because multiple users might track the same repo? 
+  // Actually, for now let's keep it simple. If User A and User B both track "facebook/react", 
+  // we probably want separate rows so they have their own sync state.
+  // So yes, remove @unique from githubRepoId, or scope it to ownerId.
+
+  name          String
+  fullName      String // e.g., "username/repo-name"
+  defaultBranch String  @default("main")
+  description   String?
+
+  isPrivate    Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  lastSyncedAt DateTime?
+
   // Owner (User Session)
-  ownerId         String
-  owner           AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  ownerId String
+  owner   AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   pullRequests    PullRequest[]
-  
+  metricSnapshots MetricSnapshot[]
+
   @@unique([ownerId, githubRepoId]) // Ensure a user can't add the same repo twice
   @@index([fullName])
   @@index([lastSyncedAt])
@@ -76,42 +78,43 @@ model Repository {
 // ==================== Pull Requests ====================
 
 model PullRequest {
-  id              String   @id @default(cuid())
-  githubPrId      Int
-  number          Int
-  title           String
-  body            String?  @db.Text
-  state           PRState
-  
-  repositoryId    String
-  repository      Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-  
+  id         String  @id @default(cuid())
+  githubPrId Int
+  number     Int
+  title      String
+  body       String? @db.Text
+  state      PRState
+
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
   // Author as simple string (GitHub login)
   authorLogin     String
   authorAvatarUrl String?
-  
-  createdAt       DateTime
-  updatedAt       DateTime
-  closedAt        DateTime?
-  mergedAt        DateTime?
-  
+
+  createdAt DateTime
+  updatedAt DateTime
+  closedAt  DateTime?
+  mergedAt  DateTime?
+
   // Computed metrics (denormalized for query performance)
-  linesAdded      Int      @default(0)
-  linesDeleted    Int      @default(0)
-  filesChanged    Int      @default(0)
-  commitsCount    Int      @default(0)
-  
-  timeToFirstReview     Int?  // minutes
-  timeToMerge          Int?  // minutes
-  reviewCycleCount     Int   @default(0)
-  
-  reviews         Review[]
-  comments        Comment[]
-  
+  linesAdded   Int @default(0)
+  linesDeleted Int @default(0)
+  filesChanged Int @default(0)
+  commitsCount Int @default(0)
+
+  timeToFirstReview Int? // minutes
+  timeToMerge       Int? // minutes
+  reviewCycleCount  Int  @default(0)
+
+  reviews  Review[]
+  comments Comment[]
+
   @@unique([repositoryId, number])
   @@index([repositoryId])
   @@index([repositoryId, createdAt])
-  @@index([authorLogin])
+  @@index([repositoryId, mergedAt])
+  @@index([repositoryId, updatedAt])
   @@index([state])
   @@index([mergedAt])
   @@index([updatedAt])
@@ -124,22 +127,22 @@ enum PRState {
 }
 
 model Review {
-  id              String   @id @default(cuid())
-  githubReviewId  Int      @unique
-  
-  pullRequestId   String
-  pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
-  
+  id             String @id @default(cuid())
+  githubReviewId Int    @unique
+
+  pullRequestId String
+  pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+
   // Reviewer as simple string (GitHub login)
-  reviewerLogin   String
+  reviewerLogin     String
   reviewerAvatarUrl String?
-  
-  state           ReviewState
-  body            String?  @db.Text
-  submittedAt     DateTime
-  
-  createdAt       DateTime @default(now())
-  
+
+  state       ReviewState
+  body        String?     @db.Text
+  submittedAt DateTime
+
+  createdAt DateTime @default(now())
+
   @@index([pullRequestId])
   @@index([reviewerLogin])
   @@index([submittedAt])
@@ -153,20 +156,20 @@ enum ReviewState {
 }
 
 model Comment {
-  id              String   @id @default(cuid())
-  githubCommentId Int      @unique
-  
-  pullRequestId   String
-  pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
-  
+  id              String @id @default(cuid())
+  githubCommentId Int    @unique
+
+  pullRequestId String
+  pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+
   // Author as simple string (GitHub login)
   authorLogin     String
   authorAvatarUrl String?
-  
-  body            String   @db.Text
-  createdAt       DateTime
-  updatedAt       DateTime
-  
+
+  body      String   @db.Text
+  createdAt DateTime
+  updatedAt DateTime
+
   @@index([pullRequestId])
   @@index([authorLogin])
 }
@@ -174,21 +177,24 @@ model Comment {
 // ==================== Sync Jobs ====================
 
 model SyncJob {
-  id              String   @id @default(cuid())
-  
-  jobType         String   // 'full_sync', 'repo_sync', 'pr_sync'
-  status          JobStatus @default(PENDING)
-  
+  id String @id @default(cuid())
+
+  jobType String // 'full_sync', 'repo_sync', 'pr_sync'
+  status  JobStatus @default(PENDING)
+
   // Optional: which repo is being synced
-  repositoryId    String?
-  
-  progress        Json     @default("{}")
-  error           String?  @db.Text
-  
-  startedAt       DateTime?
-  completedAt     DateTime?
-  createdAt       DateTime @default(now())
-  
+  repositoryId String?
+
+  ownerId String?
+  owner   AppSettings? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  progress Json    @default("{}")
+  error    String? @db.Text
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
   @@index([status])
   @@index([createdAt])
 }
@@ -204,25 +210,25 @@ enum JobStatus {
 // ==================== AI Insights ====================
 
 model Insight {
-  id              String   @id @default(cuid())
-  
-  title           String
-  description     String   @db.Text
-  type            InsightType
-  category        InsightCategory
-  priority        Int      // 1-10
-  
+  id String @id @default(cuid())
+
+  title       String
+  description String          @db.Text
+  type        InsightType
+  category    InsightCategory
+  priority    Int // 1-10
+
   // Additional data (JSON for flexibility)
-  data            Json     @default("{}")
-  
-  generatedAt     DateTime @default(now())
-  isRead          Boolean  @default(false)
-  isDismissed     Boolean  @default(false)
-  
+  data Json @default("{}")
+
+  generatedAt DateTime @default(now())
+  isRead      Boolean  @default(false)
+  isDismissed Boolean  @default(false)
+
   // Owner (User Session)
-  ownerId         String
-  owner           AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  
+  ownerId String
+  owner   AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
   @@index([generatedAt])
   @@index([priority])
   @@index([ownerId])
@@ -241,4 +247,28 @@ enum InsightCategory {
   VELOCITY
   COLLABORATION
   QUALITY
+}
+
+// ==================== Historical Snapshots ====================
+
+model MetricSnapshot {
+  id   String   @id @default(cuid())
+  date DateTime @db.Date // Normalized to YYYY-MM-DD
+
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  // Cycle Time Stats
+  cycleTimeP50 Int? // minutes
+  cycleTimeP95 Int? // minutes
+
+  // Velocity
+  mergeRate Float? // 0-1
+  prsOpened Int    @default(0)
+  prsMerged Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([repositoryId, date])
+  @@index([date])
 }

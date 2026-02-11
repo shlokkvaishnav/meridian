@@ -17,6 +17,14 @@ export class GitHubClient {
         enabled: true,
       },
     });
+
+    // Add response interceptor to track rate limits
+    this.octokit.hook.after('request', async (response: any, options: any) => {
+      const remaining = response.headers['x-ratelimit-remaining'];
+      const reset = response.headers['x-ratelimit-reset'];
+      if (remaining) this.rateLimitRemaining = parseInt(remaining, 10);
+      if (reset) this.rateLimitReset = new Date(parseInt(reset, 10) * 1000);
+    });
   }
 
   /**
@@ -62,8 +70,8 @@ export class GitHubClient {
         description: repo.description,
         isPrivate: repo.private,
       }));
-    } catch (error: any) {
-      if (error.status === 401) {
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'status' in error && (error as any).status === 401) {
         throw new Error('GitHub token is invalid or expired. Please update your token.');
       }
       throw error;
@@ -73,8 +81,12 @@ export class GitHubClient {
   /**
    * Fetch pull requests for a repository
    */
+  /**
+   * Fetch pull requests for a repository with pagination and incremental sync
+   */
   async fetchPRs(owner: string, repo: string, since?: Date) {
-    const pullRequests = await this.octokit.paginate(
+    const prs: any[] = [];
+    const iterator = this.octokit.paginate.iterator(
       this.octokit.rest.pulls.list,
       {
         owner,
@@ -86,12 +98,21 @@ export class GitHubClient {
       }
     );
 
-    // Filter by date if provided
-    const filtered = since
-      ? pullRequests.filter((pr) => new Date(pr.updated_at) > since)
-      : pullRequests;
+    for await (const { data } of iterator) {
+      let shouldStop = false;
+      for (const pr of data) {
+        // If we have a 'since' date and this PR is older, we can stop fetching
+        if (since && new Date(pr.updated_at) <= since) {
+          shouldStop = true;
+          break; // Stop processing this page
+        }
+        prs.push(pr);
+      }
+      
+      if (shouldStop) break; // Stop fetching next pages
+    }
 
-    return filtered.map((pr) => ({
+    return prs.map((pr) => ({
       githubPrId: pr.id,
       number: pr.number,
       title: pr.title,
@@ -103,7 +124,6 @@ export class GitHubClient {
       updatedAt: new Date(pr.updated_at),
       closedAt: pr.closed_at ? new Date(pr.closed_at) : null,
       mergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
-      // These fields may be undefined from list endpoint (only available on single PR detail)
       linesAdded: (pr as any).additions ?? 0,
       linesDeleted: (pr as any).deletions ?? 0,
       filesChanged: (pr as any).changed_files ?? 0,

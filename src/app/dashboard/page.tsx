@@ -1,14 +1,17 @@
 import { db } from '@/lib/db';
 import { formatDistanceToNow } from 'date-fns';
 import { redirect } from 'next/navigation';
-import DashboardClient from './DashboardClient';
+import DashboardClient from '@/features/dashboard/DashboardClient';
 import { getTopContributors, getTimeSeriesData } from '@/lib/metrics';
-import ContributorLeaderboard from '@/components/ContributorLeaderboard';
-import MetricsChart from '@/components/MetricsChart';
-import InsightsDisplay from '@/components/InsightsDisplay';
-import { generateInsights } from '@/lib/insights';
+import ContributorLeaderboard from '@/features/dashboard/ContributorLeaderboard';
+import MetricsChart from '@/features/dashboard/MetricsChart';
+import { VelocityChart } from '@/features/dashboard/VelocityChart';
+import TeamManagement from '@/features/dashboard/TeamManagement';
+import InsightsDisplay from '@/features/dashboard/InsightsDisplay';
+import { generateInsights } from '@/features/insights';
 import { Activity, Clock } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +43,9 @@ export default async function DashboardPage() {
     openPRs,
     contributors,
     timeSeriesData,
-    insights
+    insights,
+    snapshots,
+    teams
   ] = await Promise.all([
     // 1. Repositories
     db.repository.findMany({
@@ -111,7 +116,42 @@ export default async function DashboardPage() {
       console.error('Failed to generate insights for dashboard:', e);
       return [];
     }),
+
+    // 7. Velocity Data (Snapshots)
+    db.metricSnapshot.findMany({
+      where: {
+        repository: {
+          ownerId: settings.id
+        }
+      },
+      orderBy: { date: 'asc' },
+      take: 30, // Last 30 days
+      select: {
+        date: true,
+        cycleTimeP50: true,
+        mergeRate: true,
+      }
+    }),
+
+    // 8. Teams
+    db.team.findMany({
+      where: { ownerId: settings.id },
+      include: { members: true }
+    }),
   ]);
+
+  type VelocitySnapshot = {
+    date: Date;
+    cycleTimeP50: number | null;
+    mergeRate: number | null;
+  };
+
+  // Format velocity data for chart
+  const velocityData = (snapshots as VelocitySnapshot[]).map((s) => ({
+    date: s.date.toISOString(),
+    cycleTimeP50: s.cycleTimeP50,
+    mergeRate: s.mergeRate ? Math.round(s.mergeRate * 100) : null,
+  }));
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative">
@@ -132,10 +172,12 @@ export default async function DashboardPage() {
             {settings.githubLogin && (
               <div className="flex items-center gap-2 pl-5 border-l border-white/[0.06]">
                 {settings.avatarUrl && (
-                  <img
+                  <Image
                     src={settings.avatarUrl}
                     alt={settings.githubLogin}
                     className="h-6 w-6 rounded-full ring-1 ring-white/10"
+                    width={24}
+                    height={24}
                   />
                 )}
                 <span className="text-sm text-slate-400">{settings.githubLogin}</span>
@@ -170,7 +212,11 @@ export default async function DashboardPage() {
         {repositories.length > 0 && (
           <>
             <InsightsDisplay initialInsights={insights} />
-            <MetricsChart data={timeSeriesData} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MetricsChart data={timeSeriesData} />
+              <VelocityChart data={velocityData} />
+            </div>
+            <TeamManagement initialTeams={teams} contributors={contributors} />
             <ContributorLeaderboard contributors={contributors} />
           </>
         )}

@@ -13,6 +13,7 @@ export interface ContributorStats {
   linesAdded: number;
   linesDeleted: number;
   avgTimeToMerge: number | null; // minutes
+  riskScore: number; // 0-100
 }
 
 export interface RepositoryMetrics {

@@ -1,5 +1,6 @@
 import { db } from './db';
 import { subDays, differenceInDays } from 'date-fns';
+import { calculateMean, calculateStdDev, calculateZScore } from './stats';
 
 export type InsightType = 'WARNING' | 'CAUTION' | 'INFO' | 'SUCCESS';
 export type InsightCategory = 
@@ -77,57 +78,50 @@ export async function generateInsights(ownerId: string): Promise<Insight[]> {
 }
 
 /**
- * Rule: Detect PRs waiting too long for reviews
+ * Rule: Detect PRs waiting too long for reviews (Z-Score > 2)
  */
 function detectReviewBottlenecks(prs: any[]): Insight[] {
   const insights: Insight[] = [];
   if (prs.length === 0) return insights;
   
   const openPRs = prs.filter((pr) => pr.state === 'OPEN');
+  
+  // Calculate stats for TIME TO FIRST REVIEW for all PRs that have it
   const prsWithReviewTime = prs.filter((pr) => pr.timeToFirstReview != null && pr.timeToFirstReview > 0);
-  const avgTimeToFirstReview = prsWithReviewTime.length > 0
-    ? prsWithReviewTime.reduce((sum, pr) => sum + pr.timeToFirstReview!, 0) / prsWithReviewTime.length
-    : 0;
+  
+  if (prsWithReviewTime.length < 5) return insights; // Need some data for meaningful stats
 
-  // Check for PRs waiting much longer than average
-  const slowReviewPRs = openPRs.filter(
-    (pr) =>
-      !pr.reviews.length &&
-      differenceInDays(new Date(), pr.createdAt) * 24 * 60 > avgTimeToFirstReview * 2
-  );
+  const reviewTimes = prsWithReviewTime.map(pr => pr.timeToFirstReview!);
+  const meanReviewTime = calculateMean(reviewTimes);
+  const stdDevReviewTime = calculateStdDev(reviewTimes, meanReviewTime);
+
+  // Check for Open PRs that have been waiting an anomalously long time
+  // Estimate "wait time" for open PRs as (now - createdAt)
+  const slowReviewPRs = openPRs.filter((pr) => {
+    if (pr.reviews.length > 0) return false; // Already reviewed
+    
+    const waitTime = differenceInDays(new Date(), pr.createdAt) * 24 * 60; // minutes
+    // If wait time is > 2 std devs above the mean (and significantly larger than mean itself)
+    if (stdDevReviewTime > 0) {
+      const zScore = calculateZScore(waitTime, meanReviewTime, stdDevReviewTime);
+      return zScore > 2 && waitTime > meanReviewTime;
+    }
+    return waitTime > meanReviewTime * 2; // Fallback if stdDev is 0 (all same values)
+  });
 
   if (slowReviewPRs.length > 0) {
     insights.push({
-      id: 'review-bottleneck-1',
+      id: 'review-bottleneck-stat',
       type: 'WARNING',
       category: 'BOTTLENECK',
-      title: 'Review Bottleneck Detected',
-      description: `${slowReviewPRs.length} PRs waiting significantly longer than average for first review`,
-      action: 'Review these PRs or redistribute review assignments',
+      title: 'Statistical Review Bottleneck',
+      description: `${slowReviewPRs.length} PRs are waiting >2 standard deviations longer than team average`,
+      action: 'Prioritize these statistically stalled PRs',
       metric: {
         value: slowReviewPRs.length,
-        label: 'PRs waiting',
+        label: 'Stalled PRs',
       },
       priority: 9,
-    });
-  }
-
-  // Check overall review delay
-  if (avgTimeToFirstReview > 2 * 24 * 60) {
-    // > 2 days
-    const hours = Math.round(avgTimeToFirstReview / 60);
-    insights.push({
-      id: 'review-bottleneck-2',
-      type: 'CAUTION',
-      category: 'VELOCITY',
-      title: 'Slow Review Response Time',
-      description: `Average time to first review is ${hours} hours`,
-      action: 'Consider increasing review capacity',
-      metric: {
-        value: `${hours}h`,
-        label: 'Avg time to first review',
-      },
-      priority: 7,
     });
   }
 
@@ -135,50 +129,60 @@ function detectReviewBottlenecks(prs: any[]): Insight[] {
 }
 
 /**
- * Rule: Detect increasing cycle times
+ * Rule: Detect increasing cycle times using Z-Score deviation
  */
 function detectCycleTimeIssues(prs: any[]): Insight[] {
   const insights: Insight[] = [];
 
   const mergedPRs = prs.filter((pr) => pr.state === 'MERGED' && pr.timeToMerge);
 
-  if (mergedPRs.length < 5) return insights;
+  if (mergedPRs.length < 10) return insights; // Need stable baseline
 
-  // Split into recent and older
+  // Split into recent (last 7 days) and older (previous 23 days)
   const recentCutoff = subDays(new Date(), 7);
   const recentMerged = mergedPRs.filter((pr) => pr.mergedAt! >= recentCutoff);
   const olderMerged = mergedPRs.filter((pr) => pr.mergedAt! < recentCutoff);
 
-  if (recentMerged.length === 0 || olderMerged.length === 0) return insights;
+  if (recentMerged.length < 3 || olderMerged.length < 5) return insights;
 
-  const recentAvg =
-    recentMerged.reduce((sum, pr) => sum + pr.timeToMerge!, 0) / recentMerged.length;
-  const olderAvg =
-    olderMerged.reduce((sum, pr) => sum + pr.timeToMerge!, 0) / olderMerged.length;
+  const olderTimes = olderMerged.map(pr => pr.timeToMerge!);
+  const baselineMean = calculateMean(olderTimes);
+  const baselineStdDev = calculateStdDev(olderTimes, baselineMean);
 
-  const percentChange = ((recentAvg - olderAvg) / olderAvg) * 100;
+  const recentTimes = recentMerged.map(pr => pr.timeToMerge!);
+  const recentMean = calculateMean(recentTimes);
 
-  if (percentChange > 50) {
-    insights.push({
-      id: 'cycle-time-1',
-      type: 'WARNING',
-      category: 'VELOCITY',
-      title: 'Cycle Time Increased Significantly',
-      description: `Cycle time increased ${percentChange.toFixed(0)}% compared to previous period`,
-      action: 'Investigate blockers or review capacity issues',
-      metric: {
-        value: `+${percentChange.toFixed(0)}%`,
-        label: 'Increase',
-      },
-      priority: 8,
-    });
+  // Calculate Z-Score of the recent MEAN against the baseline distribution
+  // Standard Error of the Mean (SEM) = stdDev / sqrt(N)
+  // z = (recentMean - baselineMean) / SEM
+  // But for simplicity, let's just see if recentMean is > 1.5 std devs away from baseline mean
+  
+  if (baselineStdDev > 0) {
+    const zScore = (recentMean - baselineMean) / baselineStdDev;
+
+    if (zScore > 1.5) {
+      const percentChange = ((recentMean - baselineMean) / baselineMean) * 100;
+      insights.push({
+        id: 'cycle-time-stat',
+        type: 'WARNING',
+        category: 'VELOCITY',
+        title: 'Significant Cycle Time Increase',
+        description: `Recent cycle time is ${zScore.toFixed(1)}σ above baseline (+${percentChange.toFixed(0)}%)`,
+        action: 'Investigate blockers or review capacity issues',
+        metric: {
+          value: `+${percentChange.toFixed(0)}%`,
+          label: 'Deviation',
+        },
+        priority: 8,
+      });
+    }
   }
 
   return insights;
 }
 
 /**
- * Rule: Detect workload imbalance among contributors
+ * Rule: Detect workload imbalance using Z-Scores
  */
 function detectWorkloadImbalance(prs: any[]): Insight[] {
   const insights: Insight[] = [];
@@ -190,27 +194,28 @@ function detectWorkloadImbalance(prs: any[]): Insight[] {
   });
 
   const counts = Array.from(prsByAuthor.values());
-  if (counts.length < 2) return insights;
+  if (counts.length < 3) return insights; // Need a "team" to have stats
 
-  const avg = counts.reduce((sum, c) => sum + c, 0) / counts.length;
-  const max = Math.max(...counts);
+  const mean = calculateMean(counts);
+  const stdDev = calculateStdDev(counts, mean);
 
-  // If someone has >3x the average
-  if (max > avg * 3) {
-    const heavyContributor = Array.from(prsByAuthor.entries()).find(
-      ([_, count]) => count === max
-    );
+  if (stdDev === 0) return insights;
 
-    if (heavyContributor) {
+  for (const [author, count] of prsByAuthor.entries()) {
+    const zScore = calculateZScore(count, mean, stdDev);
+    
+    // Z > 2.0 means top 2.5% of probability (if normal dist)
+    // Often "High Performer" but potentially "Overloaded" if > 2.5 or 3
+    if (zScore > 2.0) {
       insights.push({
-        id: 'workload-1',
+        id: `workload-${author}`,
         type: 'CAUTION',
         category: 'WORKLOAD',
-        title: 'Workload Imbalance Detected',
-        description: `${heavyContributor[0]} has ${max} PRs (${((max / avg - 1) * 100).toFixed(0)}% above average)`,
-        action: 'Consider redistributing work or checking for blockers',
-        affectedContributors: [heavyContributor[0]],
-        priority: 6,
+        title: 'Workload Anomaly Detected',
+        description: `${author} has ${count} PRs (Z-Score: ${zScore.toFixed(1)}). This is significantly higher than team average.`,
+        action: 'Verify this is sustainable; consider redistributing work.',
+        affectedContributors: [author],
+        priority: 7,
       });
     }
   }

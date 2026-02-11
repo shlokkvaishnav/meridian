@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateInsights } from '@/lib/insights';
+import { generateInsights } from '@/features/insights';
 import { db } from '@/lib/db';
 
 import { cookies } from 'next/headers';

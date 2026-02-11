@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { encrypt } from '@/lib/encryption';
 import { Octokit } from 'octokit';
+import crypto from 'crypto';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,14 +77,6 @@ export async function POST(request: NextRequest) {
 
     return response;
 
-    return NextResponse.json({
-      success: true,
-      user: {
-        login: githubUser.login,
-        name: githubUser.name,
-        avatarUrl: githubUser.avatar_url,
-      },
-    });
   } catch (error: any) {
     console.error('Setup error:', error);
     return NextResponse.json(
