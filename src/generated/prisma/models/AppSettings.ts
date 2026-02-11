@@ -36,6 +36,7 @@ export type AppSettingsSumAggregateOutputType = {
 
 export type AppSettingsMinAggregateOutputType = {
   id: string | null
+  sessionId: string | null
   encryptedToken: string | null
   tokenCreatedAt: Date | null
   githubLogin: string | null
@@ -50,6 +51,7 @@ export type AppSettingsMinAggregateOutputType = {
 
 export type AppSettingsMaxAggregateOutputType = {
   id: string | null
+  sessionId: string | null
   encryptedToken: string | null
   tokenCreatedAt: Date | null
   githubLogin: string | null
@@ -64,6 +66,7 @@ export type AppSettingsMaxAggregateOutputType = {
 
 export type AppSettingsCountAggregateOutputType = {
   id: number
+  sessionId: number
   encryptedToken: number
   tokenCreatedAt: number
   githubLogin: number
@@ -88,6 +91,7 @@ export type AppSettingsSumAggregateInputType = {
 
 export type AppSettingsMinAggregateInputType = {
   id?: true
+  sessionId?: true
   encryptedToken?: true
   tokenCreatedAt?: true
   githubLogin?: true
@@ -102,6 +106,7 @@ export type AppSettingsMinAggregateInputType = {
 
 export type AppSettingsMaxAggregateInputType = {
   id?: true
+  sessionId?: true
   encryptedToken?: true
   tokenCreatedAt?: true
   githubLogin?: true
@@ -116,6 +121,7 @@ export type AppSettingsMaxAggregateInputType = {
 
 export type AppSettingsCountAggregateInputType = {
   id?: true
+  sessionId?: true
   encryptedToken?: true
   tokenCreatedAt?: true
   githubLogin?: true
@@ -217,6 +223,7 @@ export type AppSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type AppSettingsGroupByOutputType = {
   id: string
+  sessionId: string
   encryptedToken: string
   tokenCreatedAt: Date
   githubLogin: string | null
@@ -254,6 +261,7 @@ export type AppSettingsWhereInput = {
   OR?: Prisma.AppSettingsWhereInput[]
   NOT?: Prisma.AppSettingsWhereInput | Prisma.AppSettingsWhereInput[]
   id?: Prisma.StringFilter<"AppSettings"> | string
+  sessionId?: Prisma.StringFilter<"AppSettings"> | string
   encryptedToken?: Prisma.StringFilter<"AppSettings"> | string
   tokenCreatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
   githubLogin?: Prisma.StringNullableFilter<"AppSettings"> | string | null
@@ -264,10 +272,13 @@ export type AppSettingsWhereInput = {
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"AppSettings"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
+  repositories?: Prisma.RepositoryListRelationFilter
+  insights?: Prisma.InsightListRelationFilter
 }
 
 export type AppSettingsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   encryptedToken?: Prisma.SortOrder
   tokenCreatedAt?: Prisma.SortOrder
   githubLogin?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -278,10 +289,13 @@ export type AppSettingsOrderByWithRelationInput = {
   lastSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  repositories?: Prisma.RepositoryOrderByRelationAggregateInput
+  insights?: Prisma.InsightOrderByRelationAggregateInput
 }
 
 export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  sessionId?: string
   AND?: Prisma.AppSettingsWhereInput | Prisma.AppSettingsWhereInput[]
   OR?: Prisma.AppSettingsWhereInput[]
   NOT?: Prisma.AppSettingsWhereInput | Prisma.AppSettingsWhereInput[]
@@ -295,10 +309,13 @@ export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
   lastSyncedAt?: Prisma.DateTimeNullableFilter<"AppSettings"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
-}, "id">
+  repositories?: Prisma.RepositoryListRelationFilter
+  insights?: Prisma.InsightListRelationFilter
+}, "id" | "sessionId">
 
 export type AppSettingsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   encryptedToken?: Prisma.SortOrder
   tokenCreatedAt?: Prisma.SortOrder
   githubLogin?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -321,6 +338,7 @@ export type AppSettingsScalarWhereWithAggregatesInput = {
   OR?: Prisma.AppSettingsScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AppSettingsScalarWhereWithAggregatesInput | Prisma.AppSettingsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AppSettings"> | string
+  sessionId?: Prisma.StringWithAggregatesFilter<"AppSettings"> | string
   encryptedToken?: Prisma.StringWithAggregatesFilter<"AppSettings"> | string
   tokenCreatedAt?: Prisma.DateTimeWithAggregatesFilter<"AppSettings"> | Date | string
   githubLogin?: Prisma.StringNullableWithAggregatesFilter<"AppSettings"> | string | null
@@ -335,6 +353,7 @@ export type AppSettingsScalarWhereWithAggregatesInput = {
 
 export type AppSettingsCreateInput = {
   id?: string
+  sessionId: string
   encryptedToken: string
   tokenCreatedAt?: Date | string
   githubLogin?: string | null
@@ -345,10 +364,13 @@ export type AppSettingsCreateInput = {
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  repositories?: Prisma.RepositoryCreateNestedManyWithoutOwnerInput
+  insights?: Prisma.InsightCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUncheckedCreateInput = {
   id?: string
+  sessionId: string
   encryptedToken: string
   tokenCreatedAt?: Date | string
   githubLogin?: string | null
@@ -359,10 +381,13 @@ export type AppSettingsUncheckedCreateInput = {
   lastSyncedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  repositories?: Prisma.RepositoryUncheckedCreateNestedManyWithoutOwnerInput
+  insights?: Prisma.InsightUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -373,10 +398,13 @@ export type AppSettingsUpdateInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repositories?: Prisma.RepositoryUpdateManyWithoutOwnerNestedInput
+  insights?: Prisma.InsightUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -387,10 +415,13 @@ export type AppSettingsUncheckedUpdateInput = {
   lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repositories?: Prisma.RepositoryUncheckedUpdateManyWithoutOwnerNestedInput
+  insights?: Prisma.InsightUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsCreateManyInput = {
   id?: string
+  sessionId: string
   encryptedToken: string
   tokenCreatedAt?: Date | string
   githubLogin?: string | null
@@ -405,6 +436,7 @@ export type AppSettingsCreateManyInput = {
 
 export type AppSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -419,6 +451,7 @@ export type AppSettingsUpdateManyMutationInput = {
 
 export type AppSettingsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
   tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -433,6 +466,7 @@ export type AppSettingsUncheckedUpdateManyInput = {
 
 export type AppSettingsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   encryptedToken?: Prisma.SortOrder
   tokenCreatedAt?: Prisma.SortOrder
   githubLogin?: Prisma.SortOrder
@@ -451,6 +485,7 @@ export type AppSettingsAvgOrderByAggregateInput = {
 
 export type AppSettingsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   encryptedToken?: Prisma.SortOrder
   tokenCreatedAt?: Prisma.SortOrder
   githubLogin?: Prisma.SortOrder
@@ -465,6 +500,7 @@ export type AppSettingsMaxOrderByAggregateInput = {
 
 export type AppSettingsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sessionId?: Prisma.SortOrder
   encryptedToken?: Prisma.SortOrder
   tokenCreatedAt?: Prisma.SortOrder
   githubLogin?: Prisma.SortOrder
@@ -479,6 +515,11 @@ export type AppSettingsMinOrderByAggregateInput = {
 
 export type AppSettingsSumOrderByAggregateInput = {
   githubUserId?: Prisma.SortOrder
+}
+
+export type AppSettingsScalarRelationFilter = {
+  is?: Prisma.AppSettingsWhereInput
+  isNot?: Prisma.AppSettingsWhereInput
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -505,10 +546,237 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type AppSettingsCreateNestedOneWithoutRepositoriesInput = {
+  create?: Prisma.XOR<Prisma.AppSettingsCreateWithoutRepositoriesInput, Prisma.AppSettingsUncheckedCreateWithoutRepositoriesInput>
+  connectOrCreate?: Prisma.AppSettingsCreateOrConnectWithoutRepositoriesInput
+  connect?: Prisma.AppSettingsWhereUniqueInput
+}
+
+export type AppSettingsUpdateOneRequiredWithoutRepositoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.AppSettingsCreateWithoutRepositoriesInput, Prisma.AppSettingsUncheckedCreateWithoutRepositoriesInput>
+  connectOrCreate?: Prisma.AppSettingsCreateOrConnectWithoutRepositoriesInput
+  upsert?: Prisma.AppSettingsUpsertWithoutRepositoriesInput
+  connect?: Prisma.AppSettingsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppSettingsUpdateToOneWithWhereWithoutRepositoriesInput, Prisma.AppSettingsUpdateWithoutRepositoriesInput>, Prisma.AppSettingsUncheckedUpdateWithoutRepositoriesInput>
+}
+
+export type AppSettingsCreateNestedOneWithoutInsightsInput = {
+  create?: Prisma.XOR<Prisma.AppSettingsCreateWithoutInsightsInput, Prisma.AppSettingsUncheckedCreateWithoutInsightsInput>
+  connectOrCreate?: Prisma.AppSettingsCreateOrConnectWithoutInsightsInput
+  connect?: Prisma.AppSettingsWhereUniqueInput
+}
+
+export type AppSettingsUpdateOneRequiredWithoutInsightsNestedInput = {
+  create?: Prisma.XOR<Prisma.AppSettingsCreateWithoutInsightsInput, Prisma.AppSettingsUncheckedCreateWithoutInsightsInput>
+  connectOrCreate?: Prisma.AppSettingsCreateOrConnectWithoutInsightsInput
+  upsert?: Prisma.AppSettingsUpsertWithoutInsightsInput
+  connect?: Prisma.AppSettingsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppSettingsUpdateToOneWithWhereWithoutInsightsInput, Prisma.AppSettingsUpdateWithoutInsightsInput>, Prisma.AppSettingsUncheckedUpdateWithoutInsightsInput>
+}
+
+export type AppSettingsCreateWithoutRepositoriesInput = {
+  id?: string
+  sessionId: string
+  encryptedToken: string
+  tokenCreatedAt?: Date | string
+  githubLogin?: string | null
+  githubUserId?: number | null
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  insights?: Prisma.InsightCreateNestedManyWithoutOwnerInput
+}
+
+export type AppSettingsUncheckedCreateWithoutRepositoriesInput = {
+  id?: string
+  sessionId: string
+  encryptedToken: string
+  tokenCreatedAt?: Date | string
+  githubLogin?: string | null
+  githubUserId?: number | null
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  insights?: Prisma.InsightUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type AppSettingsCreateOrConnectWithoutRepositoriesInput = {
+  where: Prisma.AppSettingsWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppSettingsCreateWithoutRepositoriesInput, Prisma.AppSettingsUncheckedCreateWithoutRepositoriesInput>
+}
+
+export type AppSettingsUpsertWithoutRepositoriesInput = {
+  update: Prisma.XOR<Prisma.AppSettingsUpdateWithoutRepositoriesInput, Prisma.AppSettingsUncheckedUpdateWithoutRepositoriesInput>
+  create: Prisma.XOR<Prisma.AppSettingsCreateWithoutRepositoriesInput, Prisma.AppSettingsUncheckedCreateWithoutRepositoriesInput>
+  where?: Prisma.AppSettingsWhereInput
+}
+
+export type AppSettingsUpdateToOneWithWhereWithoutRepositoriesInput = {
+  where?: Prisma.AppSettingsWhereInput
+  data: Prisma.XOR<Prisma.AppSettingsUpdateWithoutRepositoriesInput, Prisma.AppSettingsUncheckedUpdateWithoutRepositoriesInput>
+}
+
+export type AppSettingsUpdateWithoutRepositoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  insights?: Prisma.InsightUpdateManyWithoutOwnerNestedInput
+}
+
+export type AppSettingsUncheckedUpdateWithoutRepositoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  insights?: Prisma.InsightUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type AppSettingsCreateWithoutInsightsInput = {
+  id?: string
+  sessionId: string
+  encryptedToken: string
+  tokenCreatedAt?: Date | string
+  githubLogin?: string | null
+  githubUserId?: number | null
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  repositories?: Prisma.RepositoryCreateNestedManyWithoutOwnerInput
+}
+
+export type AppSettingsUncheckedCreateWithoutInsightsInput = {
+  id?: string
+  sessionId: string
+  encryptedToken: string
+  tokenCreatedAt?: Date | string
+  githubLogin?: string | null
+  githubUserId?: number | null
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  repositories?: Prisma.RepositoryUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type AppSettingsCreateOrConnectWithoutInsightsInput = {
+  where: Prisma.AppSettingsWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppSettingsCreateWithoutInsightsInput, Prisma.AppSettingsUncheckedCreateWithoutInsightsInput>
+}
+
+export type AppSettingsUpsertWithoutInsightsInput = {
+  update: Prisma.XOR<Prisma.AppSettingsUpdateWithoutInsightsInput, Prisma.AppSettingsUncheckedUpdateWithoutInsightsInput>
+  create: Prisma.XOR<Prisma.AppSettingsCreateWithoutInsightsInput, Prisma.AppSettingsUncheckedCreateWithoutInsightsInput>
+  where?: Prisma.AppSettingsWhereInput
+}
+
+export type AppSettingsUpdateToOneWithWhereWithoutInsightsInput = {
+  where?: Prisma.AppSettingsWhereInput
+  data: Prisma.XOR<Prisma.AppSettingsUpdateWithoutInsightsInput, Prisma.AppSettingsUncheckedUpdateWithoutInsightsInput>
+}
+
+export type AppSettingsUpdateWithoutInsightsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repositories?: Prisma.RepositoryUpdateManyWithoutOwnerNestedInput
+}
+
+export type AppSettingsUncheckedUpdateWithoutInsightsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repositories?: Prisma.RepositoryUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+
+/**
+ * Count Type AppSettingsCountOutputType
+ */
+
+export type AppSettingsCountOutputType = {
+  repositories: number
+  insights: number
+}
+
+export type AppSettingsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  repositories?: boolean | AppSettingsCountOutputTypeCountRepositoriesArgs
+  insights?: boolean | AppSettingsCountOutputTypeCountInsightsArgs
+}
+
+/**
+ * AppSettingsCountOutputType without action
+ */
+export type AppSettingsCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppSettingsCountOutputType
+   */
+  select?: Prisma.AppSettingsCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AppSettingsCountOutputType without action
+ */
+export type AppSettingsCountOutputTypeCountRepositoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RepositoryWhereInput
+}
+
+/**
+ * AppSettingsCountOutputType without action
+ */
+export type AppSettingsCountOutputTypeCountInsightsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InsightWhereInput
+}
 
 
 export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  sessionId?: boolean
   encryptedToken?: boolean
   tokenCreatedAt?: boolean
   githubLogin?: boolean
@@ -519,10 +787,14 @@ export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   lastSyncedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  repositories?: boolean | Prisma.AppSettings$repositoriesArgs<ExtArgs>
+  insights?: boolean | Prisma.AppSettings$insightsArgs<ExtArgs>
+  _count?: boolean | Prisma.AppSettingsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appSettings"]>
 
 export type AppSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  sessionId?: boolean
   encryptedToken?: boolean
   tokenCreatedAt?: boolean
   githubLogin?: boolean
@@ -537,6 +809,7 @@ export type AppSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type AppSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  sessionId?: boolean
   encryptedToken?: boolean
   tokenCreatedAt?: boolean
   githubLogin?: boolean
@@ -551,6 +824,7 @@ export type AppSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type AppSettingsSelectScalar = {
   id?: boolean
+  sessionId?: boolean
   encryptedToken?: boolean
   tokenCreatedAt?: boolean
   githubLogin?: boolean
@@ -563,13 +837,24 @@ export type AppSettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "encryptedToken" | "tokenCreatedAt" | "githubLogin" | "githubUserId" | "email" | "name" | "avatarUrl" | "lastSyncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["appSettings"]>
+export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sessionId" | "encryptedToken" | "tokenCreatedAt" | "githubLogin" | "githubUserId" | "email" | "name" | "avatarUrl" | "lastSyncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["appSettings"]>
+export type AppSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  repositories?: boolean | Prisma.AppSettings$repositoriesArgs<ExtArgs>
+  insights?: boolean | Prisma.AppSettings$insightsArgs<ExtArgs>
+  _count?: boolean | Prisma.AppSettingsCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type AppSettingsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type AppSettingsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AppSettings"
-  objects: {}
+  objects: {
+    repositories: Prisma.$RepositoryPayload<ExtArgs>[]
+    insights: Prisma.$InsightPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    sessionId: string
     encryptedToken: string
     tokenCreatedAt: Date
     githubLogin: string | null
@@ -974,6 +1259,8 @@ readonly fields: AppSettingsFieldRefs;
  */
 export interface Prisma__AppSettingsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  repositories<T extends Prisma.AppSettings$repositoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettings$repositoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RepositoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  insights<T extends Prisma.AppSettings$insightsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettings$insightsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1004,6 +1291,7 @@ export interface Prisma__AppSettingsClient<T, Null = never, ExtArgs extends runt
  */
 export interface AppSettingsFieldRefs {
   readonly id: Prisma.FieldRef<"AppSettings", 'String'>
+  readonly sessionId: Prisma.FieldRef<"AppSettings", 'String'>
   readonly encryptedToken: Prisma.FieldRef<"AppSettings", 'String'>
   readonly tokenCreatedAt: Prisma.FieldRef<"AppSettings", 'DateTime'>
   readonly githubLogin: Prisma.FieldRef<"AppSettings", 'String'>
@@ -1031,6 +1319,10 @@ export type AppSettingsFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
+  /**
    * Filter, which AppSettings to fetch.
    */
   where: Prisma.AppSettingsWhereUniqueInput
@@ -1049,6 +1341,10 @@ export type AppSettingsFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
+  /**
    * Filter, which AppSettings to fetch.
    */
   where: Prisma.AppSettingsWhereUniqueInput
@@ -1066,6 +1362,10 @@ export type AppSettingsFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the AppSettings
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
   /**
    * Filter, which AppSettings to fetch.
    */
@@ -1115,6 +1415,10 @@ export type AppSettingsFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
+  /**
    * Filter, which AppSettings to fetch.
    */
   where?: Prisma.AppSettingsWhereInput
@@ -1163,6 +1467,10 @@ export type AppSettingsFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
+  /**
    * Filter, which AppSettings to fetch.
    */
   where?: Prisma.AppSettingsWhereInput
@@ -1205,6 +1513,10 @@ export type AppSettingsCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the AppSettings
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
   /**
    * The data needed to create a AppSettings.
    */
@@ -1253,6 +1565,10 @@ export type AppSettingsUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the AppSettings
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
   /**
    * The data needed to update a AppSettings.
    */
@@ -1320,6 +1636,10 @@ export type AppSettingsUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
+  /**
    * The filter to search for the AppSettings to update in case it exists.
    */
   where: Prisma.AppSettingsWhereUniqueInput
@@ -1346,6 +1666,10 @@ export type AppSettingsDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
+  /**
    * Filter which AppSettings to delete.
    */
   where: Prisma.AppSettingsWhereUniqueInput
@@ -1366,6 +1690,54 @@ export type AppSettingsDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * AppSettings.repositories
+ */
+export type AppSettings$repositoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Repository
+   */
+  select?: Prisma.RepositorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Repository
+   */
+  omit?: Prisma.RepositoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RepositoryInclude<ExtArgs> | null
+  where?: Prisma.RepositoryWhereInput
+  orderBy?: Prisma.RepositoryOrderByWithRelationInput | Prisma.RepositoryOrderByWithRelationInput[]
+  cursor?: Prisma.RepositoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RepositoryScalarFieldEnum | Prisma.RepositoryScalarFieldEnum[]
+}
+
+/**
+ * AppSettings.insights
+ */
+export type AppSettings$insightsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Insight
+   */
+  select?: Prisma.InsightSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Insight
+   */
+  omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
+  where?: Prisma.InsightWhereInput
+  orderBy?: Prisma.InsightOrderByWithRelationInput | Prisma.InsightOrderByWithRelationInput[]
+  cursor?: Prisma.InsightWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InsightScalarFieldEnum | Prisma.InsightScalarFieldEnum[]
+}
+
+/**
  * AppSettings without action
  */
 export type AppSettingsDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1377,4 +1749,8 @@ export type AppSettingsDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the AppSettings
    */
   omit?: Prisma.AppSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppSettingsInclude<ExtArgs> | null
 }

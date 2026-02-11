@@ -2,18 +2,37 @@ import { NextResponse } from 'next/server';
 import { generateInsights } from '@/lib/insights';
 import { db } from '@/lib/db';
 
+import { cookies } from 'next/headers';
+
 /**
  * Generate and store AI/rule-based insights
  * Cleans up old insights before generating new ones
  */
 export async function POST() {
   try {
-    // Generate insights
-    const insights = await generateInsights();
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('session_id')?.value;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const settings = await db.appSettings.findUnique({
+      where: { sessionId },
+    });
+
+    if (!settings) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Generate insights for this user
+    const insights = await generateInsights(settings.id);
 
     // Clean up old insights before inserting new ones (keep only latest batch)
+    // Only delete insights for THIS user
     await db.insight.deleteMany({
       where: {
+        ownerId: settings.id,
         isDismissed: false,
         isRead: false,
       },
@@ -28,6 +47,7 @@ export async function POST() {
           type: insight.type,
           category: insight.category,
           priority: insight.priority,
+          ownerId: settings.id,
           data: {
             action: insight.action,
             metric: insight.metric,
@@ -57,8 +77,26 @@ export async function POST() {
  */
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('session_id')?.value;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const settings = await db.appSettings.findUnique({
+      where: { sessionId },
+    });
+
+    if (!settings) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const insights = await db.insight.findMany({
-      where: { isDismissed: false },
+      where: { 
+        ownerId: settings.id,
+        isDismissed: false 
+      },
       orderBy: [{ priority: 'desc' }, { generatedAt: 'desc' }],
       take: 20,
     });

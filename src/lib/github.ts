@@ -34,6 +34,14 @@ export class GitHubClient {
   }
 
   /**
+   * Initialize client with specific settings (for cron jobs)
+   */
+  static async initializeWithSettings(settings: { encryptedToken: string }): Promise<GitHubClient> {
+    const token = await decrypt(settings.encryptedToken);
+    return new GitHubClient(token);
+  }
+
+  /**
    * Fetch all repositories for the authenticated user
    */
   async fetchUserRepos() {

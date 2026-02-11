@@ -12,13 +12,25 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+import { cookies } from 'next/headers';
+
 export default async function DashboardPage() {
-  const settings = await db.appSettings.findFirst();
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get('session_id')?.value;
+
+  if (!sessionId) {
+    redirect('/setup');
+  }
+
+  const settings = await db.appSettings.findUnique({
+    where: { sessionId },
+  });
 
   if (!settings) {
     redirect('/setup');
   }
 
+  // Parallelize independent data fetching
   // Parallelize independent data fetching
   const [
     repositories,
@@ -32,7 +44,10 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     // 1. Repositories
     db.repository.findMany({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        ownerId: settings.id 
+      },
       orderBy: { lastSyncedAt: 'desc' },
       include: {
         _count: {
@@ -43,6 +58,11 @@ export default async function DashboardPage() {
 
     // 2. Recent PRs
     db.pullRequest.findMany({
+      where: {
+        repository: {
+          ownerId: settings.id
+        }
+      },
       take: 10,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -56,18 +76,38 @@ export default async function DashboardPage() {
     }),
 
     // 3. Stats counts
-    db.pullRequest.count(),
-    db.pullRequest.count({ where: { state: 'MERGED' } }),
-    db.pullRequest.count({ where: { state: 'OPEN' } }),
+    db.pullRequest.count({
+      where: {
+        repository: {
+          ownerId: settings.id
+        }
+      }
+    }),
+    db.pullRequest.count({ 
+      where: { 
+        state: 'MERGED',
+        repository: {
+          ownerId: settings.id
+        }
+      } 
+    }),
+    db.pullRequest.count({ 
+      where: { 
+        state: 'OPEN',
+        repository: {
+          ownerId: settings.id
+        }
+      } 
+    }),
 
     // 4. Contributors
-    getTopContributors(10),
+    getTopContributors(settings.id, 10),
 
     // 5. Charts
-    getTimeSeriesData(30),
+    getTimeSeriesData(settings.id, 30),
 
     // 6. Insights
-    generateInsights().catch((e) => {
+    generateInsights(settings.id).catch((e) => {
       console.error('Failed to generate insights for dashboard:', e);
       return [];
     }),

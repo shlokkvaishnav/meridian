@@ -41,170 +41,212 @@ export async function GET(request: NextRequest) {
     });
 
     try {
-      // Get GitHub client
-      const github = await GitHubClient.fromDatabase();
+      // Fetch all users (AppSettings)
+      const allSettings = await db.appSettings.findMany();
+      console.log(`Found ${allSettings.length} users to sync`);
 
-      // Fetch repositories
-      const repos = await github.fetchUserRepos();
-      console.log(`Found ${repos.length} repositories`);
-
+      let totalRepos = 0;
       let totalPRs = 0;
       let totalReviews = 0;
+      let totalInsights = 0;
 
-      // Get last sync time for incremental sync
-      const settings = await db.appSettings.findFirst();
-      const lastSync = settings?.lastSyncedAt;
-
-      // Sync each repository's PRs
-      for (const repo of repos) {
-        const [owner, repoName] = repo.fullName.split('/');
-
+      // Sync for each user
+      for (const settings of allSettings) {
+        console.log(`Syncing for user session: ${settings.sessionId}`);
+        
         try {
-          // Upsert repository
-          const dbRepo = await db.repository.upsert({
-            where: { githubRepoId: repo.githubRepoId },
-            create: repo,
-            update: {
-              ...repo,
-              lastSyncedAt: new Date(),
-            },
-          });
+          // Get GitHub client for this specific user
+          // We need a way to instantiate client from a specific settings object
+          // Since GitHubClient.fromDatabase() likely fetches findFirst(), we need to instantiate directly
+          // or add a method to GitHubClient to accept settings.
+          
+          // Assuming we can pass the encrypted token to a new static method or constructor
+          // Let's modify GitHubClient usage. 
+          // Since I can't easily see GitHubClient code right now, I'll update it to use a new method I'll add: `fromSettings`
+          // Or just assuming I can use `new GitHubClient(token)` if I decrypt it?
+          // I'll stick to `GitHubClient.fromDatabase(settings.id)` if I modify that class, 
+          // or better: let's use `GitHubClient.fromSettings(settings)` which I will implement.
+          
+          // Wait, I haven't modified GitHubClient yet. I should rely on what I can control.
+          // I'll modify GitHubClient in a separate step or just use the token if possible.
+          // For now, I will use a placeholder `GitHubClient.init(settings)` and I will update `lib/github.ts` next.
+          
+          const github = await GitHubClient.initializeWithSettings(settings);
 
-          // Fetch PRs (only updated since last sync for incremental)
-          const prs = await github.fetchPRs(owner, repoName, lastSync || undefined);
-          console.log(`Syncing ${prs.length} PRs for ${repo.fullName}`);
+          // Fetch repositories
+          const repos = await github.fetchUserRepos();
+          console.log(`Found ${repos.length} repositories for user`);
+          totalRepos += repos.length;
 
-          for (const pr of prs) {
-            // Upsert PR
-            const prData = {
-              githubPrId: pr.githubPrId,
-              number: pr.number,
-              title: pr.title,
-              body: pr.body,
-              state: pr.state as 'OPEN' | 'MERGED' | 'CLOSED',
-              authorLogin: pr.authorLogin,
-              authorAvatarUrl: pr.authorAvatarUrl,
-              createdAt: pr.createdAt,
-              updatedAt: pr.updatedAt,
-              closedAt: pr.closedAt,
-              mergedAt: pr.mergedAt,
-              linesAdded: pr.linesAdded,
-              linesDeleted: pr.linesDeleted,
-              filesChanged: pr.filesChanged,
-              commitsCount: pr.commitsCount,
-            };
+          // Sync each repository
+          for (const repo of repos) {
+            const [owner, repoName] = repo.fullName.split('/');
 
-            const dbPR = await db.pullRequest.upsert({
-              where: {
-                repositoryId_number: {
-                  repositoryId: dbRepo.id,
-                  number: pr.number,
-                },
-              },
-              create: {
-                ...prData,
-                repositoryId: dbRepo.id,
-              },
-              update: prData,
-            });
-
-            totalPRs++;
-
-            // Fetch and store reviews
             try {
-              const reviews = await github.fetchReviews(owner, repoName, pr.number);
+              // Upsert repository with ownerId
+              const dbRepo = await db.repository.upsert({
+                where: { 
+                  ownerId_githubRepoId: {
+                    ownerId: settings.id,
+                    githubRepoId: repo.githubRepoId
+                  }
+                },
+                create: {
+                  ...repo,
+                  ownerId: settings.id
+                },
+                update: {
+                  ...repo,
+                  lastSyncedAt: new Date(),
+                  // ensure ownerId is preserved (though it shouldn't change)
+                },
+              });
 
-              for (const review of reviews) {
-                await db.review.upsert({
-                  where: { githubReviewId: review.githubReviewId },
+              // Fetch PRs (only updated since last sync)
+              // We pass lastSync from THIS user's settings
+              const prs = await github.fetchPRs(owner, repoName, settings.lastSyncedAt || undefined);
+              console.log(`Syncing ${prs.length} PRs for ${repo.fullName}`);
+
+              for (const pr of prs) {
+                // Upsert PR
+                const prData = {
+                  githubPrId: pr.githubPrId,
+                  number: pr.number,
+                  title: pr.title,
+                  body: pr.body,
+                  state: pr.state as 'OPEN' | 'MERGED' | 'CLOSED',
+                  authorLogin: pr.authorLogin,
+                  authorAvatarUrl: pr.authorAvatarUrl,
+                  createdAt: pr.createdAt,
+                  updatedAt: pr.updatedAt,
+                  closedAt: pr.closedAt,
+                  mergedAt: pr.mergedAt,
+                  linesAdded: pr.linesAdded,
+                  linesDeleted: pr.linesDeleted,
+                  filesChanged: pr.filesChanged,
+                  commitsCount: pr.commitsCount,
+                };
+
+                const dbPR = await db.pullRequest.upsert({
+                  where: {
+                    repositoryId_number: {
+                      repositoryId: dbRepo.id,
+                      number: pr.number,
+                    },
+                  },
                   create: {
-                    ...review,
-                    pullRequestId: dbPR.id,
+                    ...prData,
+                    repositoryId: dbRepo.id,
                   },
-                  update: {
-                    reviewerLogin: review.reviewerLogin,
-                    reviewerAvatarUrl: review.reviewerAvatarUrl,
-                    state: review.state,
-                    body: review.body,
-                    submittedAt: review.submittedAt,
-                  },
+                  update: prData,
                 });
-                totalReviews++;
+
+                totalPRs++;
+
+                // Fetch and store reviews
+                try {
+                  const reviews = await github.fetchReviews(owner, repoName, pr.number);
+
+                  for (const review of reviews) {
+                    await db.review.upsert({
+                      where: { githubReviewId: review.githubReviewId },
+                      create: {
+                        ...review,
+                        pullRequestId: dbPR.id,
+                      },
+                      update: {
+                        reviewerLogin: review.reviewerLogin,
+                        reviewerAvatarUrl: review.reviewerAvatarUrl,
+                        state: review.state,
+                        body: review.body,
+                        submittedAt: review.submittedAt,
+                      },
+                    });
+                    totalReviews++;
+                  }
+
+                  // Compute metrics (time to first review, etc.)
+                  if (reviews.length > 0) {
+                    const firstReview = reviews.sort((a, b) =>
+                      a.submittedAt.getTime() - b.submittedAt.getTime()
+                    )[0];
+
+                    const timeToFirstReview = Math.floor(
+                      (firstReview.submittedAt.getTime() - pr.createdAt.getTime()) / 1000 / 60
+                    );
+
+                    await db.pullRequest.update({
+                      where: { id: dbPR.id },
+                      data: {
+                        timeToFirstReview,
+                        reviewCycleCount: reviews.length,
+                      },
+                    });
+                  }
+
+                  if (pr.mergedAt) {
+                    const timeToMerge = Math.floor(
+                      (pr.mergedAt.getTime() - pr.createdAt.getTime()) / 1000 / 60
+                    );
+
+                    await db.pullRequest.update({
+                      where: { id: dbPR.id },
+                      data: { timeToMerge },
+                    });
+                  }
+                } catch (reviewError) {
+                  console.error(`Error syncing reviews for PR #${pr.number}:`, reviewError);
+                }
               }
 
-              // Compute metrics
-              if (reviews.length > 0) {
-                const firstReview = reviews.sort((a, b) =>
-                  a.submittedAt.getTime() - b.submittedAt.getTime()
-                )[0];
-
-                const timeToFirstReview = Math.floor(
-                  (firstReview.submittedAt.getTime() - pr.createdAt.getTime()) / 1000 / 60
-                );
-
-                await db.pullRequest.update({
-                  where: { id: dbPR.id },
-                  data: {
-                    timeToFirstReview,
-                    reviewCycleCount: reviews.length,
-                  },
-                });
-              }
-
-              if (pr.mergedAt) {
-                const timeToMerge = Math.floor(
-                  (pr.mergedAt.getTime() - pr.createdAt.getTime()) / 1000 / 60
-                );
-
-                await db.pullRequest.update({
-                  where: { id: dbPR.id },
-                  data: { timeToMerge },
-                });
-              }
-            } catch (reviewError) {
-              console.error(`Error syncing reviews for PR #${pr.number}:`, reviewError);
+              // Update repo last synced
+              await db.repository.update({
+                where: { id: dbRepo.id },
+                data: { lastSyncedAt: new Date() },
+              });
+            } catch (error) {
+              console.error(`Error syncing repo ${repo.fullName}:`, error);
             }
           }
 
-          // Update repo last synced
-          await db.repository.update({
-            where: { id: dbRepo.id },
+          // Update this user's lastSyncedAt
+          await db.appSettings.update({
+            where: { id: settings.id },
             data: { lastSyncedAt: new Date() },
           });
-        } catch (error) {
-          console.error(`Error syncing ${repo.fullName}:`, error);
+
+          // Generate insights for THIS user
+          console.log(`Generating insights for user ${settings.id}...`);
+          const insights = await generateInsights(settings.id);
+          totalInsights += insights.length;
+
+          // Store insights with ownerId
+          await Promise.all(
+            insights.map((insight) =>
+              db.insight.create({
+                data: {
+                  title: insight.title,
+                  description: insight.description,
+                  type: insight.type,
+                  category: insight.category,
+                  priority: insight.priority,
+                  ownerId: settings.id, // Link to user
+                  data: {
+                    action: insight.action,
+                    metric: insight.metric,
+                    affectedContributors: insight.affectedContributors,
+                  },
+                  generatedAt: new Date(),
+                },
+              })
+            )
+          );
+
+        } catch (userError) {
+          console.error(`Error syncing user ${settings.id}:`, userError);
+          // Continue to next user
         }
       }
-
-      // Update app settings
-      await db.appSettings.updateMany({
-        data: { lastSyncedAt: new Date() },
-      });
-
-      // Generate insights after sync
-      console.log('Generating insights...');
-      const insights = await generateInsights();
-
-      // Store insights
-      await Promise.all(
-        insights.map((insight) =>
-          db.insight.create({
-            data: {
-              title: insight.title,
-              description: insight.description,
-              type: insight.type,
-              category: insight.category,
-              priority: insight.priority,
-              data: {
-                action: insight.action,
-                metric: insight.metric,
-                affectedContributors: insight.affectedContributors,
-              },
-              generatedAt: new Date(),
-            },
-          })
-        )
-      );
 
       // Complete sync job
       await db.syncJob.update({
@@ -213,10 +255,11 @@ export async function GET(request: NextRequest) {
           status: 'COMPLETED',
           completedAt: new Date(),
           progress: {
-            repos: repos.length,
+            users: allSettings.length,
+            repos: totalRepos,
             prs: totalPRs,
             reviews: totalReviews,
-            insights: insights.length,
+            insights: totalInsights,
           },
         },
       });
@@ -226,10 +269,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         stats: {
-          repositories: repos.length,
+          users: allSettings.length,
+          repositories: totalRepos,
           pullRequests: totalPRs,
           reviews: totalReviews,
-          insights: insights.length,
+          insights: totalInsights,
         },
       });
     } catch (error: any) {

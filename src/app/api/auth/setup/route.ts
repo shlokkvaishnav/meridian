@@ -31,37 +31,48 @@ export async function POST(request: NextRequest) {
     // Encrypt the token
     const encryptedToken = await encrypt(token);
 
-    // Check if settings already exist
-    const existing = await db.appSettings.findFirst();
+    // Generate session ID
+    const sessionId = crypto.randomUUID();
 
-    if (existing) {
-      // Update existing settings
-      await db.appSettings.update({
-        where: { id: existing.id },
-        data: {
-          encryptedToken,
-          tokenCreatedAt: new Date(),
-          githubLogin: githubUser.login,
-          githubUserId: githubUser.id,
-          email: githubUser.email,
-          name: githubUser.name,
-          avatarUrl: githubUser.avatar_url,
-        },
-      });
-    } else {
-      // Create new settings
-      await db.appSettings.create({
-        data: {
-          encryptedToken,
-          tokenCreatedAt: new Date(),
-          githubLogin: githubUser.login,
-          githubUserId: githubUser.id,
-          email: githubUser.email,
-          name: githubUser.name,
-          avatarUrl: githubUser.avatar_url,
-        },
-      });
-    }
+    // Create response with cookie
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        login: githubUser.login,
+        name: githubUser.name,
+        avatarUrl: githubUser.avatar_url,
+      },
+    });
+
+    // Set secure session cookie
+    response.cookies.set('session_id', sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    });
+
+    // Check if settings already exist for this session (unlikely for new session, but good practice)
+    // Actually, since we just generated a new sessionId, it won't exist.
+    // But if the user HAD a cookie, we might want to update THAT session?
+    // For simplicity: Always create a NEW session on setup. 
+    // This ensures if I switch accounts, I get a fresh start.
+
+    await db.appSettings.create({
+      data: {
+        sessionId,
+        encryptedToken,
+        tokenCreatedAt: new Date(),
+        githubLogin: githubUser.login,
+        githubUserId: githubUser.id,
+        email: githubUser.email,
+        name: githubUser.name,
+        avatarUrl: githubUser.avatar_url,
+      },
+    });
+
+    return response;
 
     return NextResponse.json({
       success: true,

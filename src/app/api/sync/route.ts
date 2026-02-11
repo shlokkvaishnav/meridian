@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { GitHubClient } from '@/lib/github';
+import { cookies } from 'next/headers';
 
 // Maximum repos and PRs per sync to avoid timeout
 const MAX_REPOS = 10;
@@ -8,8 +9,23 @@ const MAX_PRS_PER_REPO = 50;
 
 export async function POST(request: NextRequest) {
   try {
-    // Get GitHub client
-    const github = await GitHubClient.fromDatabase();
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('session_id')?.value;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const settings = await db.appSettings.findUnique({
+      where: { sessionId },
+    });
+
+    if (!settings) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get GitHub client for this user
+    const github = await GitHubClient.initializeWithSettings(settings);
 
     // Start sync job
     const syncJob = await db.syncJob.create({
@@ -17,6 +33,7 @@ export async function POST(request: NextRequest) {
         jobType: 'full_sync',
         status: 'RUNNING',
         startedAt: new Date(),
+        // TODO: Associate SyncJob with ownerId if we update schema
       },
     });
 
@@ -43,8 +60,16 @@ export async function POST(request: NextRequest) {
       
       for (const repo of repos) {
         await db.repository.upsert({
-          where: { githubRepoId: repo.githubRepoId },
-          create: repo,
+          where: { 
+            ownerId_githubRepoId: {
+              ownerId: settings.id,
+              githubRepoId: repo.githubRepoId
+            }
+          },
+          create: {
+            ...repo,
+            ownerId: settings.id,
+          },
           update: {
             ...repo,
             lastSyncedAt: new Date(),
@@ -61,14 +86,20 @@ export async function POST(request: NextRequest) {
         const [owner, repoName] = repo.fullName.split('/');
         
         try {
-          const prs = await github.fetchPRs(owner, repoName);
-          
+          // Verify we have the repo in DB with correct owner
           const dbRepo = await db.repository.findUnique({
-            where: { githubRepoId: repo.githubRepoId },
+            where: { 
+              ownerId_githubRepoId: {
+                ownerId: settings.id,
+                githubRepoId: repo.githubRepoId
+              }
+            },
           });
 
           if (!dbRepo) continue;
 
+          const prs = await github.fetchPRs(owner, repoName);
+          
           for (const pr of prs.slice(0, 50)) { // Limit to 50 PRs per repo
             // Upsert PR with proper typing
             const prData = {
@@ -173,7 +204,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Update app settings
-      await db.appSettings.updateMany({
+      await db.appSettings.update({
+        where: { id: settings.id },
         data: { lastSyncedAt: new Date() },
       });
 
@@ -222,14 +254,29 @@ export async function POST(request: NextRequest) {
 // Get sync status
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('session_id')?.value;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const settings = await db.appSettings.findUnique({
+      where: { sessionId },
+    });
+
+    if (!settings) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // TODO: Filter sync jobs by user? Currently SyncJob is global.
+    // We will just show latest job for now, or filter if we added ownerId.
     const latestJob = await db.syncJob.findFirst({
       orderBy: { createdAt: 'desc' },
     });
 
-    const settings = await db.appSettings.findFirst();
-
     return NextResponse.json({
-      lastSync: settings?.lastSyncedAt,
+      lastSync: settings.lastSyncedAt,
       latestJob,
     });
   } catch (error: any) {

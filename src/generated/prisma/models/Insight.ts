@@ -44,6 +44,7 @@ export type InsightMinAggregateOutputType = {
   generatedAt: Date | null
   isRead: boolean | null
   isDismissed: boolean | null
+  ownerId: string | null
 }
 
 export type InsightMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type InsightMaxAggregateOutputType = {
   generatedAt: Date | null
   isRead: boolean | null
   isDismissed: boolean | null
+  ownerId: string | null
 }
 
 export type InsightCountAggregateOutputType = {
@@ -69,6 +71,7 @@ export type InsightCountAggregateOutputType = {
   generatedAt: number
   isRead: number
   isDismissed: number
+  ownerId: number
   _all: number
 }
 
@@ -91,6 +94,7 @@ export type InsightMinAggregateInputType = {
   generatedAt?: true
   isRead?: true
   isDismissed?: true
+  ownerId?: true
 }
 
 export type InsightMaxAggregateInputType = {
@@ -103,6 +107,7 @@ export type InsightMaxAggregateInputType = {
   generatedAt?: true
   isRead?: true
   isDismissed?: true
+  ownerId?: true
 }
 
 export type InsightCountAggregateInputType = {
@@ -116,6 +121,7 @@ export type InsightCountAggregateInputType = {
   generatedAt?: true
   isRead?: true
   isDismissed?: true
+  ownerId?: true
   _all?: true
 }
 
@@ -216,6 +222,7 @@ export type InsightGroupByOutputType = {
   generatedAt: Date
   isRead: boolean
   isDismissed: boolean
+  ownerId: string
   _count: InsightCountAggregateOutputType | null
   _avg: InsightAvgAggregateOutputType | null
   _sum: InsightSumAggregateOutputType | null
@@ -252,6 +259,8 @@ export type InsightWhereInput = {
   generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
   isRead?: Prisma.BoolFilter<"Insight"> | boolean
   isDismissed?: Prisma.BoolFilter<"Insight"> | boolean
+  ownerId?: Prisma.StringFilter<"Insight"> | string
+  owner?: Prisma.XOR<Prisma.AppSettingsScalarRelationFilter, Prisma.AppSettingsWhereInput>
 }
 
 export type InsightOrderByWithRelationInput = {
@@ -265,6 +274,8 @@ export type InsightOrderByWithRelationInput = {
   generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
+  owner?: Prisma.AppSettingsOrderByWithRelationInput
 }
 
 export type InsightWhereUniqueInput = Prisma.AtLeast<{
@@ -281,6 +292,8 @@ export type InsightWhereUniqueInput = Prisma.AtLeast<{
   generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
   isRead?: Prisma.BoolFilter<"Insight"> | boolean
   isDismissed?: Prisma.BoolFilter<"Insight"> | boolean
+  ownerId?: Prisma.StringFilter<"Insight"> | string
+  owner?: Prisma.XOR<Prisma.AppSettingsScalarRelationFilter, Prisma.AppSettingsWhereInput>
 }, "id">
 
 export type InsightOrderByWithAggregationInput = {
@@ -294,6 +307,7 @@ export type InsightOrderByWithAggregationInput = {
   generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   _count?: Prisma.InsightCountOrderByAggregateInput
   _avg?: Prisma.InsightAvgOrderByAggregateInput
   _max?: Prisma.InsightMaxOrderByAggregateInput
@@ -315,6 +329,7 @@ export type InsightScalarWhereWithAggregatesInput = {
   generatedAt?: Prisma.DateTimeWithAggregatesFilter<"Insight"> | Date | string
   isRead?: Prisma.BoolWithAggregatesFilter<"Insight"> | boolean
   isDismissed?: Prisma.BoolWithAggregatesFilter<"Insight"> | boolean
+  ownerId?: Prisma.StringWithAggregatesFilter<"Insight"> | string
 }
 
 export type InsightCreateInput = {
@@ -328,6 +343,7 @@ export type InsightCreateInput = {
   generatedAt?: Date | string
   isRead?: boolean
   isDismissed?: boolean
+  owner: Prisma.AppSettingsCreateNestedOneWithoutInsightsInput
 }
 
 export type InsightUncheckedCreateInput = {
@@ -341,6 +357,7 @@ export type InsightUncheckedCreateInput = {
   generatedAt?: Date | string
   isRead?: boolean
   isDismissed?: boolean
+  ownerId: string
 }
 
 export type InsightUpdateInput = {
@@ -354,6 +371,7 @@ export type InsightUpdateInput = {
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  owner?: Prisma.AppSettingsUpdateOneRequiredWithoutInsightsNestedInput
 }
 
 export type InsightUncheckedUpdateInput = {
@@ -367,6 +385,7 @@ export type InsightUncheckedUpdateInput = {
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type InsightCreateManyInput = {
@@ -380,6 +399,7 @@ export type InsightCreateManyInput = {
   generatedAt?: Date | string
   isRead?: boolean
   isDismissed?: boolean
+  ownerId: string
 }
 
 export type InsightUpdateManyMutationInput = {
@@ -406,6 +426,17 @@ export type InsightUncheckedUpdateManyInput = {
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type InsightListRelationFilter = {
+  every?: Prisma.InsightWhereInput
+  some?: Prisma.InsightWhereInput
+  none?: Prisma.InsightWhereInput
+}
+
+export type InsightOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type InsightCountOrderByAggregateInput = {
@@ -419,6 +450,7 @@ export type InsightCountOrderByAggregateInput = {
   generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
 }
 
 export type InsightAvgOrderByAggregateInput = {
@@ -435,6 +467,7 @@ export type InsightMaxOrderByAggregateInput = {
   generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
 }
 
 export type InsightMinOrderByAggregateInput = {
@@ -447,10 +480,53 @@ export type InsightMinOrderByAggregateInput = {
   generatedAt?: Prisma.SortOrder
   isRead?: Prisma.SortOrder
   isDismissed?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
 }
 
 export type InsightSumOrderByAggregateInput = {
   priority?: Prisma.SortOrder
+}
+
+export type InsightCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.InsightCreateWithoutOwnerInput, Prisma.InsightUncheckedCreateWithoutOwnerInput> | Prisma.InsightCreateWithoutOwnerInput[] | Prisma.InsightUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOwnerInput | Prisma.InsightCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.InsightCreateManyOwnerInputEnvelope
+  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+}
+
+export type InsightUncheckedCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.InsightCreateWithoutOwnerInput, Prisma.InsightUncheckedCreateWithoutOwnerInput> | Prisma.InsightCreateWithoutOwnerInput[] | Prisma.InsightUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOwnerInput | Prisma.InsightCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.InsightCreateManyOwnerInputEnvelope
+  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+}
+
+export type InsightUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.InsightCreateWithoutOwnerInput, Prisma.InsightUncheckedCreateWithoutOwnerInput> | Prisma.InsightCreateWithoutOwnerInput[] | Prisma.InsightUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOwnerInput | Prisma.InsightCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.InsightUpsertWithWhereUniqueWithoutOwnerInput | Prisma.InsightUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.InsightCreateManyOwnerInputEnvelope
+  set?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  disconnect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  delete?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  update?: Prisma.InsightUpdateWithWhereUniqueWithoutOwnerInput | Prisma.InsightUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.InsightUpdateManyWithWhereWithoutOwnerInput | Prisma.InsightUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
+}
+
+export type InsightUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.InsightCreateWithoutOwnerInput, Prisma.InsightUncheckedCreateWithoutOwnerInput> | Prisma.InsightCreateWithoutOwnerInput[] | Prisma.InsightUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.InsightCreateOrConnectWithoutOwnerInput | Prisma.InsightCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.InsightUpsertWithWhereUniqueWithoutOwnerInput | Prisma.InsightUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.InsightCreateManyOwnerInputEnvelope
+  set?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  disconnect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  delete?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  connect?: Prisma.InsightWhereUniqueInput | Prisma.InsightWhereUniqueInput[]
+  update?: Prisma.InsightUpdateWithWhereUniqueWithoutOwnerInput | Prisma.InsightUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.InsightUpdateManyWithWhereWithoutOwnerInput | Prisma.InsightUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
 }
 
 export type EnumInsightTypeFieldUpdateOperationsInput = {
@@ -459,6 +535,127 @@ export type EnumInsightTypeFieldUpdateOperationsInput = {
 
 export type EnumInsightCategoryFieldUpdateOperationsInput = {
   set?: $Enums.InsightCategory
+}
+
+export type InsightCreateWithoutOwnerInput = {
+  id?: string
+  title: string
+  description: string
+  type: $Enums.InsightType
+  category: $Enums.InsightCategory
+  priority: number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
+  isRead?: boolean
+  isDismissed?: boolean
+}
+
+export type InsightUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  title: string
+  description: string
+  type: $Enums.InsightType
+  category: $Enums.InsightCategory
+  priority: number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
+  isRead?: boolean
+  isDismissed?: boolean
+}
+
+export type InsightCreateOrConnectWithoutOwnerInput = {
+  where: Prisma.InsightWhereUniqueInput
+  create: Prisma.XOR<Prisma.InsightCreateWithoutOwnerInput, Prisma.InsightUncheckedCreateWithoutOwnerInput>
+}
+
+export type InsightCreateManyOwnerInputEnvelope = {
+  data: Prisma.InsightCreateManyOwnerInput | Prisma.InsightCreateManyOwnerInput[]
+  skipDuplicates?: boolean
+}
+
+export type InsightUpsertWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.InsightWhereUniqueInput
+  update: Prisma.XOR<Prisma.InsightUpdateWithoutOwnerInput, Prisma.InsightUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.InsightCreateWithoutOwnerInput, Prisma.InsightUncheckedCreateWithoutOwnerInput>
+}
+
+export type InsightUpdateWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.InsightWhereUniqueInput
+  data: Prisma.XOR<Prisma.InsightUpdateWithoutOwnerInput, Prisma.InsightUncheckedUpdateWithoutOwnerInput>
+}
+
+export type InsightUpdateManyWithWhereWithoutOwnerInput = {
+  where: Prisma.InsightScalarWhereInput
+  data: Prisma.XOR<Prisma.InsightUpdateManyMutationInput, Prisma.InsightUncheckedUpdateManyWithoutOwnerInput>
+}
+
+export type InsightScalarWhereInput = {
+  AND?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
+  OR?: Prisma.InsightScalarWhereInput[]
+  NOT?: Prisma.InsightScalarWhereInput | Prisma.InsightScalarWhereInput[]
+  id?: Prisma.StringFilter<"Insight"> | string
+  title?: Prisma.StringFilter<"Insight"> | string
+  description?: Prisma.StringFilter<"Insight"> | string
+  type?: Prisma.EnumInsightTypeFilter<"Insight"> | $Enums.InsightType
+  category?: Prisma.EnumInsightCategoryFilter<"Insight"> | $Enums.InsightCategory
+  priority?: Prisma.IntFilter<"Insight"> | number
+  data?: Prisma.JsonFilter<"Insight">
+  generatedAt?: Prisma.DateTimeFilter<"Insight"> | Date | string
+  isRead?: Prisma.BoolFilter<"Insight"> | boolean
+  isDismissed?: Prisma.BoolFilter<"Insight"> | boolean
+  ownerId?: Prisma.StringFilter<"Insight"> | string
+}
+
+export type InsightCreateManyOwnerInput = {
+  id?: string
+  title: string
+  description: string
+  type: $Enums.InsightType
+  category: $Enums.InsightCategory
+  priority: number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
+  isRead?: boolean
+  isDismissed?: boolean
+}
+
+export type InsightUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
+  category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type InsightUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
+  category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type InsightUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumInsightTypeFieldUpdateOperationsInput | $Enums.InsightType
+  category?: Prisma.EnumInsightCategoryFieldUpdateOperationsInput | $Enums.InsightCategory
+  priority?: Prisma.IntFieldUpdateOperationsInput | number
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDismissed?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -474,6 +671,8 @@ export type InsightSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
+  ownerId?: boolean
+  owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["insight"]>
 
 export type InsightSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -487,6 +686,8 @@ export type InsightSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
+  ownerId?: boolean
+  owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["insight"]>
 
 export type InsightSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -500,6 +701,8 @@ export type InsightSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
+  ownerId?: boolean
+  owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["insight"]>
 
 export type InsightSelectScalar = {
@@ -513,13 +716,25 @@ export type InsightSelectScalar = {
   generatedAt?: boolean
   isRead?: boolean
   isDismissed?: boolean
+  ownerId?: boolean
 }
 
-export type InsightOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "type" | "category" | "priority" | "data" | "generatedAt" | "isRead" | "isDismissed", ExtArgs["result"]["insight"]>
+export type InsightOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "type" | "category" | "priority" | "data" | "generatedAt" | "isRead" | "isDismissed" | "ownerId", ExtArgs["result"]["insight"]>
+export type InsightInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
+}
+export type InsightIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
+}
+export type InsightIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
+}
 
 export type $InsightPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Insight"
-  objects: {}
+  objects: {
+    owner: Prisma.$AppSettingsPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
@@ -531,6 +746,7 @@ export type $InsightPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     generatedAt: Date
     isRead: boolean
     isDismissed: boolean
+    ownerId: string
   }, ExtArgs["result"]["insight"]>
   composites: {}
 }
@@ -925,6 +1141,7 @@ readonly fields: InsightFieldRefs;
  */
 export interface Prisma__InsightClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  owner<T extends Prisma.AppSettingsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettingsDefaultArgs<ExtArgs>>): Prisma.Prisma__AppSettingsClient<runtime.Types.Result.GetResult<Prisma.$AppSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -964,6 +1181,7 @@ export interface InsightFieldRefs {
   readonly generatedAt: Prisma.FieldRef<"Insight", 'DateTime'>
   readonly isRead: Prisma.FieldRef<"Insight", 'Boolean'>
   readonly isDismissed: Prisma.FieldRef<"Insight", 'Boolean'>
+  readonly ownerId: Prisma.FieldRef<"Insight", 'String'>
 }
     
 
@@ -980,6 +1198,10 @@ export type InsightFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * Filter, which Insight to fetch.
    */
@@ -999,6 +1221,10 @@ export type InsightFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
+  /**
    * Filter, which Insight to fetch.
    */
   where: Prisma.InsightWhereUniqueInput
@@ -1016,6 +1242,10 @@ export type InsightFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * Filter, which Insight to fetch.
    */
@@ -1065,6 +1295,10 @@ export type InsightFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
+  /**
    * Filter, which Insight to fetch.
    */
   where?: Prisma.InsightWhereInput
@@ -1113,6 +1347,10 @@ export type InsightFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
+  /**
    * Filter, which Insights to fetch.
    */
   where?: Prisma.InsightWhereInput
@@ -1156,6 +1394,10 @@ export type InsightCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
+  /**
    * The data needed to create a Insight.
    */
   data: Prisma.XOR<Prisma.InsightCreateInput, Prisma.InsightUncheckedCreateInput>
@@ -1189,6 +1431,10 @@ export type InsightCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    */
   data: Prisma.InsightCreateManyInput | Prisma.InsightCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1203,6 +1449,10 @@ export type InsightUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * The data needed to update a Insight.
    */
@@ -1255,6 +1505,10 @@ export type InsightUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many Insights to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1269,6 +1523,10 @@ export type InsightUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * The filter to search for the Insight to update in case it exists.
    */
@@ -1295,6 +1553,10 @@ export type InsightDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
   /**
    * Filter which Insight to delete.
    */
@@ -1327,4 +1589,8 @@ export type InsightDefaultArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Insight
    */
   omit?: Prisma.InsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InsightInclude<ExtArgs> | null
 }

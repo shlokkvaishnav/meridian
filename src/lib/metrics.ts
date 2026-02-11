@@ -12,10 +12,19 @@ import type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from '.
  * Get top contributors by PR count
  * Optimized to use DB aggregation where possible
  */
-export async function getTopContributors(limit: number = 10): Promise<ContributorStats[]> {
+/**
+ * Get top contributors by PR count
+ * Optimized to use DB aggregation where possible
+ */
+export async function getTopContributors(ownerId: string, limit: number = 10): Promise<ContributorStats[]> {
   // Aggregate PR statistics by author
   const prStats = await db.pullRequest.groupBy({
     by: ['authorLogin'],
+    where: {
+      repository: {
+        ownerId: ownerId
+      }
+    },
     _count: {
       id: true, // Total PRs
     },
@@ -28,7 +37,12 @@ export async function getTopContributors(limit: number = 10): Promise<Contributo
   // Get merged stats separately (Prisma doesn't support conditional count in groupBy yet)
   const mergedStats = await db.pullRequest.groupBy({
     by: ['authorLogin'],
-    where: { state: 'MERGED' },
+    where: { 
+      state: 'MERGED',
+      repository: {
+        ownerId: ownerId
+      }
+    },
     _count: {
       id: true, // Merged PRs
     },
@@ -40,6 +54,13 @@ export async function getTopContributors(limit: number = 10): Promise<Contributo
   // Get review stats
   const reviewStats = await db.review.groupBy({
     by: ['reviewerLogin'],
+    where: {
+      pullRequest: {
+        repository: {
+          ownerId: ownerId
+        }
+      }
+    },
     _count: {
       id: true, // Reviews given
     },
@@ -135,9 +156,11 @@ export async function getRepositoryMetrics(repositoryId: string): Promise<Reposi
     orderBy: { timeToMerge: 'asc' },
   });
 
-  const times = cycleTimes.map((pr) => pr.timeToMerge!);
+  const times = cycleTimes.map((pr: { timeToMerge: number | null }) => pr.timeToMerge!);
   const p50CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.5)] : null;
   const p75CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.75)] : null;
+
+  const timeToFirstReview = timeToReviewAgg._avg.timeToFirstReview ? Math.round(timeToReviewAgg._avg.timeToFirstReview) : null;
 
   return {
     repositoryId: repo.id,
@@ -148,20 +171,23 @@ export async function getRepositoryMetrics(repositoryId: string): Promise<Reposi
     avgCycleTime: cycleTimeAgg._avg.timeToMerge ? Math.round(cycleTimeAgg._avg.timeToMerge) : null,
     p50CycleTime,
     p75CycleTime,
-    avgTimeToFirstReview: timeToReviewAgg._avg.timeToFirstReview ? Math.round(timeToReviewAgg._avg.timeToFirstReview) : null,
+    avgTimeToFirstReview: timeToFirstReview,
   };
 }
 
 /**
  * Get time-series data for the last N days
  */
-export async function getTimeSeriesData(days: number = 30): Promise<TimeSeriesDataPoint[]> {
+export async function getTimeSeriesData(ownerId: string, days: number = 30): Promise<TimeSeriesDataPoint[]> {
   const startDate = subDays(new Date(), days);
 
   // Fetch only necessary fields for aggregation
   const prs = await db.pullRequest.findMany({
     where: {
       createdAt: { gte: startDate },
+      repository: {
+        ownerId: ownerId
+      }
     },
     select: {
       createdAt: true,
@@ -208,7 +234,7 @@ export async function getTimeSeriesData(days: number = 30): Promise<TimeSeriesDa
     const dayEnd = endOfDay(dayStart);
 
     const mergedOnDay = prs.filter(
-      (pr) =>
+      (pr: { mergedAt: Date | null; timeToMerge: number | null }) =>
         pr.mergedAt &&
         pr.mergedAt >= dayStart &&
         pr.mergedAt <= dayEnd &&
@@ -216,7 +242,7 @@ export async function getTimeSeriesData(days: number = 30): Promise<TimeSeriesDa
     );
 
     if (mergedOnDay.length > 0) {
-      const totalTime = mergedOnDay.reduce((sum, pr) => sum + (pr.timeToMerge || 0), 0);
+      const totalTime = mergedOnDay.reduce((sum: number, pr: { timeToMerge: number | null }) => sum + (pr.timeToMerge || 0), 0);
       point.avgCycleTime = Math.round(totalTime / mergedOnDay.length);
     }
   }

@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -12,6 +12,9 @@ datasource db {
 
 model AppSettings {
   id              String   @id @default(cuid())
+  
+  // Session ID to identify the browser session
+  sessionId       String   @unique
   
   // Encrypted GitHub Personal Access Token
   encryptedToken  String
@@ -29,14 +32,22 @@ model AppSettings {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
+  repositories    Repository[]
+  insights        Insight[]
+
   @@index([githubLogin])
+  @@index([sessionId])
 }
 
 // ==================== Repositories ====================
 
 model Repository {
   id              String   @id @default(cuid())
-  githubRepoId    Int      @unique
+  githubRepoId    Int      // Removed @unique because multiple users might track the same repo? 
+                           // Actually, for now let's keep it simple. If User A and User B both track "facebook/react", 
+                           // we probably want separate rows so they have their own sync state.
+                           // So yes, remove @unique from githubRepoId, or scope it to ownerId.
+  
   name            String
   fullName        String   // e.g., "username/repo-name"
   defaultBranch   String   @default("main")
@@ -46,14 +57,20 @@ model Repository {
   isActive        Boolean  @default(true)
   lastSyncedAt    DateTime?
   
+  // Owner (User Session)
+  ownerId         String
+  owner           AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
   pullRequests    PullRequest[]
   
+  @@unique([ownerId, githubRepoId]) // Ensure a user can't add the same repo twice
   @@index([fullName])
   @@index([lastSyncedAt])
   @@index([isActive])
+  @@index([ownerId])
 }
 
 // ==================== Pull Requests ====================
@@ -202,8 +219,13 @@ model Insight {
   isRead          Boolean  @default(false)
   isDismissed     Boolean  @default(false)
   
+  // Owner (User Session)
+  ownerId         String
+  owner           AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
   @@index([generatedAt])
   @@index([priority])
+  @@index([ownerId])
 }
 
 enum InsightType {

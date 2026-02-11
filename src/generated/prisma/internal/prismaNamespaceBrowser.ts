@@ -76,6 +76,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const AppSettingsScalarFieldEnum = {
   id: 'id',
+  sessionId: 'sessionId',
   encryptedToken: 'encryptedToken',
   tokenCreatedAt: 'tokenCreatedAt',
   githubLogin: 'githubLogin',
@@ -101,6 +102,7 @@ export const RepositoryScalarFieldEnum = {
   isPrivate: 'isPrivate',
   isActive: 'isActive',
   lastSyncedAt: 'lastSyncedAt',
+  ownerId: 'ownerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -188,7 +190,8 @@ export const InsightScalarFieldEnum = {
   data: 'data',
   generatedAt: 'generatedAt',
   isRead: 'isRead',
-  isDismissed: 'isDismissed'
+  isDismissed: 'isDismissed',
+  ownerId: 'ownerId'
 } as const
 
 export type InsightScalarFieldEnum = (typeof InsightScalarFieldEnum)[keyof typeof InsightScalarFieldEnum]

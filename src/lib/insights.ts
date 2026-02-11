@@ -27,7 +27,10 @@ export interface Insight {
 /**
  * Generate insights from PR data using rule-based analysis
  */
-export async function generateInsights(): Promise<Insight[]> {
+/**
+ * Generate insights from PR data using rule-based analysis
+ */
+export async function generateInsights(ownerId: string): Promise<Insight[]> {
   const insights: Insight[] = [];
 
   // Fetch data needed for analysis
@@ -38,6 +41,9 @@ export async function generateInsights(): Promise<Insight[]> {
   const pullRequests = await db.pullRequest.findMany({
     where: {
       createdAt: { gte: startDate },
+      repository: {
+        ownerId: ownerId
+      }
     },
     include: {
       repository: true,
