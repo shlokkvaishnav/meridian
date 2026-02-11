@@ -18,14 +18,12 @@ import { calculateContributorRisk } from './risk';
  * Get top contributors by PR count
  * Optimized to use DB aggregation where possible
  */
-export async function getTopContributors(ownerId: string, limit: number = 10): Promise<ContributorStats[]> {
+export async function getTopContributors(tenantId: string, limit: number = 10): Promise<ContributorStats[]> {
   // Aggregate PR statistics by author
   const prStats = await db.pullRequest.groupBy({
     by: ['authorLogin'],
     where: {
-      repository: {
-        ownerId: ownerId
-      }
+      tenantId,
     },
     _count: {
       id: true, // Total PRs
@@ -41,9 +39,7 @@ export async function getTopContributors(ownerId: string, limit: number = 10): P
     by: ['authorLogin'],
     where: { 
       state: 'MERGED',
-      repository: {
-        ownerId: ownerId
-      }
+      tenantId,
     },
     _count: {
       id: true, // Merged PRs
@@ -57,11 +53,7 @@ export async function getTopContributors(ownerId: string, limit: number = 10): P
   const reviewStats = await db.review.groupBy({
     by: ['reviewerLogin'],
     where: {
-      pullRequest: {
-        repository: {
-          ownerId: ownerId
-        }
-      }
+      tenantId,
     },
     _count: {
       id: true, // Reviews given
@@ -195,16 +187,14 @@ export async function getRepositoryMetrics(repositoryId: string): Promise<Reposi
 /**
  * Get time-series data for the last N days
  */
-export async function getTimeSeriesData(ownerId: string, days: number = 30): Promise<TimeSeriesDataPoint[]> {
+export async function getTimeSeriesData(tenantId: string, days: number = 30): Promise<TimeSeriesDataPoint[]> {
   const startDate = subDays(new Date(), days);
 
   // Fetch only necessary fields for aggregation
   const prs = await db.pullRequest.findMany({
     where: {
       createdAt: { gte: startDate },
-      repository: {
-        ownerId: ownerId
-      }
+      tenantId,
     },
     select: {
       createdAt: true,
@@ -296,11 +286,19 @@ export async function snapshotDailyMetrics(repositoryId: string): Promise<void> 
   const totalClosed = prsMerged + closedUnmerged;
   const mergeRate = totalClosed > 0 ? prsMerged / totalClosed : null;
 
-  // 4. Save
+  // 4. Determine tenant for this repository (if any)
+  const repo = await db.repository.findUnique({
+    where: { id: repositoryId },
+    select: { tenantId: true },
+  });
+
+  const tenantId = repo?.tenantId ?? null;
+
+  // 5. Save
   await db.metricSnapshot.upsert({
     where: { repositoryId_date: { repositoryId, date: dayStart } },
-    update: { prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate },
-    create: { repositoryId, date: dayStart, prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate },
+    update: { prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate, tenantId: tenantId ?? undefined },
+    create: { repositoryId, date: dayStart, prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate, tenantId },
   });
 }
 

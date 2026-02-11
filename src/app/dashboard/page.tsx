@@ -12,26 +12,18 @@ import { generateInsights } from '@/features/insights';
 import { Activity, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { auth } from '@/auth';
 
 export const dynamic = 'force-dynamic';
 
-import { cookies } from 'next/headers';
-
 export default async function DashboardPage() {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get('session_id')?.value;
+  const session = await auth();
 
-  if (!sessionId) {
-    redirect('/setup');
+  if (!session?.user || !(session as any).activeTenantId) {
+    redirect('/');
   }
 
-  const settings = await db.appSettings.findUnique({
-    where: { sessionId },
-  });
-
-  if (!settings) {
-    redirect('/setup');
-  }
+  const tenantId = (session as any).activeTenantId as string;
 
   // Parallelize independent data fetching
   // Parallelize independent data fetching
@@ -44,14 +36,13 @@ export default async function DashboardPage() {
     contributors,
     timeSeriesData,
     insights,
-    snapshots,
-    teams
+    snapshots
   ] = await Promise.all([
-    // 1. Repositories
+    // 1. Repositories (scoped to tenant)
     db.repository.findMany({
-      where: { 
+      where: {
         isActive: true,
-        ownerId: settings.id 
+        tenantId,
       },
       orderBy: { lastSyncedAt: 'desc' },
       include: {
@@ -64,9 +55,7 @@ export default async function DashboardPage() {
     // 2. Recent PRs
     db.pullRequest.findMany({
       where: {
-        repository: {
-          ownerId: settings.id
-        }
+        tenantId,
       },
       take: 10,
       orderBy: { createdAt: 'desc' },
@@ -83,36 +72,30 @@ export default async function DashboardPage() {
     // 3. Stats counts
     db.pullRequest.count({
       where: {
-        repository: {
-          ownerId: settings.id
-        }
-      }
+        tenantId,
+      },
     }),
-    db.pullRequest.count({ 
-      where: { 
+    db.pullRequest.count({
+      where: {
         state: 'MERGED',
-        repository: {
-          ownerId: settings.id
-        }
-      } 
+        tenantId,
+      },
     }),
-    db.pullRequest.count({ 
-      where: { 
+    db.pullRequest.count({
+      where: {
         state: 'OPEN',
-        repository: {
-          ownerId: settings.id
-        }
-      } 
+        tenantId,
+      },
     }),
 
     // 4. Contributors
-    getTopContributors(settings.id, 10),
+    getTopContributors(tenantId, 10),
 
     // 5. Charts
-    getTimeSeriesData(settings.id, 30),
+    getTimeSeriesData(tenantId, 30),
 
     // 6. Insights
-    generateInsights(settings.id).catch((e) => {
+    generateInsights(tenantId).catch((e) => {
       console.error('Failed to generate insights for dashboard:', e);
       return [];
     }),
@@ -120,9 +103,7 @@ export default async function DashboardPage() {
     // 7. Velocity Data (Snapshots)
     db.metricSnapshot.findMany({
       where: {
-        repository: {
-          ownerId: settings.id
-        }
+        tenantId,
       },
       orderBy: { date: 'asc' },
       take: 30, // Last 30 days
@@ -130,13 +111,7 @@ export default async function DashboardPage() {
         date: true,
         cycleTimeP50: true,
         mergeRate: true,
-      }
-    }),
-
-    // 8. Teams
-    db.team.findMany({
-      where: { ownerId: settings.id },
-      include: { members: true }
+      },
     }),
   ]);
 
@@ -159,7 +134,7 @@ export default async function DashboardPage() {
       <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-violet-500/[0.04] rounded-full blur-[120px] pointer-events-none" />
 
       {/* Header */}
-      <header className="relative z-10 border-b border-white/[0.06] sticky top-0 bg-[#0a0a0f]/80 backdrop-blur-xl">
+      <header className="sticky z-10 border-b border-white/[0.06] top-0 bg-[#0a0a0f]/80 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-5">
             <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
@@ -169,30 +144,27 @@ export default async function DashboardPage() {
               <span className="text-base font-semibold text-white tracking-tight">Meridian</span>
             </Link>
 
-            {settings.githubLogin && (
+            {'user' in session && (session.user as any)?.image && (
               <div className="flex items-center gap-2 pl-5 border-l border-white/[0.06]">
-                {settings.avatarUrl && (
-                  <Image
-                    src={settings.avatarUrl}
-                    alt={settings.githubLogin}
-                    className="h-6 w-6 rounded-full ring-1 ring-white/10"
-                    width={24}
-                    height={24}
-                  />
-                )}
-                <span className="text-sm text-slate-400">{settings.githubLogin}</span>
+                <Image
+                  src={(session.user as any).image}
+                  alt={session.user?.name || 'User avatar'}
+                  className="h-6 w-6 rounded-full ring-1 ring-white/10"
+                  width={24}
+                  height={24}
+                />
+                <span className="text-sm text-slate-400">
+                  {session.user?.name || session.user?.email}
+                </span>
               </div>
             )}
           </div>
 
-          {settings.lastSyncedAt && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Clock className="h-3 w-3" />
-              <span className="font-mono">
-                {formatDistanceToNow(new Date(settings.lastSyncedAt), { addSuffix: true })}
-              </span>
-            </div>
-          )}
+          {/* TODO: Wire this to per-tenant sync metadata once sync pipeline is tenant-aware */}
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <Clock className="h-3 w-3" />
+            <span className="font-mono">Multi-tenant mode</span>
+          </div>
         </div>
       </header>
 
@@ -216,7 +188,8 @@ export default async function DashboardPage() {
               <MetricsChart data={timeSeriesData} />
               <VelocityChart data={velocityData} />
             </div>
-            <TeamManagement initialTeams={teams} contributors={contributors} />
+            {/* Teams persistence will be wired to the new Team/TeamMember models */}
+            <TeamManagement initialTeams={[]} contributors={contributors} />
             <ContributorLeaderboard contributors={contributors} />
           </>
         )}
