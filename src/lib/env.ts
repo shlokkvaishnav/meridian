@@ -55,6 +55,7 @@ const getEnv = () => {
     // NEXT_PHASE is set by Next.js
     // npm_lifecycle_event is set by npm/pnpm/yarn
     const isBuild = 
+      !!process.env.SKIP_ENV_VALIDATION ||
       process.env.npm_lifecycle_event === 'build' || 
       !!process.env.CI ||
       !!process.env.VERCEL ||

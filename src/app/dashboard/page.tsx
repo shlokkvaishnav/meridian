@@ -10,6 +10,8 @@ import { generateInsights } from '@/lib/insights';
 import { Activity, Clock } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const settings = await db.appSettings.findFirst();
 
