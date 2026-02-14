@@ -1,24 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { SyncService } from '@/features/sync';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
+import { GitHubClient } from '@/lib/github';
+import { PRState } from '@/generated/prisma/client';
 
-export async function POST(request: NextRequest) {
+export const runtime = 'nodejs';
+
+export async function POST() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('session_id')?.value;
-
-    if (!sessionId) {
+    const session = await getSession();
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const settings = await db.appSettings.findUnique({
-      where: { sessionId },
-    });
-
-    if (!settings) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { settings } = session;
 
     // Get GitHub client for this user
     const github = await GitHubClient.initializeWithSettings(settings);
@@ -34,10 +29,114 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      // Use SyncService to perform the sync
-      const results = await SyncService.syncUser(settings.id);
+      // Fetch repos from GitHub
+      const repos = await github.fetchUserRepos();
+
+      // Upsert repositories
+      let repoCount = 0;
+      let prCount = 0;
+      let reviewCount = 0;
+
+      for (const repo of repos) {
+        const dbRepo = await db.repository.upsert({
+          where: {
+            ownerId_githubRepoId: {
+              ownerId: settings.id,
+              githubRepoId: repo.githubRepoId,
+            },
+          },
+          create: {
+            ...repo,
+            ownerId: settings.id,
+          },
+          update: {
+            name: repo.name,
+            fullName: repo.fullName,
+            defaultBranch: repo.defaultBranch,
+            description: repo.description,
+            isPrivate: repo.isPrivate,
+          },
+        });
+        repoCount++;
+
+        // Fetch PRs for each repo
+        const [owner, repoName] = repo.fullName.split('/');
+        const prs = await github.fetchPRs(owner, repoName, dbRepo.lastSyncedAt ?? undefined);
+
+        for (const pr of prs) {
+          await db.pullRequest.upsert({
+            where: {
+              repositoryId_number: {
+                repositoryId: dbRepo.id,
+                number: pr.number,
+              },
+            },
+            create: {
+              ...pr,
+              state: (pr.state as unknown) as PRState,
+              repositoryId: dbRepo.id,
+            },
+            update: {
+              title: pr.title,
+              body: pr.body,
+              state: (pr.state as unknown) as PRState,
+              updatedAt: pr.updatedAt,
+              closedAt: pr.closedAt,
+              mergedAt: pr.mergedAt,
+              linesAdded: pr.linesAdded,
+              linesDeleted: pr.linesDeleted,
+              filesChanged: pr.filesChanged,
+              commitsCount: pr.commitsCount,
+            },
+          });
+          prCount++;
+
+          // Fetch reviews
+          try {
+            const reviews = await github.fetchReviews(owner, repoName, pr.number);
+            for (const review of reviews) {
+              await db.review.upsert({
+                where: { githubReviewId: review.githubReviewId },
+                create: {
+                  ...review,
+                  pullRequestId: (
+                    await db.pullRequest.findUnique({
+                      where: {
+                        repositoryId_number: {
+                          repositoryId: dbRepo.id,
+                          number: pr.number,
+                        },
+                      },
+                    })
+                  )!.id,
+                },
+                update: {
+                  state: review.state,
+                  body: review.body,
+                },
+              });
+              reviewCount++;
+            }
+          } catch (e) {
+            console.warn(`Failed to fetch reviews for ${repo.fullName}#${pr.number}:`, e);
+          }
+        }
+
+        // Update last synced
+        await db.repository.update({
+          where: { id: dbRepo.id },
+          data: { lastSyncedAt: new Date() },
+        });
+      }
+
+      // Update AppSettings lastSyncedAt
+      await db.appSettings.update({
+        where: { id: settings.id },
+        data: { lastSyncedAt: new Date() },
+      });
 
       // Complete sync job
+      const results = { repos: repoCount, prs: prCount, reviews: reviewCount };
       await db.syncJob.update({
         where: { id: syncJob.id },
         data: {
@@ -50,13 +149,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         stats: {
-          repositories: results.repos,
-          pullRequests: results.prs,
-          reviews: results.reviews,
+          repositories: repoCount,
+          pullRequests: prCount,
+          reviews: reviewCount,
         },
       });
     } catch (error: unknown) {
-      // Fail the sync job
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await db.syncJob.update({
         where: { id: syncJob.id },
@@ -66,40 +164,27 @@ export async function POST(request: NextRequest) {
           error: errorMessage,
         },
       });
-
       throw error;
     }
   } catch (error: unknown) {
     console.error('Sync error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Sync failed';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
 // Get sync status
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('session_id')?.value;
-
-    if (!sessionId) {
+    const session = await getSession();
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const settings = await db.appSettings.findUnique({
-      where: { sessionId },
-    });
+    const { settings } = session;
 
-    if (!settings) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // TODO: Filter sync jobs by user? Currently SyncJob is global.
-    // We will just show latest job for now, or filter if we added ownerId.
     const latestJob = await db.syncJob.findFirst({
+      where: { ownerId: settings.id },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -107,7 +192,7 @@ export async function GET() {
       lastSync: settings.lastSyncedAt,
       latestJob,
     });
-  } catch (error: any) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to get sync status' },
       { status: 500 }

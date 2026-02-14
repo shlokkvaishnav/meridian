@@ -31,18 +31,26 @@ export interface Insight {
 /**
  * Generate insights from PR data using rule-based analysis
  */
-export async function generateInsights(tenantId: string): Promise<Insight[]> {
-  const insights: Insight[] = [];
+export async function generateInsights(ownerId: string): Promise<Insight[]> {
+  const insights: Insight[] = []; 
 
-  // Fetch data needed for analysis
-  // Fetch data needed for analysis (optimized: last 30 days only)
+  // Fetch data needed for analysis (last 30 days only)
   const now = new Date();
   const startDate = subDays(now, 30);
+
+  // Get repositories for this owner
+  const repos = await db.repository.findMany({
+    where: { ownerId },
+    select: { id: true },
+  });
+  const repoIds = repos.map((r) => r.id);
+
+  if (repoIds.length === 0) return insights;
 
   const pullRequests = await db.pullRequest.findMany({
     where: {
       createdAt: { gte: startDate },
-      tenantId,
+      repositoryId: { in: repoIds },
     },
     include: {
       repository: true,

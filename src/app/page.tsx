@@ -1,12 +1,16 @@
 import Link from 'next/link';
-import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity } from 'lucide-react';
+import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity, BarChart3, Shield } from 'lucide-react';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
+      {/* Animated grid background */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none" />
+
       {/* Ambient background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-violet-500/[0.07] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-violet-500/[0.07] rounded-full blur-[120px] pointer-events-none animate-float-slow" />
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-teal-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-violet-500/[0.03] rounded-full blur-[80px] pointer-events-none" />
 
       {/* Header */}
       <header className="relative z-10 border-b border-white/[0.06]">
@@ -38,7 +42,7 @@ export default function LandingPage() {
 
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight animate-fade-in-up stagger-1">
             Your GitHub,{' '}
-            <span className="bg-gradient-to-r from-violet-400 via-violet-300 to-slate-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-400 via-violet-300 to-teal-400 bg-clip-text text-transparent">
               decoded
             </span>
           </h1>
@@ -86,40 +90,56 @@ export default function LandingPage() {
               key={feature.title}
               className={`glass-card noise p-6 animate-fade-in-up stagger-${i + 4}`}
             >
-              <div className={`h-10 w-10 rounded-xl flex items-center justify-center mb-4 ${
-                feature.color === 'violet'
-                  ? 'bg-violet-500/10 text-violet-400'
-                  : feature.color === 'teal'
-                  ? 'bg-teal-500/10 text-teal-400'
-                  : 'bg-amber-500/10 text-amber-400'
-              }`}>
+              <div
+                className={`h-10 w-10 rounded-xl flex items-center justify-center mb-4 ${
+                  feature.color === 'violet'
+                    ? 'bg-violet-500/10 text-violet-400'
+                    : feature.color === 'teal'
+                    ? 'bg-teal-500/10 text-teal-400'
+                    : 'bg-amber-500/10 text-amber-400'
+                }`}
+              >
                 <feature.icon className="h-5 w-5" />
               </div>
               <h3 className="text-base font-semibold text-white mb-1.5 tracking-tight">
                 {feature.title}
               </h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {feature.desc}
-              </p>
+              <p className="text-sm text-slate-400 leading-relaxed">{feature.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* How It Works — Horizontal Steps */}
+        {/* Stats Bar */}
+        <div className="mt-20 max-w-3xl mx-auto animate-fade-in-up stagger-6">
+          <div className="glass-card p-6 grid grid-cols-3 gap-6 text-center">
+            {[
+              { icon: BarChart3, value: '7+', label: 'Key Metrics' },
+              { icon: Shield, value: 'AES-256', label: 'Encrypted Tokens' },
+              { icon: Zap, value: '<60s', label: 'Setup Time' },
+            ].map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center gap-2">
+                <stat.icon className="h-5 w-5 text-violet-400/60" />
+                <span className="text-2xl font-bold text-white font-mono-num">{stat.value}</span>
+                <span className="text-xs text-slate-500">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* How It Works */}
         <div className="mt-28 max-w-3xl mx-auto animate-fade-in-up stagger-6">
           <h2 className="text-2xl font-semibold text-white text-center mb-14 tracking-tight">
             Three steps to clarity
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Connecting line (desktop) */}
             <div className="hidden md:block absolute top-5 left-[16.67%] right-[16.67%] h-px bg-gradient-to-r from-violet-500/30 via-violet-500/20 to-violet-500/30" />
 
             {[
               { num: '01', title: 'Connect', desc: 'Create a GitHub token with repo read access' },
               { num: '02', title: 'Sync', desc: 'Meridian pulls your PRs, reviews, and commits' },
               { num: '03', title: 'Discover', desc: 'View metrics and intelligent recommendations' },
-            ].map((step, i) => (
+            ].map((step) => (
               <div key={step.num} className="text-center relative">
                 <div className="inline-flex items-center justify-center h-10 w-10 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-sm font-mono font-medium mb-4 relative z-10">
                   {step.num}
@@ -135,12 +155,13 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] mt-12">
         <div className="container mx-auto px-6 py-8 flex items-center justify-between">
-          <p className="text-xs text-slate-500">
-            Built with Next.js, Supabase & Prisma
-          </p>
-          <p className="text-xs text-slate-500">
-            Meridian
-          </p>
+          <div className="flex items-center gap-2">
+            <Activity className="h-3.5 w-3.5 text-violet-400/50" />
+            <p className="text-xs text-slate-500">
+              Built with Next.js, Supabase & Prisma
+            </p>
+          </div>
+          <p className="text-xs text-slate-500">Meridian</p>
         </div>
       </footer>
     </div>

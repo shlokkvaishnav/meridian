@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/library"
+import type * as runtime from "@prisma/client/runtime/client"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -274,6 +274,7 @@ export type RepositoryWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Repository"> | Date | string
   owner?: Prisma.XOR<Prisma.AppSettingsScalarRelationFilter, Prisma.AppSettingsWhereInput>
   pullRequests?: Prisma.PullRequestListRelationFilter
+  metricSnapshots?: Prisma.MetricSnapshotListRelationFilter
 }
 
 export type RepositoryOrderByWithRelationInput = {
@@ -291,6 +292,7 @@ export type RepositoryOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.AppSettingsOrderByWithRelationInput
   pullRequests?: Prisma.PullRequestOrderByRelationAggregateInput
+  metricSnapshots?: Prisma.MetricSnapshotOrderByRelationAggregateInput
 }
 
 export type RepositoryWhereUniqueInput = Prisma.AtLeast<{
@@ -312,6 +314,7 @@ export type RepositoryWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Repository"> | Date | string
   owner?: Prisma.XOR<Prisma.AppSettingsScalarRelationFilter, Prisma.AppSettingsWhereInput>
   pullRequests?: Prisma.PullRequestListRelationFilter
+  metricSnapshots?: Prisma.MetricSnapshotListRelationFilter
 }, "id" | "ownerId_githubRepoId">
 
 export type RepositoryOrderByWithAggregationInput = {
@@ -366,6 +369,7 @@ export type RepositoryCreateInput = {
   updatedAt?: Date | string
   owner: Prisma.AppSettingsCreateNestedOneWithoutRepositoriesInput
   pullRequests?: Prisma.PullRequestCreateNestedManyWithoutRepositoryInput
+  metricSnapshots?: Prisma.MetricSnapshotCreateNestedManyWithoutRepositoryInput
 }
 
 export type RepositoryUncheckedCreateInput = {
@@ -382,6 +386,7 @@ export type RepositoryUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pullRequests?: Prisma.PullRequestUncheckedCreateNestedManyWithoutRepositoryInput
+  metricSnapshots?: Prisma.MetricSnapshotUncheckedCreateNestedManyWithoutRepositoryInput
 }
 
 export type RepositoryUpdateInput = {
@@ -398,6 +403,7 @@ export type RepositoryUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.AppSettingsUpdateOneRequiredWithoutRepositoriesNestedInput
   pullRequests?: Prisma.PullRequestUpdateManyWithoutRepositoryNestedInput
+  metricSnapshots?: Prisma.MetricSnapshotUpdateManyWithoutRepositoryNestedInput
 }
 
 export type RepositoryUncheckedUpdateInput = {
@@ -414,6 +420,7 @@ export type RepositoryUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pullRequests?: Prisma.PullRequestUncheckedUpdateManyWithoutRepositoryNestedInput
+  metricSnapshots?: Prisma.MetricSnapshotUncheckedUpdateManyWithoutRepositoryNestedInput
 }
 
 export type RepositoryCreateManyInput = {
@@ -601,6 +608,20 @@ export type RepositoryUpdateOneRequiredWithoutPullRequestsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RepositoryUpdateToOneWithWhereWithoutPullRequestsInput, Prisma.RepositoryUpdateWithoutPullRequestsInput>, Prisma.RepositoryUncheckedUpdateWithoutPullRequestsInput>
 }
 
+export type RepositoryCreateNestedOneWithoutMetricSnapshotsInput = {
+  create?: Prisma.XOR<Prisma.RepositoryCreateWithoutMetricSnapshotsInput, Prisma.RepositoryUncheckedCreateWithoutMetricSnapshotsInput>
+  connectOrCreate?: Prisma.RepositoryCreateOrConnectWithoutMetricSnapshotsInput
+  connect?: Prisma.RepositoryWhereUniqueInput
+}
+
+export type RepositoryUpdateOneRequiredWithoutMetricSnapshotsNestedInput = {
+  create?: Prisma.XOR<Prisma.RepositoryCreateWithoutMetricSnapshotsInput, Prisma.RepositoryUncheckedCreateWithoutMetricSnapshotsInput>
+  connectOrCreate?: Prisma.RepositoryCreateOrConnectWithoutMetricSnapshotsInput
+  upsert?: Prisma.RepositoryUpsertWithoutMetricSnapshotsInput
+  connect?: Prisma.RepositoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RepositoryUpdateToOneWithWhereWithoutMetricSnapshotsInput, Prisma.RepositoryUpdateWithoutMetricSnapshotsInput>, Prisma.RepositoryUncheckedUpdateWithoutMetricSnapshotsInput>
+}
+
 export type RepositoryCreateWithoutOwnerInput = {
   id?: string
   githubRepoId: number
@@ -614,6 +635,7 @@ export type RepositoryCreateWithoutOwnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pullRequests?: Prisma.PullRequestCreateNestedManyWithoutRepositoryInput
+  metricSnapshots?: Prisma.MetricSnapshotCreateNestedManyWithoutRepositoryInput
 }
 
 export type RepositoryUncheckedCreateWithoutOwnerInput = {
@@ -629,6 +651,7 @@ export type RepositoryUncheckedCreateWithoutOwnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pullRequests?: Prisma.PullRequestUncheckedCreateNestedManyWithoutRepositoryInput
+  metricSnapshots?: Prisma.MetricSnapshotUncheckedCreateNestedManyWithoutRepositoryInput
 }
 
 export type RepositoryCreateOrConnectWithoutOwnerInput = {
@@ -688,6 +711,7 @@ export type RepositoryCreateWithoutPullRequestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.AppSettingsCreateNestedOneWithoutRepositoriesInput
+  metricSnapshots?: Prisma.MetricSnapshotCreateNestedManyWithoutRepositoryInput
 }
 
 export type RepositoryUncheckedCreateWithoutPullRequestsInput = {
@@ -703,6 +727,7 @@ export type RepositoryUncheckedCreateWithoutPullRequestsInput = {
   ownerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  metricSnapshots?: Prisma.MetricSnapshotUncheckedCreateNestedManyWithoutRepositoryInput
 }
 
 export type RepositoryCreateOrConnectWithoutPullRequestsInput = {
@@ -734,6 +759,7 @@ export type RepositoryUpdateWithoutPullRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.AppSettingsUpdateOneRequiredWithoutRepositoriesNestedInput
+  metricSnapshots?: Prisma.MetricSnapshotUpdateManyWithoutRepositoryNestedInput
 }
 
 export type RepositoryUncheckedUpdateWithoutPullRequestsInput = {
@@ -749,6 +775,87 @@ export type RepositoryUncheckedUpdateWithoutPullRequestsInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  metricSnapshots?: Prisma.MetricSnapshotUncheckedUpdateManyWithoutRepositoryNestedInput
+}
+
+export type RepositoryCreateWithoutMetricSnapshotsInput = {
+  id?: string
+  githubRepoId: number
+  name: string
+  fullName: string
+  defaultBranch?: string
+  description?: string | null
+  isPrivate?: boolean
+  isActive?: boolean
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.AppSettingsCreateNestedOneWithoutRepositoriesInput
+  pullRequests?: Prisma.PullRequestCreateNestedManyWithoutRepositoryInput
+}
+
+export type RepositoryUncheckedCreateWithoutMetricSnapshotsInput = {
+  id?: string
+  githubRepoId: number
+  name: string
+  fullName: string
+  defaultBranch?: string
+  description?: string | null
+  isPrivate?: boolean
+  isActive?: boolean
+  lastSyncedAt?: Date | string | null
+  ownerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  pullRequests?: Prisma.PullRequestUncheckedCreateNestedManyWithoutRepositoryInput
+}
+
+export type RepositoryCreateOrConnectWithoutMetricSnapshotsInput = {
+  where: Prisma.RepositoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.RepositoryCreateWithoutMetricSnapshotsInput, Prisma.RepositoryUncheckedCreateWithoutMetricSnapshotsInput>
+}
+
+export type RepositoryUpsertWithoutMetricSnapshotsInput = {
+  update: Prisma.XOR<Prisma.RepositoryUpdateWithoutMetricSnapshotsInput, Prisma.RepositoryUncheckedUpdateWithoutMetricSnapshotsInput>
+  create: Prisma.XOR<Prisma.RepositoryCreateWithoutMetricSnapshotsInput, Prisma.RepositoryUncheckedCreateWithoutMetricSnapshotsInput>
+  where?: Prisma.RepositoryWhereInput
+}
+
+export type RepositoryUpdateToOneWithWhereWithoutMetricSnapshotsInput = {
+  where?: Prisma.RepositoryWhereInput
+  data: Prisma.XOR<Prisma.RepositoryUpdateWithoutMetricSnapshotsInput, Prisma.RepositoryUncheckedUpdateWithoutMetricSnapshotsInput>
+}
+
+export type RepositoryUpdateWithoutMetricSnapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  githubRepoId?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultBranch?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.AppSettingsUpdateOneRequiredWithoutRepositoriesNestedInput
+  pullRequests?: Prisma.PullRequestUpdateManyWithoutRepositoryNestedInput
+}
+
+export type RepositoryUncheckedUpdateWithoutMetricSnapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  githubRepoId?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultBranch?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pullRequests?: Prisma.PullRequestUncheckedUpdateManyWithoutRepositoryNestedInput
 }
 
 export type RepositoryCreateManyOwnerInput = {
@@ -778,6 +885,7 @@ export type RepositoryUpdateWithoutOwnerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pullRequests?: Prisma.PullRequestUpdateManyWithoutRepositoryNestedInput
+  metricSnapshots?: Prisma.MetricSnapshotUpdateManyWithoutRepositoryNestedInput
 }
 
 export type RepositoryUncheckedUpdateWithoutOwnerInput = {
@@ -793,6 +901,7 @@ export type RepositoryUncheckedUpdateWithoutOwnerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pullRequests?: Prisma.PullRequestUncheckedUpdateManyWithoutRepositoryNestedInput
+  metricSnapshots?: Prisma.MetricSnapshotUncheckedUpdateManyWithoutRepositoryNestedInput
 }
 
 export type RepositoryUncheckedUpdateManyWithoutOwnerInput = {
@@ -816,10 +925,12 @@ export type RepositoryUncheckedUpdateManyWithoutOwnerInput = {
 
 export type RepositoryCountOutputType = {
   pullRequests: number
+  metricSnapshots: number
 }
 
 export type RepositoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pullRequests?: boolean | RepositoryCountOutputTypeCountPullRequestsArgs
+  metricSnapshots?: boolean | RepositoryCountOutputTypeCountMetricSnapshotsArgs
 }
 
 /**
@@ -839,6 +950,13 @@ export type RepositoryCountOutputTypeCountPullRequestsArgs<ExtArgs extends runti
   where?: Prisma.PullRequestWhereInput
 }
 
+/**
+ * RepositoryCountOutputType without action
+ */
+export type RepositoryCountOutputTypeCountMetricSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MetricSnapshotWhereInput
+}
+
 
 export type RepositorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -855,6 +973,7 @@ export type RepositorySelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   updatedAt?: boolean
   owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
   pullRequests?: boolean | Prisma.Repository$pullRequestsArgs<ExtArgs>
+  metricSnapshots?: boolean | Prisma.Repository$metricSnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.RepositoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["repository"]>
 
@@ -909,6 +1028,7 @@ export type RepositoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type RepositoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.AppSettingsDefaultArgs<ExtArgs>
   pullRequests?: boolean | Prisma.Repository$pullRequestsArgs<ExtArgs>
+  metricSnapshots?: boolean | Prisma.Repository$metricSnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.RepositoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RepositoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -923,6 +1043,7 @@ export type $RepositoryPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     owner: Prisma.$AppSettingsPayload<ExtArgs>
     pullRequests: Prisma.$PullRequestPayload<ExtArgs>[]
+    metricSnapshots: Prisma.$MetricSnapshotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1333,6 +1454,7 @@ export interface Prisma__RepositoryClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   owner<T extends Prisma.AppSettingsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettingsDefaultArgs<ExtArgs>>): Prisma.Prisma__AppSettingsClient<runtime.Types.Result.GetResult<Prisma.$AppSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pullRequests<T extends Prisma.Repository$pullRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Repository$pullRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PullRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  metricSnapshots<T extends Prisma.Repository$metricSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Repository$metricSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MetricSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1791,6 +1913,30 @@ export type Repository$pullRequestsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.PullRequestScalarFieldEnum | Prisma.PullRequestScalarFieldEnum[]
+}
+
+/**
+ * Repository.metricSnapshots
+ */
+export type Repository$metricSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MetricSnapshot
+   */
+  select?: Prisma.MetricSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MetricSnapshot
+   */
+  omit?: Prisma.MetricSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MetricSnapshotInclude<ExtArgs> | null
+  where?: Prisma.MetricSnapshotWhereInput
+  orderBy?: Prisma.MetricSnapshotOrderByWithRelationInput | Prisma.MetricSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.MetricSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MetricSnapshotScalarFieldEnum | Prisma.MetricSnapshotScalarFieldEnum[]
 }
 
 /**

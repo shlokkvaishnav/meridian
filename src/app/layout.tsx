@@ -1,23 +1,22 @@
-import type { Metadata } from "next";
-import { DM_Sans, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
-  title: "Meridian — Engineering Intelligence",
+  title: 'Meridian — GitHub Engineering Intelligence',
   description:
-    "Transform GitHub activity into actionable engineering insights. Track metrics, detect patterns, and optimize your workflow.",
+    'Transform your GitHub commits and pull requests into clear, actionable engineering insights. Track metrics, analyze velocity, and ship with confidence.',
+  keywords: ['github', 'analytics', 'engineering metrics', 'pull requests', 'code review'],
+  openGraph: {
+    title: 'Meridian — GitHub Engineering Intelligence',
+    description: 'Transform your GitHub activity into actionable insights.',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
@@ -26,12 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }

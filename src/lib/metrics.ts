@@ -1,73 +1,65 @@
 import { db } from './db';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 
-// Re-export types and utilities for backward compatibility
 export type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from './metricsTypes';
 export { formatDuration } from './metricsTypes';
 import { calculatePercentile } from './stats';
-
-// Import types for use in this file
 import type { ContributorStats, RepositoryMetrics, TimeSeriesDataPoint } from './metricsTypes';
 import { calculateContributorRisk } from './risk';
 
 /**
- * Get top contributors by PR count
- * Optimized to use DB aggregation where possible
+ * Get top contributors by PR count (scoped to ownerId)
  */
-/**
- * Get top contributors by PR count
- * Optimized to use DB aggregation where possible
- */
-export async function getTopContributors(tenantId: string, limit: number = 10): Promise<ContributorStats[]> {
+export async function getTopContributors(ownerId: string, limit: number = 10): Promise<ContributorStats[]> {
+  // Get repositories for this owner
+  const repos = await db.repository.findMany({
+    where: { ownerId },
+    select: { id: true },
+  });
+
+  const repoIds = repos.map((r) => r.id);
+  if (repoIds.length === 0) return [];
+
   // Aggregate PR statistics by author
   const prStats = await db.pullRequest.groupBy({
     by: ['authorLogin'],
     where: {
-      tenantId,
+      repositoryId: { in: repoIds },
     },
-    _count: {
-      id: true, // Total PRs
-    },
+    _count: { id: true },
     _sum: {
       linesAdded: true,
       linesDeleted: true,
     },
   });
 
-  // Get merged stats separately (Prisma doesn't support conditional count in groupBy yet)
+  // Get merged stats
   const mergedStats = await db.pullRequest.groupBy({
     by: ['authorLogin'],
-    where: { 
+    where: {
       state: 'MERGED',
-      tenantId,
+      repositoryId: { in: repoIds },
     },
-    _count: {
-      id: true, // Merged PRs
-    },
-    _avg: {
-      timeToMerge: true,
-    },
+    _count: { id: true },
+    _avg: { timeToMerge: true },
   });
 
   // Get review stats
   const reviewStats = await db.review.groupBy({
     by: ['reviewerLogin'],
     where: {
-      tenantId,
+      pullRequest: { repositoryId: { in: repoIds } },
     },
-    _count: {
-      id: true, // Reviews given
-    },
+    _count: { id: true },
   });
 
   // Build the map
   const contributorMap = new Map<string, ContributorStats>();
 
-  // Process PR stats
   for (const stat of prStats) {
     contributorMap.set(stat.authorLogin, {
       login: stat.authorLogin,
-      avatarUrl: `https://avatars.githubusercontent.com/${stat.authorLogin}`, // Construct avatar URL
+      avatarUrl: `https://avatars.githubusercontent.com/${stat.authorLogin}`,
       prsOpened: stat._count.id,
       prsMerged: 0,
       reviewsGiven: 0,
@@ -78,7 +70,6 @@ export async function getTopContributors(tenantId: string, limit: number = 10): 
     });
   }
 
-  // Process merged stats
   for (const stat of mergedStats) {
     const existing = contributorMap.get(stat.authorLogin);
     if (existing) {
@@ -87,16 +78,14 @@ export async function getTopContributors(tenantId: string, limit: number = 10): 
     }
   }
 
-  // Process review stats
   for (const stat of reviewStats) {
     const login = stat.reviewerLogin;
     const existing = contributorMap.get(login);
     if (existing) {
       existing.reviewsGiven = stat._count.id;
     } else {
-      // Review-only contributor
       contributorMap.set(login, {
-        login: login,
+        login,
         avatarUrl: `https://avatars.githubusercontent.com/${login}`,
         prsOpened: 0,
         prsMerged: 0,
@@ -109,22 +98,20 @@ export async function getTopContributors(tenantId: string, limit: number = 10): 
     }
   }
 
-  // Calculate team stats for risk scoring
-  const allStats = Array.from(contributorMap.values());
-  const maxPrs = Math.max(...allStats.map(s => s.prsOpened));
-  const maxReviews = Math.max(...allStats.map(s => s.reviewsGiven));
-  const validMergeTimes = allStats.map(s => s.avgTimeToMerge).filter(t => t !== null) as number[];
-  const avgMergeTime = validMergeTimes.length > 0
-    ? validMergeTimes.reduce((a, b) => a + b, 0) / validMergeTimes.length
-    : 0;
-
   // Calculate risk scores and sort
+  const allStats = Array.from(contributorMap.values());
+  const maxPrs = Math.max(...allStats.map((s) => s.prsOpened), 0);
+  const maxReviews = Math.max(...allStats.map((s) => s.reviewsGiven), 0);
+  const validMergeTimes = allStats.map((s) => s.avgTimeToMerge).filter((t) => t !== null) as number[];
+  const avgMergeTime =
+    validMergeTimes.length > 0 ? validMergeTimes.reduce((a, b) => a + b, 0) / validMergeTimes.length : 0;
+
   return allStats
-    .map(stat => ({
+    .map((stat) => ({
       ...stat,
       riskScore: calculateContributorRisk(stat, { maxPrs, maxReviews, avgMergeTime }),
     }))
-    .sort((a, b) => (b.prsOpened * 2 + b.reviewsGiven) - (a.prsOpened * 2 + a.reviewsGiven))
+    .sort((a, b) => b.prsOpened * 2 + b.reviewsGiven - (a.prsOpened * 2 + a.reviewsGiven))
     .slice(0, limit);
 }
 
@@ -145,20 +132,16 @@ export async function getRepositoryMetrics(repositoryId: string): Promise<Reposi
     db.pullRequest.count({ where: { repositoryId, state: 'OPEN' } }),
   ]);
 
-  // Cycle time stats
   const cycleTimeAgg = await db.pullRequest.aggregate({
     where: { repositoryId, state: 'MERGED', timeToMerge: { not: null } },
     _avg: { timeToMerge: true },
   });
 
-  // Time to first review
   const timeToReviewAgg = await db.pullRequest.aggregate({
     where: { repositoryId, timeToFirstReview: { not: null } },
     _avg: { timeToFirstReview: true },
   });
 
-  // For P50/P75, we still need to fetch values, but we can select ONLY the relevant field
-  // and only for merged PRs, which is much smaller than fetching everything
   const cycleTimes = await db.pullRequest.findMany({
     where: { repositoryId, state: 'MERGED', timeToMerge: { not: null } },
     select: { timeToMerge: true },
@@ -169,7 +152,9 @@ export async function getRepositoryMetrics(repositoryId: string): Promise<Reposi
   const p50CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.5)] : null;
   const p75CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.75)] : null;
 
-  const timeToFirstReview = timeToReviewAgg._avg.timeToFirstReview ? Math.round(timeToReviewAgg._avg.timeToFirstReview) : null;
+  const timeToFirstReview = timeToReviewAgg._avg.timeToFirstReview
+    ? Math.round(timeToReviewAgg._avg.timeToFirstReview)
+    : null;
 
   return {
     repositoryId: repo.id,
@@ -185,16 +170,22 @@ export async function getRepositoryMetrics(repositoryId: string): Promise<Reposi
 }
 
 /**
- * Get time-series data for the last N days
+ * Get time-series data for the last N days (scoped to ownerId)
  */
-export async function getTimeSeriesData(tenantId: string, days: number = 30): Promise<TimeSeriesDataPoint[]> {
+export async function getTimeSeriesData(ownerId: string, days: number = 30): Promise<TimeSeriesDataPoint[]> {
   const startDate = subDays(new Date(), days);
 
-  // Fetch only necessary fields for aggregation
+  // Get repositories for this owner
+  const repos = await db.repository.findMany({
+    where: { ownerId },
+    select: { id: true },
+  });
+  const repoIds = repos.map((r) => r.id);
+
   const prs = await db.pullRequest.findMany({
     where: {
       createdAt: { gte: startDate },
-      tenantId,
+      repositoryId: { in: repoIds },
     },
     select: {
       createdAt: true,
@@ -203,13 +194,8 @@ export async function getTimeSeriesData(tenantId: string, days: number = 30): Pr
     },
   });
 
-  // Since we need daily bucketing and logic involves both createdAt and mergedAt,
-  // in-memory aggregation is acceptable here IF we only fetch the 3 fields above.
-  // The dataset is unlikely to be massive for 30 days unless there are 10k+ PRs/month.
-
   const dataByDate = new Map<string, TimeSeriesDataPoint>();
 
-  // Initialize map
   for (let i = 0; i < days; i++) {
     const date = subDays(new Date(), days - i);
     const dateStr = startOfDay(date).toISOString().split('T')[0];
@@ -221,7 +207,6 @@ export async function getTimeSeriesData(tenantId: string, days: number = 30): Pr
     });
   }
 
-  // Fill data
   for (const pr of prs) {
     const createdDateStr = startOfDay(pr.createdAt).toISOString().split('T')[0];
     const createdPoint = dataByDate.get(createdDateStr);
@@ -234,22 +219,20 @@ export async function getTimeSeriesData(tenantId: string, days: number = 30): Pr
     }
   }
 
-  // Calculate cycle time (needs careful bucketing)
-  // Re-iterate to calculate avg cycle time for *merge date*
   for (const [dateStr, point] of dataByDate.entries()) {
     const dayStart = new Date(dateStr);
     const dayEnd = endOfDay(dayStart);
 
     const mergedOnDay = prs.filter(
       (pr: { mergedAt: Date | null; timeToMerge: number | null }) =>
-        pr.mergedAt &&
-        pr.mergedAt >= dayStart &&
-        pr.mergedAt <= dayEnd &&
-        pr.timeToMerge
+        pr.mergedAt && pr.mergedAt >= dayStart && pr.mergedAt <= dayEnd && pr.timeToMerge
     );
 
     if (mergedOnDay.length > 0) {
-      const totalTime = mergedOnDay.reduce((sum: number, pr: { timeToMerge: number | null }) => sum + (pr.timeToMerge || 0), 0);
+      const totalTime = mergedOnDay.reduce(
+        (sum: number, pr: { timeToMerge: number | null }) => sum + (pr.timeToMerge || 0),
+        0
+      );
       point.avgCycleTime = Math.round(totalTime / mergedOnDay.length);
     }
   }
@@ -265,41 +248,36 @@ export async function snapshotDailyMetrics(repositoryId: string): Promise<void> 
   const dayStart = startOfDay(now);
   const dayEnd = endOfDay(now);
 
-  // 1. Get PRs opened/merged today
   const [prsOpened, prsMerged, closedUnmerged] = await Promise.all([
     db.pullRequest.count({ where: { repositoryId, createdAt: { gte: dayStart, lte: dayEnd } } }),
-    db.pullRequest.count({ where: { repositoryId, state: 'MERGED', mergedAt: { gte: dayStart, lte: dayEnd } } }),
-    db.pullRequest.count({ where: { repositoryId, state: 'CLOSED', closedAt: { gte: dayStart, lte: dayEnd } } }),
+    db.pullRequest.count({
+      where: { repositoryId, state: 'MERGED', mergedAt: { gte: dayStart, lte: dayEnd } },
+    }),
+    db.pullRequest.count({
+      where: { repositoryId, state: 'CLOSED', closedAt: { gte: dayStart, lte: dayEnd } },
+    }),
   ]);
 
-  // 2. Cycle Time P50/P95 for merged PRs today
   const mergedToday = await db.pullRequest.findMany({
-    where: { repositoryId, state: 'MERGED', mergedAt: { gte: dayStart, lte: dayEnd }, timeToMerge: { not: null } },
+    where: {
+      repositoryId,
+      state: 'MERGED',
+      mergedAt: { gte: dayStart, lte: dayEnd },
+      timeToMerge: { not: null },
+    },
     select: { timeToMerge: true },
   });
-  
+
   const mergeTimes = mergedToday.map((pr: { timeToMerge: number | null }) => pr.timeToMerge!);
   const cycleTimeP50 = calculatePercentile(mergeTimes, 0.5);
   const cycleTimeP95 = calculatePercentile(mergeTimes, 0.95);
 
-  // 3. Merge Rate (Merged / (Merged + ClosedWithoutMerge))
   const totalClosed = prsMerged + closedUnmerged;
   const mergeRate = totalClosed > 0 ? prsMerged / totalClosed : null;
 
-  // 4. Determine tenant for this repository (if any)
-  const repo = await db.repository.findUnique({
-    where: { id: repositoryId },
-    select: { tenantId: true },
-  });
-
-  const tenantId = repo?.tenantId ?? null;
-
-  // 5. Save
   await db.metricSnapshot.upsert({
     where: { repositoryId_date: { repositoryId, date: dayStart } },
-    update: { prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate, tenantId: tenantId ?? undefined },
-    create: { repositoryId, date: dayStart, prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate, tenantId },
+    update: { prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate },
+    create: { repositoryId, date: dayStart, prsOpened, prsMerged, cycleTimeP50, cycleTimeP95, mergeRate },
   });
 }
-
-

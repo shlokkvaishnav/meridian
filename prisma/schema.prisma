@@ -1,152 +1,13 @@
 generator client {
   provider = "prisma-client"
-  output   = "../node_modules/.prisma/client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// ==================== Multi-tenant & Auth Models ====================
-// NOTE: These models introduce a proper multi-tenant, user-based architecture.
-// Existing single-session `AppSettings` remains for backward compatibility and migration.
-
-model User {
-  id            String   @id @default(cuid())
-  name          String?
-  email         String?  @unique
-  emailVerified DateTime?
-  image         String?
-
-  // GitHub identity (for convenience)
-  githubId    Int?    @unique
-  githubLogin String? @unique
-
-  // Auth.js relations
-  accounts Account[]
-  sessions Session[]
-
-  // Multi-tenant relations
-  memberships       Membership[]
-  githubConnections GitHubConnection[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Tenant {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-
-  billingPlan   String?
-  billingStatus String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  memberships       Membership[]
-  repositories      Repository[]
-  pullRequests      PullRequest[]
-  reviews           Review[]
-  comments          Comment[]
-  syncJobs          SyncJob[]
-  insights          Insight[]
-  metricSnapshots   MetricSnapshot[]
-  githubConnections GitHubConnection[]
-  teams             Team[]
-}
-
-model Membership {
-  id        String     @id @default(cuid())
-  userId    String
-  tenantId  String
-  role      TenantRole @default(MEMBER)
-  createdAt DateTime   @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, tenantId])
-  @@index([tenantId])
-}
-
-enum TenantRole {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
-}
-
-model GitHubConnection {
-  id             String         @id @default(cuid())
-  tenantId       String
-  userId         String?
-  provider       GitHubProvider @default(GITHUB_OAUTH)
-  installationId Int?
-
-  // Encrypted GitHub OAuth access token (AES-256-GCM)
-  encryptedToken String
-  tokenCreatedAt DateTime @default(now())
-  tokenExpiresAt DateTime?
-  scopes         String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user   User?  @relation(fields: [userId], references: [id])
-
-  @@index([tenantId])
-  @@index([userId])
-}
-
-enum GitHubProvider {
-  GITHUB_OAUTH
-  GITHUB_APP
-}
-
-// ==================== App Settings ====================
+// ==================== App Settings (Session) ====================
 
 model AppSettings {
   id String @id @default(cuid())
@@ -182,15 +43,7 @@ model AppSettings {
 
 model Repository {
   id           String @id @default(cuid())
-
-  // Multi-tenant owner (optional during migration; make required once all data is migrated)
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  githubRepoId Int // Removed @unique because multiple users might track the same repo? 
-  // Actually, for now let's keep it simple. If User A and User B both track "facebook/react", 
-  // we probably want separate rows so they have their own sync state.
-  // So yes, remove @unique from githubRepoId, or scope it to ownerId.
+  githubRepoId Int
 
   name          String
   fullName      String // e.g., "username/repo-name"
@@ -211,8 +64,7 @@ model Repository {
   pullRequests    PullRequest[]
   metricSnapshots MetricSnapshot[]
 
-  @@unique([ownerId, githubRepoId]) // Ensure a user can't add the same repo twice
-  @@index([tenantId])
+  @@unique([ownerId, githubRepoId])
   @@index([fullName])
   @@index([lastSyncedAt])
   @@index([isActive])
@@ -223,10 +75,6 @@ model Repository {
 
 model PullRequest {
   id         String  @id @default(cuid())
-
-  // Multi-tenant owner
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   githubPrId Int
   number     Int
   title      String
@@ -245,7 +93,7 @@ model PullRequest {
   closedAt  DateTime?
   mergedAt  DateTime?
 
-  // Computed metrics (denormalized for query performance)
+  // Computed metrics
   linesAdded   Int @default(0)
   linesDeleted Int @default(0)
   filesChanged Int @default(0)
@@ -258,12 +106,10 @@ model PullRequest {
   reviews  Review[]
   comments Comment[]
 
-  @@index([tenantId])
   @@unique([repositoryId, number])
   @@index([repositoryId])
   @@index([repositoryId, createdAt])
   @@index([repositoryId, mergedAt])
-  @@index([repositoryId, updatedAt])
   @@index([state])
   @@index([mergedAt])
   @@index([updatedAt])
@@ -279,10 +125,6 @@ model Review {
   id             String @id @default(cuid())
   githubReviewId Int    @unique
 
-  // Multi-tenant owner
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
   pullRequestId String
   pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
 
@@ -296,7 +138,6 @@ model Review {
 
   createdAt DateTime @default(now())
 
-  @@index([tenantId])
   @@index([pullRequestId])
   @@index([reviewerLogin])
   @@index([submittedAt])
@@ -313,10 +154,6 @@ model Comment {
   id              String @id @default(cuid())
   githubCommentId Int    @unique
 
-  // Multi-tenant owner
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
   pullRequestId String
   pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
 
@@ -328,7 +165,6 @@ model Comment {
   createdAt DateTime
   updatedAt DateTime
 
-  @@index([tenantId])
   @@index([pullRequestId])
   @@index([authorLogin])
 }
@@ -338,14 +174,9 @@ model Comment {
 model SyncJob {
   id String @id @default(cuid())
 
-  // Multi-tenant owner
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  jobType String // 'full_sync', 'repo_sync', 'pr_sync'
+  jobType String    // 'full_sync', 'repo_sync'
   status  JobStatus @default(PENDING)
 
-  // Optional: which repo is being synced
   repositoryId String?
 
   ownerId String?
@@ -358,7 +189,6 @@ model SyncJob {
   completedAt DateTime?
   createdAt   DateTime  @default(now())
 
-  @@index([tenantId])
   @@index([status])
   @@index([createdAt])
 }
@@ -382,16 +212,11 @@ model Insight {
   category    InsightCategory
   priority    Int // 1-10
 
-  // Additional data (JSON for flexibility)
   data Json @default("{}")
 
   generatedAt DateTime @default(now())
   isRead      Boolean  @default(false)
   isDismissed Boolean  @default(false)
-
-  // Multi-tenant owner
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   // Owner (User Session)
   ownerId String
@@ -399,7 +224,6 @@ model Insight {
 
   @@index([generatedAt])
   @@index([priority])
-  @@index([tenantId])
   @@index([ownerId])
 }
 
@@ -422,11 +246,7 @@ enum InsightCategory {
 
 model MetricSnapshot {
   id   String   @id @default(cuid())
-  date DateTime @db.Date // Normalized to YYYY-MM-DD
-
-  // Multi-tenant owner
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  date DateTime @db.Date
 
   repositoryId String
   repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
@@ -442,36 +262,6 @@ model MetricSnapshot {
 
   createdAt DateTime @default(now())
 
-  @@index([tenantId])
   @@unique([repositoryId, date])
   @@index([date])
 }
-
-// ==================== Teams (per-tenant contributor grouping) ====================
-
-model Team {
-  id        String   @id @default(cuid())
-  tenantId  String
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tenant  Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  members TeamMember[]
-
-  @@index([tenantId])
-}
-
-model TeamMember {
-  id        String   @id @default(cuid())
-  teamId    String
-  login     String
-  avatarUrl String?
-  createdAt DateTime @default(now())
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, login])
-  @@index([teamId])
-}
-

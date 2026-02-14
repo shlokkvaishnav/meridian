@@ -1,35 +1,26 @@
 import { NextResponse } from 'next/server';
 import { generateInsights } from '@/features/insights';
 import { db } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
-import { cookies } from 'next/headers';
+export const runtime = 'nodejs';
 
 /**
  * Generate and store AI/rule-based insights
- * Cleans up old insights before generating new ones
  */
 export async function POST() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('session_id')?.value;
-
-    if (!sessionId) {
+    const session = await getSession();
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const settings = await db.appSettings.findUnique({
-      where: { sessionId },
-    });
-
-    if (!settings) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { settings } = session;
 
     // Generate insights for this user
     const insights = await generateInsights(settings.id);
 
-    // Clean up old insights before inserting new ones (keep only latest batch)
-    // Only delete insights for THIS user
+    // Clean up old non-read, non-dismissed insights
     await db.insight.deleteMany({
       where: {
         ownerId: settings.id,
@@ -38,7 +29,7 @@ export async function POST() {
       },
     });
 
-    // Store insights in database
+    // Store insights
     if (insights.length > 0) {
       await db.insight.createMany({
         data: insights.map((insight) => ({
@@ -61,14 +52,12 @@ export async function POST() {
     return NextResponse.json({
       success: true,
       count: insights.length,
-      insights: insights,
+      insights,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Insights generation error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to generate insights' },
-      { status: 500 }
-    );
+    const msg = error instanceof Error ? error.message : 'Failed to generate insights';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -77,32 +66,22 @@ export async function POST() {
  */
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('session_id')?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const settings = await db.appSettings.findUnique({
-      where: { sessionId },
-    });
-
-    if (!settings) {
+    const session = await getSession();
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const insights = await db.insight.findMany({
-      where: { 
-        ownerId: settings.id,
-        isDismissed: false 
+      where: {
+        ownerId: session.settings.id,
+        isDismissed: false,
       },
       orderBy: [{ priority: 'desc' }, { generatedAt: 'desc' }],
       take: 20,
     });
 
     return NextResponse.json({ insights });
-  } catch (error: any) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch insights' },
       { status: 500 }

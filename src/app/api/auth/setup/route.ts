@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const { token } = await request.json();
 
-    if (!token) {
+    if (!token || typeof token !== 'string') {
       return NextResponse.json(
         { error: 'GitHub token is required' },
         { status: 400 }
@@ -19,12 +19,12 @@ export async function POST(request: NextRequest) {
 
     // Validate token by fetching user info
     const octokit = new Octokit({ auth: token });
-    
+
     let githubUser;
     try {
       const { data } = await octokit.rest.users.getAuthenticated();
       githubUser = data;
-    } catch (error: any) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid GitHub token. Please check and try again.' },
         { status: 401 }
@@ -32,12 +32,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Encrypt the token
-    const encryptedToken = await encrypt(token);
+    const encryptedToken = encrypt(token);
 
     // Generate session ID
     const sessionId = crypto.randomUUID();
 
-    // Create response with cookie
+    // Create or update settings
+    await db.appSettings.create({
+      data: {
+        sessionId,
+        encryptedToken,
+        tokenCreatedAt: new Date(),
+        githubLogin: githubUser.login,
+        githubUserId: githubUser.id,
+        email: githubUser.email,
+        name: githubUser.name,
+        avatarUrl: githubUser.avatar_url,
+      },
+    });
+
+    // Create response
     const response = NextResponse.json({
       success: true,
       user: {
@@ -56,28 +70,8 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
-    // Check if settings already exist for this session (unlikely for new session, but good practice)
-    // Actually, since we just generated a new sessionId, it won't exist.
-    // But if the user HAD a cookie, we might want to update THAT session?
-    // For simplicity: Always create a NEW session on setup. 
-    // This ensures if I switch accounts, I get a fresh start.
-
-    await db.appSettings.create({
-      data: {
-        sessionId,
-        encryptedToken,
-        tokenCreatedAt: new Date(),
-        githubLogin: githubUser.login,
-        githubUserId: githubUser.id,
-        email: githubUser.email,
-        name: githubUser.name,
-        avatarUrl: githubUser.avatar_url,
-      },
-    });
-
     return response;
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Setup error:', error);
     return NextResponse.json(
       { error: 'Failed to save token. Please try again.' },

@@ -52,3 +52,8 @@ export type SyncJob = Prisma.SyncJobModel
  * 
  */
 export type Insight = Prisma.InsightModel
+/**
+ * Model MetricSnapshot
+ * 
+ */
+export type MetricSnapshot = Prisma.MetricSnapshotModel
