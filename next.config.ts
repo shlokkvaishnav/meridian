@@ -2,9 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+
   images: {
     remotePatterns: [
       {
@@ -17,21 +19,14 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+
   serverExternalPackages: ['pg', '@prisma/adapter-pg'],
-  
+
   // Performance optimizations
   experimental: {
-    optimizePackageImports: ['lucide-react'],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
+    optimizePackageImports: ['lucide-react']
   },
-  
+
   // Webpack optimizations for faster dev builds
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
@@ -44,6 +39,15 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    }
+  }
 };
 
 export default nextConfig;
