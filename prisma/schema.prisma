@@ -240,6 +240,7 @@ enum InsightCategory {
   VELOCITY
   COLLABORATION
   QUALITY
+  STRATEGIC
 }
 
 // ==================== Historical Snapshots ====================
