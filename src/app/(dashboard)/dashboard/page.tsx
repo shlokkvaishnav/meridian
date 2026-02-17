@@ -11,19 +11,9 @@ import { getSession } from '@/lib/session';
 import dynamic from 'next/dynamic';
 import { DateRangePicker } from '@/components/common/DateRangePicker';
 import { ContributorFilter } from '@/components/dashboard/ContributorFilter';
+import { DashboardWidgets } from '@/components/dashboard/DashboardWidgets';
 
-// Dynamic imports for heavy chart components (reduces initial bundle)
-const MetricsChart = dynamic(() => import('@/components/metrics/MetricsChart'), {
-  loading: () => <div className="glass-card noise p-6 h-64 animate-pulse bg-white/[0.02]" />,
-});
 
-const VelocityChart = dynamic(() => import('@/components/charts/VelocityChart').then(mod => ({ default: mod.VelocityChart })), {
-  loading: () => <div className="glass-card noise p-6 h-64 animate-pulse bg-white/[0.02]" />,
-});
-
-const ContributorLeaderboard = dynamic(() => import('@/components/dashboard/ContributorLeaderboard'), {
-  loading: () => <div className="glass-card noise p-6 h-64 animate-pulse bg-white/[0.02]" />,
-});
 
 // Force dynamic rendering (renamed to avoid conflict with Next.js dynamic import)
 export const dynamicParams = false;
@@ -152,10 +142,11 @@ export default async function DashboardPage(props: DashboardPageProps) {
   }));
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative">
+    <div className="min-h-screen bg-background relative">
       {/* Ambient glow */}
-      <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-violet-500/[0.04] rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-200px] left-0 w-[400px] h-[400px] bg-teal-500/[0.03] rounded-full blur-[100px] pointer-events-none" />
+      <div className="pointer-events-none fixed inset-0 bg-grid-pattern" />
+      <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-200px] left-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header */}
       <header className="sticky z-10 border-b border-white/[0.06] top-0 bg-[#0a0a0f]/80 backdrop-blur-xl">
@@ -223,11 +214,11 @@ export default async function DashboardPage(props: DashboardPageProps) {
         {repositories.length > 0 && (
           <>
             <InsightsDisplay initialInsights={insights} />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MetricsChart data={timeSeriesData} />
-              <VelocityChart data={velocityData} />
-            </div>
-            <ContributorLeaderboard contributors={contributors} />
+            <DashboardWidgets 
+              timeSeriesData={timeSeriesData}
+              velocityData={velocityData}
+              contributors={contributors}
+            />
           </>
         )}
       </main>

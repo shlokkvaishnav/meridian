@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     // Get all active sessions (users who have set up the app)
     const allSettings = await db.appSettings.findMany({
       where: {
-        encryptedToken: { not: null },
+        encryptedToken: { not: null as any },
       },
       select: {
         id: true,

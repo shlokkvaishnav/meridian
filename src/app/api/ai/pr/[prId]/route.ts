@@ -47,7 +47,7 @@ export async function GET(
     // Generate AI analysis
     const analysis = await analyzePR({
       title: pr.title,
-      body: pr.body,
+      body: pr.body || '',
       linesAdded: pr.linesAdded,
       linesDeleted: pr.linesDeleted,
       filesChanged: pr.filesChanged,

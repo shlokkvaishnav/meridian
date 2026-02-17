@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     const summary = await generateWorkSummary({
       prs,
       timeframe: timeframe === 'week' ? 'this week' : timeframe === 'month' ? 'this month' : 'this quarter',
-      githubLogin: session.settings.githubLogin,
+      githubLogin: session.settings.githubLogin || 'User',
     });
 
     return NextResponse.json(summary);

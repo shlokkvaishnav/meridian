@@ -1,2 +1,2 @@
-export * from './client';
+export * from './github-client';
 export * from './sync';

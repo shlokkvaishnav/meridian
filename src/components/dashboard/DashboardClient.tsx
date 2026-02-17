@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw, GitPullRequest, GitMerge, GitBranch, Folder, ArrowUpRight } from 'lucide-react';
+import { RefreshCw, GitPullRequest, GitMerge, GitBranch } from 'lucide-react';
 import { MetricCard } from '@/components/metrics/MetricCard';
 import { MetricDrillDown } from '@/components/dashboard/MetricDrillDown';
+import { RepoGrid } from '@/components/dashboard/RepoGrid';
+import { RecentPRs } from '@/components/dashboard/RecentPRs';
 
  interface Repository {
    id: string;
@@ -130,30 +132,27 @@ import { MetricDrillDown } from '@/components/dashboard/MetricDrillDown';
      <div className="space-y-8">
        {/* Stats Grid */}
        <div className="grid md:grid-cols-3 gap-4">
-        <div onClick={() => showDrillDown('All Pull Requests', 'All PRs across all repositories', () => true)}>
-           <MetricCard
-             title="Total PRs"
-             value={stats.total}
-             icon={GitPullRequest}
-             isEmpty={stats.total === 0}
-           />
-         </div>
-         <div onClick={() => showDrillDown('Merged Pull Requests', 'PRs that have been merged', (pr) => pr.state === 'MERGED')}>
-           <MetricCard
-             title="Merged PRs"
-             value={stats.merged}
-             icon={GitMerge}
-             isEmpty={stats.merged === 0}
-           />
-         </div>
-         <div onClick={() => showDrillDown('Open Pull Requests', 'PRs currently open and awaiting review', (pr) => pr.state === 'OPEN')}>
-           <MetricCard
-             title="Open PRs"
-             value={stats.open}
-             icon={GitBranch}
-             isEmpty={stats.open === 0}
-           />
-         </div>
+          <MetricCard
+            title="Total PRs"
+            value={stats.total}
+            icon={GitPullRequest}
+            isEmpty={stats.total === 0}
+            onClick={() => showDrillDown('All Pull Requests', 'All PRs across all repositories', () => true)}
+          />
+          <MetricCard
+            title="Merged PRs"
+            value={stats.merged}
+            icon={GitMerge}
+            isEmpty={stats.merged === 0}
+            onClick={() => showDrillDown('Merged Pull Requests', 'PRs that have been merged', (pr) => pr.state === 'MERGED')}
+          />
+          <MetricCard
+            title="Open PRs"
+            value={stats.open}
+            icon={GitBranch}
+            isEmpty={stats.open === 0}
+            onClick={() => showDrillDown('Open Pull Requests', 'PRs currently open and awaiting review', (pr) => pr.state === 'OPEN')}
+          />
        </div>
 
        {/* Drill-Down Modal */}
@@ -185,66 +184,11 @@ import { MetricDrillDown } from '@/components/dashboard/MetricDrillDown';
        )}
 
        {/* Repositories Grid */}
-       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-         {repositories.map((repo, i) => (
-           <div
-             key={repo.id}
-             className={`glass-card noise p-5 group animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}
-           >
-             <div className="flex items-start gap-3">
-               <div className="h-8 w-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                 <Folder className="h-4 w-4 text-violet-400" />
-               </div>
-               <div className="flex-1 min-w-0">
-                 <h3 className="text-sm font-medium text-white truncate group-hover:text-violet-300 transition-colors">
-                   {repo.name}
-                 </h3>
-                 <p className="text-xs text-slate-500 truncate mt-0.5">{repo.fullName}</p>
-                 <p className="text-xs text-slate-400 mt-2 font-mono">
-                   {repo._count.pullRequests} <span className="text-slate-500">PRs</span>
-                 </p>
-               </div>
-             </div>
-           </div>
-         ))}
-       </div>
+       <RepoGrid repositories={repositories} />
 
        {/* Recent PRs */}
        {recentPRs.length > 0 && (
-         <div className="animate-fade-in-up stagger-5">
-           <h2 className="text-lg font-semibold text-white mb-4 tracking-tight">Recent Pull Requests</h2>
-           <div className="space-y-1.5">
-             {recentPRs.map((pr) => (
-               <div
-                 key={pr.id}
-                 className="glass-card noise !rounded-xl p-4 !bg-white/[0.02] hover:!bg-white/[0.04]"
-               >
-                 <div className="flex items-center justify-between gap-4">
-                   <div className="flex-1 min-w-0">
-                     <p className="text-sm text-white truncate">{pr.title}</p>
-                     <p className="text-xs text-slate-500 mt-1 font-mono">
-                       {pr.repository.name}
-                       <span className="text-slate-600"> #{pr.number}</span>
-                       <span className="text-slate-600"> · </span>
-                       {pr.authorLogin}
-                     </p>
-                   </div>
-                   <span
-                     className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider flex-shrink-0 ${
-                       pr.state === 'MERGED'
-                         ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
-                         : pr.state === 'OPEN'
-                         ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                         : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
-                     }`}
-                   >
-                     {pr.state}
-                   </span>
-                 </div>
-               </div>
-             ))}
-           </div>
-         </div>
+         <RecentPRs prs={recentPRs} />
        )}
      </div>
    );

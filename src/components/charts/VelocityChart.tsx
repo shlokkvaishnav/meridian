@@ -7,10 +7,9 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  Legend
+  ResponsiveContainer
 } from 'recharts';
-import { TrendingUp, GitPullRequest } from 'lucide-react';
+import { Activity } from 'lucide-react';
  
  interface VelocityChartProps {
    data: {
@@ -22,12 +21,7 @@ import { TrendingUp, GitPullRequest } from 'lucide-react';
  
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{
-    color: string;
-    name: string;
-    value: number | null;
-    dataKey: string;
-  }>;
+  payload?: any[];
   label?: string;
 }
 
@@ -38,19 +32,17 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
-    <div className="bg-[#141418] border border-white/[0.08] rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-xs text-slate-400 mb-2 font-mono">{formatted}</p>
+    <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xl">
+      <p className="mb-2 text-xs font-medium text-muted-foreground">{formatted}</p>
       {payload.map((entry, i) => (
-        <div key={i} className="flex items-center gap-2 text-xs">
-          <div
+        <div key={i} className="flex items-center gap-2 text-sm">
+          <span
             className="h-2 w-2 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-slate-300">{entry.name}</span>
-          <span className="text-white font-mono font-semibold ml-auto">
-            {entry.value !== null ? (
-              entry.dataKey === 'mergeRate' ? `${entry.value}%` : `${entry.value}m`
-            ) : 'N/A'}
+          <span className="text-muted-foreground">{entry.name}</span>
+          <span className="font-semibold text-foreground ml-auto">
+            {entry.name === "Cycle Time" ? `${Math.round(entry.value / 60)}h` : `${entry.value}%`}
           </span>
         </div>
       ))}
@@ -63,20 +55,22 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
   if (isEmpty) {
     return (
-      <div className="glass-card noise p-6 animate-fade-in-up">
-        <div className="flex items-center gap-2 mb-6">
-          <TrendingUp className="h-4 w-4 text-violet-400" />
-          <h2 className="text-base font-semibold text-white tracking-tight">
-            Engineering Velocity
-          </h2>
-          <span className="text-xs text-slate-500 font-mono ml-auto">30 days</span>
-        </div>
-        <div className="h-64 flex flex-col items-center justify-center text-center">
-          <div className="h-12 w-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4">
-            <GitPullRequest className="h-6 w-6 text-violet-400" />
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-amber-500" />
+            <h2 className="text-sm font-semibold text-foreground">
+              Velocity
+            </h2>
           </div>
-          <p className="text-sm text-slate-400 max-w-xs">
-            No velocity data yet. Sync your repositories to track cycle time and merge rates.
+          <span className="text-xs text-muted-foreground">30 days</span>
+        </div>
+        <div className="h-[280px] flex flex-col items-center justify-center text-center">
+          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4">
+            <Activity className="h-6 w-6 text-amber-500" />
+          </div>
+          <p className="text-xs text-muted-foreground max-w-xs">
+            No data yet
           </p>
         </div>
       </div>
@@ -84,21 +78,23 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   }
 
    return (
-    <div className="glass-card noise p-6 animate-fade-in-up">
-      <div className="flex items-center gap-2 mb-6">
-        <TrendingUp className="h-4 w-4 text-violet-400" />
-        <h2 className="text-base font-semibold text-white tracking-tight">
-          Engineering Velocity
-        </h2>
-        <span className="text-xs text-slate-500 font-mono ml-auto">30 days</span>
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-amber-500" />
+          <h2 className="text-sm font-semibold text-foreground">
+            Velocity
+          </h2>
+        </div>
+        <span className="text-xs text-muted-foreground">30 days</span>
       </div>
 
-      <div className="h-64">
+      <div className="h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid 
               strokeDasharray="3 3" 
-              stroke="rgba(255,255,255,0.03)" 
+              stroke="hsl(240 4% 16%)" 
               vertical={false}
             />
             <XAxis 
@@ -107,72 +103,63 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
                 const date = new Date(val);
                 return `${date.getMonth() + 1}/${date.getDate()}`;
               }}
-              stroke="rgba(255,255,255,0.1)"
-              fontSize={10}
+              stroke="hsl(215 20% 35%)"
+              fontSize={11}
               tickLine={false}
               axisLine={false}
               dy={8}
             />
             <YAxis 
               yAxisId="left" 
-              stroke="rgba(255,255,255,0.1)" 
-              fontSize={10}
+              stroke="hsl(215 20% 35%)"
+              fontSize={11}
               tickLine={false}
               axisLine={false}
               dx={-8}
-              label={{ 
-                value: 'Cycle Time (min)', 
-                angle: -90, 
-                position: 'insideLeft',
-                style: { fill: 'rgba(255,255,255,0.4)', fontSize: 10 }
-              }}
             />
             <YAxis 
               yAxisId="right" 
               orientation="right" 
-              stroke="rgba(255,255,255,0.1)" 
-              fontSize={10}
+              stroke="hsl(215 20% 35%)"
+              fontSize={11}
               tickLine={false}
               axisLine={false}
               dx={8}
-              label={{ 
-                value: 'Merge Rate (%)', 
-                angle: 90, 
-                position: 'insideRight',
-                style: { fill: 'rgba(255,255,255,0.4)', fontSize: 10 }
-              }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend 
-              wrapperStyle={{ 
-                paddingTop: '16px',
-                fontSize: '11px'
-              }}
-              iconType="line"
-              formatter={(value) => <span className="text-slate-400">{value}</span>}
-            />
             <Line 
               yAxisId="left"
               type="monotone" 
               dataKey="cycleTimeP50" 
-              name="Cycle Time (P50)" 
-              stroke="#06b6d4" 
+              name="Cycle Time" 
+              stroke="hsl(38 92% 50%)" 
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 3, fill: '#06b6d4', stroke: '#0a0a0f', strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: 'hsl(38 92% 50%)', stroke: '#0a0a0f', strokeWidth: 2 }}
             />
             <Line 
               yAxisId="right"
               type="monotone" 
               dataKey="mergeRate" 
               name="Merge Rate" 
-              stroke="#8b5cf6" 
+              stroke="hsl(263 70% 58%)" 
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 3, fill: '#8b5cf6', stroke: '#0a0a0f', strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: 'hsl(263 70% 58%)', stroke: '#0a0a0f', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      <div className="mt-4 flex gap-5">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="h-2 w-2 rounded-full bg-amber-500" />
+          Cycle Time
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          Merge Rate
+        </div>
       </div>
     </div>
    );

@@ -1,15 +1,22 @@
 'use client';
 
 import { TrendingUp, TrendingDown, Minus, LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatCompactNumber } from '@/lib/utils';
 
-// Helper for number formatting
-function defaultFormatNumber(num: number | string): string {
-  if (typeof num === 'string') return num;
-  return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(num);
+interface MetricCardProps {
+  title: string;
+  value: number | string;
+  unit?: string;
+  change?: { value: number; trend: "up" | "down" | "neutral"; isPositive?: boolean };
+  format?: "number" | "duration" | "percentage";
+  icon?: LucideIcon;
+  onClick?: () => void;
+  className?: string;
+  loading?: boolean;
+  isEmpty?: boolean;
 }
 
-function defaultFormatDuration(minutes: number): string {
+function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
   
@@ -18,123 +25,89 @@ function defaultFormatDuration(minutes: number): string {
   return `${minutes}m`;
 }
 
-interface MetricCardProps {
-  title: string;
-  value: number | string;
-  unit?: string;
-  change?: {
-    value: number;
-    trend: 'up' | 'down' | 'neutral';
-    isPositive?: boolean;
-  };
-  className?: string;
-  format?: 'number' | 'duration' | 'percentage';
-  icon?: LucideIcon;
-  loading?: boolean;
-  isEmpty?: boolean;
-}
-
-export function MetricCard({
-  title,
-  value,
-  unit,
-  change,
+export function MetricCard({ 
+  title, 
+  value, 
+  unit, 
+  change, 
+  format = "number", 
+  icon: Icon, 
+  onClick, 
   className,
-  format = 'number',
-  icon: Icon,
   loading = false,
-  isEmpty = false
+  isEmpty = false 
 }: MetricCardProps) {
   
-  const formattedValue = typeof value === 'string' 
-    ? value 
-    : format === 'duration' 
-      ? defaultFormatDuration(value as number)
-      : format === 'percentage'
-        ? `${value}%`
-        : defaultFormatNumber(value);
-  
-  const TrendIcon = change?.trend === 'up' 
-    ? TrendingUp 
-    : change?.trend === 'down' 
-      ? TrendingDown 
-      : Minus;
-  
-  const trendColor = !change 
-    ? ''
-    : change.isPositive 
-      ? 'text-emerald-400'
-      : change.isPositive === false
-        ? 'text-red-400'
-        : 'text-slate-400';
-
   // Loading state
   if (loading) {
     return (
-      <div className={cn('glass-card noise p-5 animate-fade-in-up', className)}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="h-3 w-20 rounded bg-white/[0.04] animate-shimmer" />
-          {Icon && (
-            <div className="h-8 w-8 rounded-lg bg-white/[0.04] animate-shimmer" />
-          )}
-        </div>
-        <div className="h-8 w-24 rounded bg-white/[0.06] animate-shimmer" />
+      <div className={cn("group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300", className)}>
+         <div className="flex items-center justify-between mb-3">
+           <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+           {Icon && (
+             <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
+           )}
+         </div>
+         <div className="h-8 w-24 rounded bg-muted animate-pulse" />
       </div>
     );
   }
 
-  // Empty state (zero value with no historical data)
-  if (isEmpty || (typeof value === 'number' && value === 0 && !change)) {
-    return (
-      <div className={cn('glass-card noise p-5 animate-fade-in-up', className)}>
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-            {title}
-          </span>
+  const formattedValue =
+    typeof value === "string"
+      ? value
+      : format === "duration"
+        ? formatDuration(value as number)
+        : format === "percentage"
+          ? `${value}%`
+          : formatCompactNumber(value);
+
+  const TrendIcon = change?.trend === "up" ? TrendingUp : change?.trend === "down" ? TrendingDown : Minus;
+
+  const trendColor = !change
+    ? ""
+    : change.isPositive
+      ? "text-emerald-500"
+      : change.isPositive === false
+        ? "text-destructive"
+        : "text-muted-foreground";
+
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300",
+        onClick && "cursor-pointer hover:border-primary/30 hover:shadow-glow",
+        className
+      )}
+    >
+      {/* Subtle gradient overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+
+      <div className="relative z-10">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</span>
           {Icon && (
-            <div className="h-8 w-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-              <Icon className="h-4 w-4 text-violet-400/50" />
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <Icon className="h-3.5 w-3.5 text-primary" />
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-2xl font-bold text-slate-600 tracking-tight">—</span>
-          <span className="text-[10px] text-slate-500">Sync to see data</span>
+
+        <div className="mt-3 flex items-end gap-2">
+          <span className="font-mono-num text-3xl font-bold tracking-tight text-foreground">{isEmpty ? "—" : formattedValue}</span>
+          {unit && <span className="mb-1 text-sm text-muted-foreground">{unit}</span>}
         </div>
-      </div>
-    );
-  }
-  
-  return (
-    <div className={cn('glass-card noise p-5 animate-fade-in-up', className)}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-          {title}
-        </span>
-        {Icon && (
-          <div className="h-8 w-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-            <Icon className="h-4 w-4 text-violet-400" />
+
+        {change && !isEmpty && (
+          <div className={cn("mt-2 flex items-center gap-1 text-xs font-medium", trendColor)}>
+            <TrendIcon className="h-3 w-3" />
+            {Math.abs(change.value)}%
           </div>
         )}
-      </div>
-      
-      <div className="flex items-end justify-between">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-3xl font-bold text-white tracking-tight font-mono-num">
-            {formattedValue}
-          </span>
-          {unit && (
-            <span className="text-sm font-medium text-slate-500 mb-0.5">
-              {unit}
-            </span>
-          )}
-        </div>
         
-        {change && (
-          <div className={cn('flex items-center gap-1 text-xs font-medium mb-1', trendColor)}>
-            <TrendIcon className="h-3 w-3" />
-            <span>{Math.abs(change.value)}%</span>
-          </div>
+        {isEmpty && (
+            <div className="mt-2 text-[10px] text-muted-foreground">Sync to see data</div>
         )}
       </div>
     </div>

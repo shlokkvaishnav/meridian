@@ -73,24 +73,23 @@ export function MetricDrillDown({
 
         {prs.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-400">No pull requests found</p>
+            <p className="text-muted-foreground">No pull requests found</p>
           </div>
         ) : (
           <div className="space-y-2 mt-4">
             {prs.map((pr) => (
               <div
                 key={pr.id}
-                className="glass-card !rounded-xl p-4 hover:!bg-white/[0.06] transition-all cursor-pointer group"
+                className="flex items-center justify-between rounded-xl border border-transparent bg-secondary/30 px-4 py-3 transition-colors hover:border-border hover:bg-secondary/60 cursor-pointer group"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-white truncate">
+                <div className="flex-1 min-w-0 mr-4">
+                   <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-foreground truncate">
                         {pr.title}
                       </span>
-                      <ExternalLink className="h-3 w-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                   </div>
+                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span className="font-mono">{pr.repository.name}#{pr.number}</span>
                       <span>•</span>
                       {pr.authorAvatarUrl ? (
@@ -100,8 +99,8 @@ export function MetricDrillDown({
                           className="h-4 w-4 rounded-full"
                         />
                       ) : (
-                        <div className="h-4 w-4 rounded-full bg-violet-500/10 flex items-center justify-center">
-                          <span className="text-[8px] text-violet-400">{pr.authorLogin[0]}</span>
+                        <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-[8px] text-primary">{pr.authorLogin[0]}</span>
                         </div>
                       )}
                       <span>{pr.authorLogin}</span>
@@ -113,20 +112,19 @@ export function MetricDrillDown({
                           </span>
                         </>
                       )}
-                    </div>
-                  </div>
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider flex-shrink-0 ${
-                      pr.state === 'MERGED'
-                        ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
-                        : pr.state === 'OPEN'
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
-                    }`}
-                  >
-                    {pr.state}
-                  </span>
+                   </div>
                 </div>
+                <span
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider flex-shrink-0 ${
+                    pr.state === 'MERGED'
+                      ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                      : pr.state === 'OPEN'
+                      ? 'bg-primary/10 text-primary border border-primary/20'
+                      : 'bg-muted text-muted-foreground border border-border'
+                  }`}
+                >
+                  {pr.state}
+                </span>
               </div>
             ))}
           </div>

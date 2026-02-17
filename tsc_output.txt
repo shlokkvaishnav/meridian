@@ -1,0 +1,72 @@
+glow-metrics-studio-main/src/App.tsx(1,25): error TS2307: Cannot find module '@/components/ui/toaster' or its corresponding type declarations.
+glow-metrics-studio-main/src/App.tsx(2,35): error TS2307: Cannot find module '@/components/ui/sonner' or its corresponding type declarations.
+glow-metrics-studio-main/src/App.tsx(5,46): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/dashboard/ActivityChart.tsx(3,38): error TS2307: Cannot find module '@/lib/mock-data' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/dashboard/ContributorLeaderboard.tsx(2,34): error TS2307: Cannot find module '@/lib/mock-data' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/dashboard/MetricCard.tsx(2,35): error TS2305: Module '"@/lib/utils"' has no exported member 'formatDuration'.
+glow-metrics-studio-main/src/components/dashboard/RecentPRs.tsx(3,34): error TS2307: Cannot find module '@/lib/mock-data' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/dashboard/RepoGrid.tsx(2,33): error TS2307: Cannot find module '@/lib/mock-data' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/layout/Footer.tsx(1,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/layout/Navbar.tsx(1,35): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/NavLink.tsx(1,56): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/NavLink.tsx(17,23): error TS7031: Binding element 'isActive' implicitly has an 'any' type.
+glow-metrics-studio-main/src/components/NavLink.tsx(17,33): error TS7031: Binding element 'isPending' implicitly has an 'any' type.
+glow-metrics-studio-main/src/components/ui/accordion.tsx(2,37): error TS2307: Cannot find module '@radix-ui/react-accordion' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/alert-dialog.tsx(2,39): error TS2307: Cannot find module '@radix-ui/react-alert-dialog' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/aspect-ratio.tsx(1,39): error TS2307: Cannot find module '@radix-ui/react-aspect-ratio' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/calendar.tsx(3,27): error TS2307: Cannot find module 'react-day-picker' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/checkbox.tsx(2,36): error TS2307: Cannot find module '@radix-ui/react-checkbox' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/command.tsx(3,45): error TS2307: Cannot find module 'cmdk' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/context-menu.tsx(2,39): error TS2307: Cannot find module '@radix-ui/react-context-menu' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/form.tsx(4,99): error TS2307: Cannot find module 'react-hook-form' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/hover-card.tsx(2,37): error TS2307: Cannot find module '@radix-ui/react-hover-card' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/menubar.tsx(2,35): error TS2307: Cannot find module '@radix-ui/react-menubar' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/navigation-menu.tsx(2,42): error TS2307: Cannot find module '@radix-ui/react-navigation-menu' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/progress.tsx(2,36): error TS2307: Cannot find module '@radix-ui/react-progress' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/radio-group.tsx(2,38): error TS2307: Cannot find module '@radix-ui/react-radio-group' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/resizable.tsx(2,37): error TS2307: Cannot find module 'react-resizable-panels' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/select.tsx(2,34): error TS2307: Cannot find module '@radix-ui/react-select' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/slider.tsx(2,34): error TS2307: Cannot find module '@radix-ui/react-slider' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/switch.tsx(2,35): error TS2307: Cannot find module '@radix-ui/react-switch' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/tabs.tsx(2,32): error TS2307: Cannot find module '@radix-ui/react-tabs' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/toast.tsx(2,34): error TS2307: Cannot find module '@radix-ui/react-toast' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/toaster.tsx(1,26): error TS2307: Cannot find module '@/hooks/use-toast' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/toaster.tsx(2,95): error TS2307: Cannot find module '@/components/ui/toast' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/toaster.tsx(9,31): error TS7031: Binding element 'id' implicitly has an 'any' type.
+glow-metrics-studio-main/src/components/ui/toaster.tsx(9,35): error TS7031: Binding element 'title' implicitly has an 'any' type.
+glow-metrics-studio-main/src/components/ui/toaster.tsx(9,42): error TS7031: Binding element 'description' implicitly has an 'any' type.
+glow-metrics-studio-main/src/components/ui/toaster.tsx(9,55): error TS7031: Binding element 'action' implicitly has an 'any' type.
+glow-metrics-studio-main/src/components/ui/toggle-group.tsx(2,39): error TS2307: Cannot find module '@radix-ui/react-toggle-group' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/toggle-group.tsx(6,32): error TS2307: Cannot find module '@/components/ui/toggle' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/toggle.tsx(2,34): error TS2307: Cannot find module '@radix-ui/react-toggle' or its corresponding type declarations.
+glow-metrics-studio-main/src/components/ui/use-toast.ts(1,33): error TS2307: Cannot find module '@/hooks/use-toast' or its corresponding type declarations.
+glow-metrics-studio-main/src/hooks/use-toast.ts(3,53): error TS2307: Cannot find module '@/components/ui/toast' or its corresponding type declarations.
+glow-metrics-studio-main/src/hooks/use-toast.ts(153,22): error TS7006: Parameter 'open' implicitly has an 'any' type.
+glow-metrics-studio-main/src/main.tsx(2,17): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+glow-metrics-studio-main/src/pages/About.tsx(1,24): error TS2307: Cannot find module '@/components/layout/Navbar' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/About.tsx(2,24): error TS2307: Cannot find module '@/components/layout/Footer' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/About.tsx(3,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Dashboard.tsx(2,28): error TS2307: Cannot find module '@/components/dashboard/MetricCard' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Dashboard.tsx(3,31): error TS2307: Cannot find module '@/components/dashboard/ActivityChart' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Dashboard.tsx(4,31): error TS2307: Cannot find module '@/components/dashboard/VelocityChart' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Dashboard.tsx(5,10): error TS2614: Module '"@/components/dashboard/ContributorLeaderboard"' has no exported member 'ContributorLeaderboard'. Did you mean to use 'import ContributorLeaderboard from "@/components/dashboard/ContributorLeaderboard"' instead?
+glow-metrics-studio-main/src/pages/Dashboard.tsx(8,92): error TS2307: Cannot find module '@/lib/mock-data' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Features.tsx(1,24): error TS2307: Cannot find module '@/components/layout/Navbar' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Features.tsx(2,24): error TS2307: Cannot find module '@/components/layout/Footer' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Features.tsx(3,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Landing.tsx(1,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Landing.tsx(2,24): error TS2307: Cannot find module '@/components/layout/Navbar' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Landing.tsx(3,24): error TS2307: Cannot find module '@/components/layout/Footer' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/NotFound.tsx(1,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Pricing.tsx(1,24): error TS2307: Cannot find module '@/components/layout/Navbar' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Pricing.tsx(2,24): error TS2307: Cannot find module '@/components/layout/Footer' or its corresponding type declarations.
+glow-metrics-studio-main/src/pages/Pricing.tsx(3,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+glow-metrics-studio-main/vite.config.ts(2,19): error TS2307: Cannot find module '@vitejs/plugin-react-swc' or its corresponding type declarations.
+glow-metrics-studio-main/vite.config.ts(4,33): error TS2307: Cannot find module 'lovable-tagger' or its corresponding type declarations.
+glow-metrics-studio-main/vitest.config.ts(2,19): error TS2307: Cannot find module '@vitejs/plugin-react-swc' or its corresponding type declarations.
+src/app/api/ai/pr/[prId]/route.ts(50,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/app/api/ai/summary/route.ts(68,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/app/api/cron/sync/route.ts(35,27): error TS2322: Type 'null' is not assignable to type 'string | NestedStringFilter<"AppSettings"> | undefined'.
+src/services/github/index.ts(1,15): error TS2307: Cannot find module './client' or its corresponding type declarations.
