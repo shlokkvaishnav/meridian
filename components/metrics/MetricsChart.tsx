@@ -47,9 +47,56 @@
  }
 
  export default function MetricsChart({ data }: MetricsChartProps) {
-   if (data.length === 0) {
-     return null;
-   }
+  if (data.length === 0) {
+    return (
+      <div className="glass-card noise p-6 animate-fade-in-up">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-violet-400" />
+            <h2 className="text-base font-semibold text-white tracking-tight">Activity Trends</h2>
+          </div>
+          <span className="text-xs text-slate-500 font-mono">30 days</span>
+        </div>
+
+        {/* Empty state with visual placeholder */}
+        <div className="h-64 relative flex flex-col items-center justify-center border border-dashed border-white/[0.06] rounded-lg">
+          {/* Chart placeholder visual */}
+          <div className="absolute inset-0 flex items-end justify-around p-8 opacity-[0.15]">
+            {[40, 65, 45, 70, 55, 80, 60].map((height, i) => (
+              <div
+                key={i}
+                className="w-full mx-1 bg-gradient-to-t from-violet-500/30 to-violet-500/10 rounded-t"
+                style={{ height: `${height}%` }}
+              />
+            ))}
+          </div>
+
+          {/* Empty state content */}
+          <div className="relative z-10 text-center">
+            <div className="h-12 w-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
+              <TrendingUp className="h-6 w-6 text-violet-400" />
+            </div>
+            <h3 className="text-sm font-semibold text-white mb-1">No activity data yet</h3>
+            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+              Sync your repositories to see PR trends over time
+            </p>
+          </div>
+        </div>
+
+        {/* Legend (maintained for consistency) */}
+        <div className="flex justify-center gap-6 mt-4 opacity-40">
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 w-6 rounded-full bg-violet-500" />
+            <span className="text-[11px] text-slate-400">Opened</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 w-6 rounded-full bg-emerald-500" />
+            <span className="text-[11px] text-slate-400">Merged</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
    return (
      <div className="glass-card noise p-6 animate-fade-in-up">

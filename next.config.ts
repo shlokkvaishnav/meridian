@@ -12,9 +12,44 @@ const nextConfig = (phase: string): NextConfig => {
       ignoreDuringBuilds: true,
     },
     images: {
-      domains: ['avatars.githubusercontent.com', 'github.com'],
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'avatars.githubusercontent.com',
+        },
+        {
+          protocol: 'https',
+          hostname: 'github.com',
+        }
+      ],
     },
     serverExternalPackages: ['pg', '@prisma/adapter-pg'],
+    
+    // Performance optimizations
+    experimental: {
+      optimizePackageImports: ['lucide-react', 'recharts'],
+      turbo: {
+        rules: {
+          '*.svg': {
+            loaders: ['@svgr/webpack'],
+            as: '*.js',
+          },
+        },
+      },
+    },
+    
+    // Webpack optimizations for faster dev builds
+    webpack: (config, { dev, isServer }) => {
+      if (dev && !isServer) {
+        config.optimization = {
+          ...config.optimization,
+          removeAvailableModules: false,
+          removeEmptyChunks: false,
+          splitChunks: false,
+        };
+      }
+      return config;
+    },
   };
 };
 

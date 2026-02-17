@@ -2,17 +2,33 @@ import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 import { getTopContributors, getTimeSeriesData } from '@/lib/metrics';
-import ContributorLeaderboard from '@/components/dashboard/ContributorLeaderboard';
-import MetricsChart from '@/components/metrics/MetricsChart';
-import { VelocityChart } from '@/components/charts/VelocityChart';
 import InsightsDisplay from '@/components/insights/InsightsDisplay';
 import { generateInsights } from '@/lib/insights';
 import { Activity, Clock, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getSession } from '@/lib/session';
+import dynamic from 'next/dynamic';
 
-export const dynamic = 'force-dynamic';
+// Dynamic imports for heavy chart components (reduces initial bundle)
+const MetricsChart = dynamic(() => import('@/components/metrics/MetricsChart'), {
+  loading: () => <div className="glass-card noise p-6 h-64 animate-pulse bg-white/[0.02]" />,
+  ssr: false,
+});
+
+const VelocityChart = dynamic(() => import('@/components/charts/VelocityChart').then(mod => ({ default: mod.VelocityChart })), {
+  loading: () => <div className="glass-card noise p-6 h-64 animate-pulse bg-white/[0.02]" />,
+  ssr: false,
+});
+
+const ContributorLeaderboard = dynamic(() => import('@/components/dashboard/ContributorLeaderboard'), {
+  loading: () => <div className="glass-card noise p-6 h-64 animate-pulse bg-white/[0.02]" />,
+  ssr: false,
+});
+
+// Force dynamic rendering (renamed to avoid conflict with Next.js dynamic import)
+export const dynamicParams = false;
+export const revalidate = 0;
 
 export default async function DashboardPage() {
   const session = await getSession();

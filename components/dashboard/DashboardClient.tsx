@@ -109,19 +109,19 @@
           title="Total PRs"
           value={stats.total}
           icon={GitPullRequest}
-          className="border-violet-200 dark:border-violet-900/50 bg-violet-50/30 dark:bg-violet-950/10"
+          isEmpty={stats.total === 0}
         />
         <MetricCard
           title="Merged PRs"
           value={stats.merged}
           icon={GitMerge}
-          className="border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/10"
+          isEmpty={stats.merged === 0}
         />
         <MetricCard
           title="Open PRs"
           value={stats.open}
           icon={GitBranch}
-          className="border-sky-200 dark:border-sky-900/50 bg-sky-50/30 dark:bg-sky-950/10"
+          isEmpty={stats.open === 0}
         />
        </div>
 
