@@ -58,7 +58,8 @@ export const ModelName = {
   Comment: 'Comment',
   SyncJob: 'SyncJob',
   Insight: 'Insight',
-  MetricSnapshot: 'MetricSnapshot'
+  MetricSnapshot: 'MetricSnapshot',
+  Team: 'Team'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -214,6 +215,20 @@ export const MetricSnapshotScalarFieldEnum = {
 } as const
 
 export type MetricSnapshotScalarFieldEnum = (typeof MetricSnapshotScalarFieldEnum)[keyof typeof MetricSnapshotScalarFieldEnum]
+
+
+export const TeamScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  color: 'color',
+  ownerId: 'ownerId',
+  memberLogins: 'memberLogins',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TeamScalarFieldEnum = (typeof TeamScalarFieldEnum)[keyof typeof TeamScalarFieldEnum]
 
 
 export const SortOrder = {

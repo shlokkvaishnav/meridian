@@ -79,3 +79,8 @@ export type Insight = Prisma.InsightModel
  * 
  */
 export type MetricSnapshot = Prisma.MetricSnapshotModel
+/**
+ * Model Team
+ * 
+ */
+export type Team = Prisma.TeamModel

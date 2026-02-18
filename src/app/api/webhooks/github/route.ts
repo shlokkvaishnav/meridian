@@ -60,6 +60,12 @@ export async function POST(request: Request) {
       const pr = payload.pull_request;
       const repo = payload.repository;
 
+      // Skip if this is a review event (handled separately)
+      if (action === 'submitted' || action === 'edited' || action === 'dismissed') {
+        // This will be handled by pull_request_review event
+        return NextResponse.json({ received: true, event, action: 'skipped_review' });
+      }
+
       // Find the owner (user) for this repository
       const dbRepo = await db.repository.findFirst({
         where: {
@@ -126,11 +132,111 @@ export async function POST(request: Request) {
 
       console.log(`Updated PR #${pr.number} in ${repo.full_name} (${action})`);
 
+
+      // Update repository lastSyncedAt for real-time freshness
+      await db.repository.update({
+        where: { id: dbRepo.id },
+        data: {
+          lastSyncedAt: new Date(),
+        },
+      });
+
+      // Update owner's lastSyncedAt
+      await db.appSettings.update({
+        where: { id: dbRepo.ownerId },
+        data: {
+          lastSyncedAt: new Date(),
+        },
+      });
+
       return NextResponse.json({
         received: true,
         event,
         action,
         pr: pr.number,
+        realTime: true,
+      });
+    }
+
+    // Handle pull_request_review events (separate from pull_request)
+    if (event === 'pull_request_review') {
+      const action = payload.action;
+      const review = payload.review;
+      const pr = payload.pull_request;
+      const repo = payload.repository;
+
+      const dbRepo = await db.repository.findFirst({
+        where: {
+          githubRepoId: repo.id,
+        },
+        select: {
+          id: true,
+          ownerId: true,
+        },
+      });
+
+      if (!dbRepo) {
+        return NextResponse.json({ received: true, action: 'skipped' });
+      }
+
+      const dbPr = await db.pullRequest.findFirst({
+        where: {
+          repositoryId: dbRepo.id,
+          number: pr.number,
+        },
+        select: { id: true },
+      });
+
+      if (!dbPr) {
+        return NextResponse.json({ received: true, action: 'pr_not_found' });
+      }
+
+      // Upsert review
+      await db.review.upsert({
+        where: {
+          githubReviewId: review.id,
+        },
+        create: {
+          githubReviewId: review.id,
+          pullRequestId: dbPr.id,
+          reviewerLogin: review.user.login,
+          reviewerAvatarUrl: review.user.avatar_url,
+          state: review.state === 'approved' ? 'APPROVED' 
+                : review.state === 'changes_requested' ? 'CHANGES_REQUESTED'
+                : review.state === 'commented' ? 'COMMENTED'
+                : 'DISMISSED',
+          body: review.body || null,
+          submittedAt: new Date(review.submitted_at),
+        },
+        update: {
+          state: review.state === 'approved' ? 'APPROVED' 
+                : review.state === 'changes_requested' ? 'CHANGES_REQUESTED'
+                : review.state === 'commented' ? 'COMMENTED'
+                : 'DISMISSED',
+          body: review.body || null,
+          submittedAt: new Date(review.submitted_at),
+        },
+      });
+
+      // Update repository and owner sync timestamps
+      await db.repository.update({
+        where: { id: dbRepo.id },
+        data: { lastSyncedAt: new Date() },
+      });
+
+      await db.appSettings.update({
+        where: { id: dbRepo.ownerId },
+        data: { lastSyncedAt: new Date() },
+      });
+
+      console.log(`Updated review ${review.id} for PR #${pr.number} in ${repo.full_name}`);
+
+      return NextResponse.json({
+        received: true,
+        event,
+        action,
+        review: review.id,
+        realTime: true,
       });
     }
 

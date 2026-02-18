@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Github, Key, ArrowRight, CheckCircle, AlertCircle, Loader2, Activity, ExternalLink, Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { TerminalProgress } from '@/components/setup/TerminalProgress';
 
 export default function SetupPage() {
   const [token, setToken] = useState('');
@@ -12,7 +13,17 @@ export default function SetupPage() {
   const [userName, setUserName] = useState('');
   const [showToken, setShowToken] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const [syncStep, setSyncStep] = useState(0);
   const router = useRouter();
+
+  const syncSteps = [
+    { id: 'decrypt', label: 'Decrypting token...' },
+    { id: 'fetch', label: 'Fetching repositories...' },
+    { id: 'prs', label: 'Loading pull requests...' },
+    { id: 'reviews', label: 'Analyzing reviews...' },
+    { id: 'metrics', label: 'Calculating metrics...' },
+    { id: 'complete', label: 'Sync complete!' },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +41,20 @@ export default function SetupPage() {
     setStatus('loading');
     setError('');
     setValidationError('');
+    setSyncStep(0);
 
     try {
+      // Simulate sync progress
+      const progressInterval = setInterval(() => {
+        setSyncStep((prev) => {
+          if (prev < syncSteps.length - 1) {
+            return prev + 1;
+          }
+          clearInterval(progressInterval);
+          return prev;
+        });
+      }, 800);
+
       const response = await fetch('/api/auth/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,14 +64,17 @@ export default function SetupPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        clearInterval(progressInterval);
         throw new Error(data.error || 'Failed to connect');
       }
 
+      setSyncStep(syncSteps.length - 1);
+      clearInterval(progressInterval);
       setUserName(data.user?.login || '');
       setStatus('success');
 
       // Redirect to dashboard after brief success state
-      setTimeout(() => router.push('/dashboard'), 1500);
+      setTimeout(() => router.push('/dashboard'), 2000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       setStatus('error');
@@ -97,12 +123,27 @@ export default function SetupPage() {
                 <CheckCircle className="h-8 w-8 text-emerald-400" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Connected!</h2>
-              <p className="text-slate-400">
+              <p className="text-slate-400 mb-6">
                 Welcome, <span className="text-white font-medium">{userName}</span>. Redirecting to dashboard...
               </p>
-              <div className="mt-6 flex justify-center">
-                <Loader2 className="h-5 w-5 text-violet-400 animate-spin" />
+              <TerminalProgress steps={syncSteps.map((s, i) => ({
+                ...s,
+                status: i <= syncStep ? (i === syncStep ? 'running' : 'completed') : 'pending',
+              }))} currentStep={syncStep} />
+            </div>
+          ) : status === 'loading' ? (
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="text-center">
+                <div className="h-14 w-14 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-6">
+                  <Loader2 className="h-7 w-7 text-violet-400 animate-spin" />
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Connecting to GitHub...</h2>
+                <p className="text-slate-400">Setting up your workspace</p>
               </div>
+              <TerminalProgress steps={syncSteps.map((s, i) => ({
+                ...s,
+                status: i < syncStep ? 'completed' : i === syncStep ? 'running' : 'pending',
+              }))} currentStep={syncStep} />
             </div>
           ) : (
             <>
@@ -134,28 +175,27 @@ export default function SetupPage() {
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="animate-fade-in-up stagger-2">
-                <div className="glass-card p-6 space-y-5 border border-white/[0.08]">
-                  {/* Token input */}
-                  <div>
-                    <label htmlFor="token" className="block text-sm font-medium text-slate-300 mb-2">
-                      GitHub Personal Access Token
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="token"
-                        type={showToken ? 'text' : 'password'}
-                        value={token}
-                        onChange={(e) => handleTokenChange(e.target.value)}
-                        className={`w-full px-4 py-3 pr-12 bg-black/30 border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                          hasError
-                            ? 'border-red-500/50 focus:ring-red-500/20 focus:border-red-500'
-                            : isValid
-                            ? 'border-emerald-500/50 focus:ring-emerald-500/20 focus:border-emerald-500'
-                            : 'border-white/[0.08] focus:ring-violet-500/20 focus:border-violet-500'
-                        }`}
-                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                        disabled={status === 'loading'}
-                      />
+                  <div className="glass-card p-6 space-y-5 border border-white/[0.08]">
+                    {/* Token input */}
+                    <div>
+                      <label htmlFor="token" className="block text-sm font-medium text-slate-300 mb-2">
+                        GitHub Personal Access Token
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="token"
+                          type={showToken ? 'text' : 'password'}
+                          value={token}
+                          onChange={(e) => handleTokenChange(e.target.value)}
+                          className={`w-full px-4 py-3 pr-12 bg-black/30 border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
+                            hasError
+                              ? 'border-red-500/50 focus:ring-red-500/20 focus:border-red-500'
+                              : isValid
+                              ? 'border-emerald-500/50 focus:ring-emerald-500/20 focus:border-emerald-500'
+                              : 'border-white/[0.08] focus:ring-violet-500/20 focus:border-violet-500'
+                          }`}
+                          placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                        />
                       <button
                         type="button"
                         onClick={() => setShowToken(!showToken)}
@@ -185,28 +225,18 @@ export default function SetupPage() {
                     )}
                   </div>
 
-                  {/* Submit button */}
-                  <div className="flex justify-center">
-                    <button
-                      type="submit"
-                      disabled={status === 'loading'}
-                      className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 disabled:from-violet-600/50 disabled:to-violet-500/50 disabled:cursor-not-allowed transition-all duration-300 shadow-glow hover:shadow-glow-lg hover:scale-[1.02] disabled:hover:scale-100 disabled:hover:shadow-glow w-full max-w-[300px]"
-                    >
-                      {status === 'loading' ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Connecting...
-                        </>
-                      ) : (
-                        <>
-                          Connect GitHub
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </>
-                      )}
-                    </button>
+                    {/* Submit button */}
+                    <div className="flex justify-center">
+                      <button
+                        type="submit"
+                        className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all duration-300 shadow-glow hover:shadow-glow-lg hover:scale-[1.02] w-full max-w-[300px]"
+                      >
+                        Connect GitHub
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </form>
+                </form>
 
               {/* How to get token */}
               <div className="mt-8 glass-card p-5 space-y-4 animate-fade-in-up stagger-3">

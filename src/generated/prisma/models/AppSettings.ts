@@ -275,6 +275,7 @@ export type AppSettingsWhereInput = {
   repositories?: Prisma.RepositoryListRelationFilter
   insights?: Prisma.InsightListRelationFilter
   syncJobs?: Prisma.SyncJobListRelationFilter
+  teams?: Prisma.TeamListRelationFilter
 }
 
 export type AppSettingsOrderByWithRelationInput = {
@@ -293,6 +294,7 @@ export type AppSettingsOrderByWithRelationInput = {
   repositories?: Prisma.RepositoryOrderByRelationAggregateInput
   insights?: Prisma.InsightOrderByRelationAggregateInput
   syncJobs?: Prisma.SyncJobOrderByRelationAggregateInput
+  teams?: Prisma.TeamOrderByRelationAggregateInput
 }
 
 export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -314,6 +316,7 @@ export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
   repositories?: Prisma.RepositoryListRelationFilter
   insights?: Prisma.InsightListRelationFilter
   syncJobs?: Prisma.SyncJobListRelationFilter
+  teams?: Prisma.TeamListRelationFilter
 }, "id" | "sessionId">
 
 export type AppSettingsOrderByWithAggregationInput = {
@@ -370,6 +373,7 @@ export type AppSettingsCreateInput = {
   repositories?: Prisma.RepositoryCreateNestedManyWithoutOwnerInput
   insights?: Prisma.InsightCreateNestedManyWithoutOwnerInput
   syncJobs?: Prisma.SyncJobCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUncheckedCreateInput = {
@@ -388,6 +392,7 @@ export type AppSettingsUncheckedCreateInput = {
   repositories?: Prisma.RepositoryUncheckedCreateNestedManyWithoutOwnerInput
   insights?: Prisma.InsightUncheckedCreateNestedManyWithoutOwnerInput
   syncJobs?: Prisma.SyncJobUncheckedCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUpdateInput = {
@@ -406,6 +411,7 @@ export type AppSettingsUpdateInput = {
   repositories?: Prisma.RepositoryUpdateManyWithoutOwnerNestedInput
   insights?: Prisma.InsightUpdateManyWithoutOwnerNestedInput
   syncJobs?: Prisma.SyncJobUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsUncheckedUpdateInput = {
@@ -424,6 +430,7 @@ export type AppSettingsUncheckedUpdateInput = {
   repositories?: Prisma.RepositoryUncheckedUpdateManyWithoutOwnerNestedInput
   insights?: Prisma.InsightUncheckedUpdateManyWithoutOwnerNestedInput
   syncJobs?: Prisma.SyncJobUncheckedUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsCreateManyInput = {
@@ -602,6 +609,20 @@ export type AppSettingsUpdateOneRequiredWithoutInsightsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AppSettingsUpdateToOneWithWhereWithoutInsightsInput, Prisma.AppSettingsUpdateWithoutInsightsInput>, Prisma.AppSettingsUncheckedUpdateWithoutInsightsInput>
 }
 
+export type AppSettingsCreateNestedOneWithoutTeamsInput = {
+  create?: Prisma.XOR<Prisma.AppSettingsCreateWithoutTeamsInput, Prisma.AppSettingsUncheckedCreateWithoutTeamsInput>
+  connectOrCreate?: Prisma.AppSettingsCreateOrConnectWithoutTeamsInput
+  connect?: Prisma.AppSettingsWhereUniqueInput
+}
+
+export type AppSettingsUpdateOneRequiredWithoutTeamsNestedInput = {
+  create?: Prisma.XOR<Prisma.AppSettingsCreateWithoutTeamsInput, Prisma.AppSettingsUncheckedCreateWithoutTeamsInput>
+  connectOrCreate?: Prisma.AppSettingsCreateOrConnectWithoutTeamsInput
+  upsert?: Prisma.AppSettingsUpsertWithoutTeamsInput
+  connect?: Prisma.AppSettingsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppSettingsUpdateToOneWithWhereWithoutTeamsInput, Prisma.AppSettingsUpdateWithoutTeamsInput>, Prisma.AppSettingsUncheckedUpdateWithoutTeamsInput>
+}
+
 export type AppSettingsCreateWithoutRepositoriesInput = {
   id?: string
   sessionId: string
@@ -617,6 +638,7 @@ export type AppSettingsCreateWithoutRepositoriesInput = {
   updatedAt?: Date | string
   insights?: Prisma.InsightCreateNestedManyWithoutOwnerInput
   syncJobs?: Prisma.SyncJobCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUncheckedCreateWithoutRepositoriesInput = {
@@ -634,6 +656,7 @@ export type AppSettingsUncheckedCreateWithoutRepositoriesInput = {
   updatedAt?: Date | string
   insights?: Prisma.InsightUncheckedCreateNestedManyWithoutOwnerInput
   syncJobs?: Prisma.SyncJobUncheckedCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsCreateOrConnectWithoutRepositoriesInput = {
@@ -667,6 +690,7 @@ export type AppSettingsUpdateWithoutRepositoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   insights?: Prisma.InsightUpdateManyWithoutOwnerNestedInput
   syncJobs?: Prisma.SyncJobUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsUncheckedUpdateWithoutRepositoriesInput = {
@@ -684,6 +708,7 @@ export type AppSettingsUncheckedUpdateWithoutRepositoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   insights?: Prisma.InsightUncheckedUpdateManyWithoutOwnerNestedInput
   syncJobs?: Prisma.SyncJobUncheckedUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsCreateWithoutSyncJobsInput = {
@@ -701,6 +726,7 @@ export type AppSettingsCreateWithoutSyncJobsInput = {
   updatedAt?: Date | string
   repositories?: Prisma.RepositoryCreateNestedManyWithoutOwnerInput
   insights?: Prisma.InsightCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUncheckedCreateWithoutSyncJobsInput = {
@@ -718,6 +744,7 @@ export type AppSettingsUncheckedCreateWithoutSyncJobsInput = {
   updatedAt?: Date | string
   repositories?: Prisma.RepositoryUncheckedCreateNestedManyWithoutOwnerInput
   insights?: Prisma.InsightUncheckedCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsCreateOrConnectWithoutSyncJobsInput = {
@@ -751,6 +778,7 @@ export type AppSettingsUpdateWithoutSyncJobsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repositories?: Prisma.RepositoryUpdateManyWithoutOwnerNestedInput
   insights?: Prisma.InsightUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsUncheckedUpdateWithoutSyncJobsInput = {
@@ -768,6 +796,7 @@ export type AppSettingsUncheckedUpdateWithoutSyncJobsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repositories?: Prisma.RepositoryUncheckedUpdateManyWithoutOwnerNestedInput
   insights?: Prisma.InsightUncheckedUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsCreateWithoutInsightsInput = {
@@ -785,6 +814,7 @@ export type AppSettingsCreateWithoutInsightsInput = {
   updatedAt?: Date | string
   repositories?: Prisma.RepositoryCreateNestedManyWithoutOwnerInput
   syncJobs?: Prisma.SyncJobCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsUncheckedCreateWithoutInsightsInput = {
@@ -802,6 +832,7 @@ export type AppSettingsUncheckedCreateWithoutInsightsInput = {
   updatedAt?: Date | string
   repositories?: Prisma.RepositoryUncheckedCreateNestedManyWithoutOwnerInput
   syncJobs?: Prisma.SyncJobUncheckedCreateNestedManyWithoutOwnerInput
+  teams?: Prisma.TeamUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type AppSettingsCreateOrConnectWithoutInsightsInput = {
@@ -835,6 +866,7 @@ export type AppSettingsUpdateWithoutInsightsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repositories?: Prisma.RepositoryUpdateManyWithoutOwnerNestedInput
   syncJobs?: Prisma.SyncJobUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUpdateManyWithoutOwnerNestedInput
 }
 
 export type AppSettingsUncheckedUpdateWithoutInsightsInput = {
@@ -852,6 +884,95 @@ export type AppSettingsUncheckedUpdateWithoutInsightsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   repositories?: Prisma.RepositoryUncheckedUpdateManyWithoutOwnerNestedInput
   syncJobs?: Prisma.SyncJobUncheckedUpdateManyWithoutOwnerNestedInput
+  teams?: Prisma.TeamUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type AppSettingsCreateWithoutTeamsInput = {
+  id?: string
+  sessionId: string
+  encryptedToken: string
+  tokenCreatedAt?: Date | string
+  githubLogin?: string | null
+  githubUserId?: number | null
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  repositories?: Prisma.RepositoryCreateNestedManyWithoutOwnerInput
+  insights?: Prisma.InsightCreateNestedManyWithoutOwnerInput
+  syncJobs?: Prisma.SyncJobCreateNestedManyWithoutOwnerInput
+}
+
+export type AppSettingsUncheckedCreateWithoutTeamsInput = {
+  id?: string
+  sessionId: string
+  encryptedToken: string
+  tokenCreatedAt?: Date | string
+  githubLogin?: string | null
+  githubUserId?: number | null
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  lastSyncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  repositories?: Prisma.RepositoryUncheckedCreateNestedManyWithoutOwnerInput
+  insights?: Prisma.InsightUncheckedCreateNestedManyWithoutOwnerInput
+  syncJobs?: Prisma.SyncJobUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type AppSettingsCreateOrConnectWithoutTeamsInput = {
+  where: Prisma.AppSettingsWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppSettingsCreateWithoutTeamsInput, Prisma.AppSettingsUncheckedCreateWithoutTeamsInput>
+}
+
+export type AppSettingsUpsertWithoutTeamsInput = {
+  update: Prisma.XOR<Prisma.AppSettingsUpdateWithoutTeamsInput, Prisma.AppSettingsUncheckedUpdateWithoutTeamsInput>
+  create: Prisma.XOR<Prisma.AppSettingsCreateWithoutTeamsInput, Prisma.AppSettingsUncheckedCreateWithoutTeamsInput>
+  where?: Prisma.AppSettingsWhereInput
+}
+
+export type AppSettingsUpdateToOneWithWhereWithoutTeamsInput = {
+  where?: Prisma.AppSettingsWhereInput
+  data: Prisma.XOR<Prisma.AppSettingsUpdateWithoutTeamsInput, Prisma.AppSettingsUncheckedUpdateWithoutTeamsInput>
+}
+
+export type AppSettingsUpdateWithoutTeamsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repositories?: Prisma.RepositoryUpdateManyWithoutOwnerNestedInput
+  insights?: Prisma.InsightUpdateManyWithoutOwnerNestedInput
+  syncJobs?: Prisma.SyncJobUpdateManyWithoutOwnerNestedInput
+}
+
+export type AppSettingsUncheckedUpdateWithoutTeamsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedToken?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenCreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  githubLogin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  githubUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  repositories?: Prisma.RepositoryUncheckedUpdateManyWithoutOwnerNestedInput
+  insights?: Prisma.InsightUncheckedUpdateManyWithoutOwnerNestedInput
+  syncJobs?: Prisma.SyncJobUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 
@@ -863,12 +984,14 @@ export type AppSettingsCountOutputType = {
   repositories: number
   insights: number
   syncJobs: number
+  teams: number
 }
 
 export type AppSettingsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   repositories?: boolean | AppSettingsCountOutputTypeCountRepositoriesArgs
   insights?: boolean | AppSettingsCountOutputTypeCountInsightsArgs
   syncJobs?: boolean | AppSettingsCountOutputTypeCountSyncJobsArgs
+  teams?: boolean | AppSettingsCountOutputTypeCountTeamsArgs
 }
 
 /**
@@ -902,6 +1025,13 @@ export type AppSettingsCountOutputTypeCountSyncJobsArgs<ExtArgs extends runtime.
   where?: Prisma.SyncJobWhereInput
 }
 
+/**
+ * AppSettingsCountOutputType without action
+ */
+export type AppSettingsCountOutputTypeCountTeamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeamWhereInput
+}
+
 
 export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -919,6 +1049,7 @@ export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   repositories?: boolean | Prisma.AppSettings$repositoriesArgs<ExtArgs>
   insights?: boolean | Prisma.AppSettings$insightsArgs<ExtArgs>
   syncJobs?: boolean | Prisma.AppSettings$syncJobsArgs<ExtArgs>
+  teams?: boolean | Prisma.AppSettings$teamsArgs<ExtArgs>
   _count?: boolean | Prisma.AppSettingsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appSettings"]>
 
@@ -972,6 +1103,7 @@ export type AppSettingsInclude<ExtArgs extends runtime.Types.Extensions.Internal
   repositories?: boolean | Prisma.AppSettings$repositoriesArgs<ExtArgs>
   insights?: boolean | Prisma.AppSettings$insightsArgs<ExtArgs>
   syncJobs?: boolean | Prisma.AppSettings$syncJobsArgs<ExtArgs>
+  teams?: boolean | Prisma.AppSettings$teamsArgs<ExtArgs>
   _count?: boolean | Prisma.AppSettingsCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AppSettingsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -983,6 +1115,7 @@ export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.Interna
     repositories: Prisma.$RepositoryPayload<ExtArgs>[]
     insights: Prisma.$InsightPayload<ExtArgs>[]
     syncJobs: Prisma.$SyncJobPayload<ExtArgs>[]
+    teams: Prisma.$TeamPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1394,6 +1527,7 @@ export interface Prisma__AppSettingsClient<T, Null = never, ExtArgs extends runt
   repositories<T extends Prisma.AppSettings$repositoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettings$repositoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RepositoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   insights<T extends Prisma.AppSettings$insightsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettings$insightsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   syncJobs<T extends Prisma.AppSettings$syncJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettings$syncJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SyncJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  teams<T extends Prisma.AppSettings$teamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppSettings$teamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1892,6 +2026,30 @@ export type AppSettings$syncJobsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.SyncJobScalarFieldEnum | Prisma.SyncJobScalarFieldEnum[]
+}
+
+/**
+ * AppSettings.teams
+ */
+export type AppSettings$teamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Team
+   */
+  select?: Prisma.TeamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Team
+   */
+  omit?: Prisma.TeamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeamInclude<ExtArgs> | null
+  where?: Prisma.TeamWhereInput
+  orderBy?: Prisma.TeamOrderByWithRelationInput | Prisma.TeamOrderByWithRelationInput[]
+  cursor?: Prisma.TeamWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeamScalarFieldEnum | Prisma.TeamScalarFieldEnum[]
 }
 
 /**

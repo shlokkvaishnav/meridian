@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60; // Allow up to 60s for AI + DB work (Vercel Pro)
 
 /**
  * Generate and store AI/rule-based insights

@@ -34,6 +34,7 @@ model AppSettings {
   repositories Repository[]
   insights     Insight[]
   syncJobs     SyncJob[]
+  teams        Team[]
 
   @@index([githubLogin])
   @@index([sessionId])
@@ -267,4 +268,28 @@ model MetricSnapshot {
 
   @@unique([repositoryId, date])
   @@index([date])
+}
+
+// ==================== Teams ====================
+
+model Team {
+  id String @id @default(cuid())
+
+  name        String
+  description String?
+  color       String? // Hex color for UI
+
+  // Owner (User Session)
+  ownerId String
+  owner   AppSettings @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Team members stored as JSON array of GitHub logins
+  // Format: ["user1", "user2", "user3"]
+  memberLogins Json @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([ownerId, name])
 }

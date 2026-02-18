@@ -88,8 +88,10 @@ export const generateInsights = unstable_cache(
     }
   
     try {
-      // Generate AI Strategic Insight if API key is present
-      if (process.env.ANTHROPIC_API_KEY && insights.length > 0) {
+      // Generate AI Strategic Insight if valid API key is present (skip placeholder keys)
+      const hasValidApiKey = process.env.ANTHROPIC_API_KEY && 
+        !process.env.ANTHROPIC_API_KEY.includes('your-key-here');
+      if (hasValidApiKey && insights.length > 0) {
         const strategicInsight = await generateStrategicInsight(insights, ownerId); // ownerId is used as proxy for login if needed, though strictly it's an ID
         if (strategicInsight) {
           insights.push({

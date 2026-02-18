@@ -8,11 +8,13 @@ import { Activity, Clock, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getSession } from '@/lib/session';
-import dynamic from 'next/dynamic';
 import { DateRangePicker } from '@/components/common/DateRangePicker';
 import { ContributorFilter } from '@/components/dashboard/ContributorFilter';
+import { TeamFilter } from '@/components/dashboard/TeamFilter';
 import { DashboardWidgets } from '@/components/dashboard/DashboardWidgets';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { DataFreshnessIndicator } from '@/components/dashboard/DataFreshnessIndicator';
+import { RealtimeSubscription } from '@/components/dashboard/RealtimeSubscription';
 
 
 
@@ -36,10 +38,28 @@ export default async function DashboardPage(props: DashboardPageProps) {
 
   const { settings } = session;
 
+  // Get teams for filtering (table may not exist if migrations not run)
+  let teams: { id: string; name: string; memberLogins: unknown; color: string | null }[] = [];
+  try {
+    teams = await db.team.findMany({
+      where: { ownerId: settings.id },
+      orderBy: { name: 'asc' },
+    });
+  } catch {
+    // Team table may not exist yet - run: npx prisma db push
+  }
+
+  // Get team members if team filter is active
+  const team = typeof searchParams.team === 'string' ? searchParams.team : undefined;
+  const teamMembers: string[] = team
+    ? (teams.find(t => t.id === team)?.memberLogins as string[] | undefined) || []
+    : [];
+
   // Common filter for PR queries
   const prFilter = {
     repository: { ownerId: settings.id },
     ...(contributor ? { authorLogin: contributor } : {}),
+    ...(team && teamMembers.length > 0 ? { authorLogin: { in: teamMembers } } : {}),
   };
 
   // Parallelize independent data fetching
@@ -100,13 +120,13 @@ export default async function DashboardPage(props: DashboardPageProps) {
       getTopContributors(settings.id, 50),
 
       // 5. Contributors for Leaderboard (Filtered)
-      getTopContributors(settings.id, 10, contributor),
+      getTopContributors(settings.id, 10, contributor || (teamMembers.length === 1 ? teamMembers[0] : undefined)),
 
-      // 6. Charts (Filtered by time/contributor)
-      getTimeSeriesData(settings.id, 30, contributor),
+      // 6. Charts (Filtered by time/contributor/team)
+      getTimeSeriesData(settings.id, 30, contributor || (teamMembers.length === 1 ? teamMembers[0] : undefined)),
 
-      // 7. Insights (Filtered)
-      generateInsights(settings.id, contributor).catch((e) => {
+      // 7. Insights (Filtered by contributor/team)
+      generateInsights(settings.id, contributor || (teamMembers.length === 1 ? teamMembers[0] : undefined)).catch((e) => {
         console.error('Failed to generate insights for dashboard:', e);
         return [];
       }),
@@ -177,17 +197,17 @@ export default async function DashboardPage(props: DashboardPageProps) {
           </div>
 
           <div className="flex items-center gap-4">
+            <TeamFilter teams={teams.map(t => ({
+              id: t.id,
+              name: t.name,
+              memberLogins: (t.memberLogins as string[]) || [],
+              color: t.color || undefined,
+            }))} contributors={contributorsForFilter.map(c => ({ login: c.login }))} />
             <ContributorFilter contributors={contributorsForFilter} />
             <DateRangePicker />
 
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Clock className="h-3 w-3" />
-              <span className="font-mono">
-                {settings.lastSyncedAt
-                  ? `Synced ${new Date(settings.lastSyncedAt).toLocaleDateString()}`
-                  : 'Not synced yet'}
-              </span>
-            </div>
+            <DataFreshnessIndicator lastSyncedAt={settings.lastSyncedAt} />
+            <RealtimeSubscription ownerId={settings.id} />
             <ThemeToggle />
             <Link
               href="/setup"
@@ -220,6 +240,12 @@ export default async function DashboardPage(props: DashboardPageProps) {
               timeSeriesData={timeSeriesData}
               velocityData={velocityData}
               contributors={contributors}
+              prs={recentPRs.map(pr => ({
+                additions: 0, // Would need to fetch from PR data
+                deletions: 0,
+                title: pr.title,
+                createdAt: pr.createdAt,
+              }))}
             />
           </>
         )}

@@ -1,15 +1,17 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity, BarChart3, Shield, Key, RefreshCw, Sparkles, CheckCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { InteractiveHero } from '@/components/marketing/InteractiveHero';
 import { PricingToggle } from '@/components/marketing/PricingToggle';
-import { FeatureComparison } from '@/components/marketing/FeatureComparison';
-import { TestimonialsCarousel } from '@/components/marketing/TestimonialsCarousel';
-import { TrustedBy } from '@/components/marketing/TrustedBy';
 import { SecurityBadge } from '@/components/marketing/SecurityBadge';
 import { useState } from 'react';
+
+const FeatureComparison = dynamic(() => import('@/components/marketing/FeatureComparison').then(m => ({ default: m.FeatureComparison })));
+const TestimonialsCarousel = dynamic(() => import('@/components/marketing/TestimonialsCarousel').then(m => ({ default: m.TestimonialsCarousel })));
+const TrustedBy = dynamic(() => import('@/components/marketing/TrustedBy').then(m => ({ default: m.TrustedBy })));
 
 export default function LandingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -106,7 +108,7 @@ export default function LandingPage() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="#demo"
+              href="/demo"
               className="px-7 py-3.5 rounded-xl text-slate-300 font-medium border border-white/[0.1] hover:border-white/[0.2] hover:text-white transition-all duration-300"
             >
               View Demo

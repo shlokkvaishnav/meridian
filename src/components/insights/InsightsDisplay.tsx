@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Insight, generateInsights } from '@/services/insights';
+import { Insight } from '@/services/insights';
 import { InsightList } from './InsightList';
 import { toast } from 'sonner';
 
@@ -15,10 +15,19 @@ export default function InsightsDisplay({ initialInsights = [] }: InsightsDispla
 
   const handleGenerateInsights = async () => {
     setGenerating(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout for slow AI/generation
     try {
-      const res = await fetch('/api/insights', { method: 'POST' });
+      const res = await fetch('/api/insights', {
+        method: 'POST',
+        credentials: 'include',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      clearTimeout(timeoutId);
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || `HTTP ${res.status}`);
       }
       const data = await res.json();
 
@@ -29,8 +38,13 @@ export default function InsightsDisplay({ initialInsights = [] }: InsightsDispla
         toast.error(data.error || 'Failed to generate insights');
       }
     } catch (err: any) {
-      console.error('Failed to generate insights:', err);
-      toast.error('Failed to connect to insights engine');
+      clearTimeout(timeoutId);
+      if (err?.name === 'AbortError') {
+        toast.error('Request timed out. Try again or check your connection.');
+      } else {
+        console.error('Failed to generate insights:', err);
+        toast.error(err?.message || 'Failed to connect to insights engine');
+      }
     } finally {
       setGenerating(false);
     }
