@@ -33,72 +33,81 @@ export interface Insight {
 /**
  * Generate insights from PR data using rule-based analysis
  */
-export async function generateInsights(ownerId: string, authorLogin?: string): Promise<Insight[]> {
-  const insights: Insight[] = []; 
-  // Fetch data needed for analysis (last 30 days only)
-  const now = new Date();
-  const startDate = subDays(now, 30);
+import { unstable_cache } from 'next/cache';
 
-  // Get repositories for this owner
-  const repos = await db.repository.findMany({
-    where: { ownerId },
-    select: { id: true },
-  });
-  const repoIds = repos.map((r) => r.id);
-
-  if (repoIds.length === 0) return insights;
-
-  const pullRequests = await db.pullRequest.findMany({
-    where: {
-      createdAt: { gte: startDate },
-      repositoryId: { in: repoIds },
-      ...(authorLogin ? { authorLogin } : {}),
-    },
-    include: {
-      repository: true,
-      reviews: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  // Early return if no data
-  if (pullRequests.length === 0) {
-    return insights;
-  }
-
-  const recentPRs = pullRequests;
-
-  // Run all insight rules (each is safe with empty arrays)
-  try {
-    insights.push(...detectReviewBottlenecks(recentPRs));
-    insights.push(...detectCycleTimeIssues(recentPRs));
-    insights.push(...detectWorkloadImbalance(recentPRs));
-    insights.push(...detectBurnoutSignals(recentPRs));
-    insights.push(...detectStalePRs(recentPRs));
-    insights.push(...detectReviewCapacityIssues(recentPRs));
-    insights.push(...detectPositivePatterns(recentPRs));
-  } catch (error) {
-    console.error('Error running insight rules:', error);
-  }
-
-  try {
-    // Generate AI Strategic Insight if API key is present
-    if (process.env.ANTHROPIC_API_KEY && insights.length > 0) {
-      const strategicInsight = await generateStrategicInsight(insights, ownerId); // ownerId is used as proxy for login if needed, though strictly it's an ID
-      if (strategicInsight) {
-        insights.push({
-          id: 'strategic-ai',
-          ...strategicInsight
-        });
-      }
+/**
+ * Generate insights from PR data using rule-based analysis
+ */
+export const generateInsights = unstable_cache(
+  async (ownerId: string, authorLogin?: string): Promise<Insight[]> => {
+    const insights: Insight[] = []; 
+    // Fetch data needed for analysis (last 30 days only)
+    const now = new Date();
+    const startDate = subDays(now, 30);
+  
+    // Get repositories for this owner
+    const repos = await db.repository.findMany({
+      where: { ownerId },
+      select: { id: true },
+    });
+    const repoIds = repos.map((r) => r.id);
+  
+    if (repoIds.length === 0) return insights;
+  
+    const pullRequests = await db.pullRequest.findMany({
+      where: {
+        createdAt: { gte: startDate },
+        repositoryId: { in: repoIds },
+        ...(authorLogin ? { authorLogin } : {}),
+      },
+      include: {
+        repository: true,
+        reviews: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  
+    // Early return if no data
+    if (pullRequests.length === 0) {
+      return insights;
     }
-  } catch (error) {
-    console.error('Error generating AI strategic insight:', error);
-  }
-
-  // Sort by priority
-  return insights.sort((a, b) => b.priority - a.priority);
-}
+  
+    const recentPRs = pullRequests;
+  
+    // Run all insight rules (each is safe with empty arrays)
+    try {
+      insights.push(...detectReviewBottlenecks(recentPRs));
+      insights.push(...detectCycleTimeIssues(recentPRs));
+      insights.push(...detectWorkloadImbalance(recentPRs));
+      insights.push(...detectBurnoutSignals(recentPRs));
+      insights.push(...detectStalePRs(recentPRs));
+      insights.push(...detectReviewCapacityIssues(recentPRs));
+      insights.push(...detectPositivePatterns(recentPRs));
+    } catch (error) {
+      console.error('Error running insight rules:', error);
+    }
+  
+    try {
+      // Generate AI Strategic Insight if API key is present
+      if (process.env.ANTHROPIC_API_KEY && insights.length > 0) {
+        const strategicInsight = await generateStrategicInsight(insights, ownerId); // ownerId is used as proxy for login if needed, though strictly it's an ID
+        if (strategicInsight) {
+          insights.push({
+            id: 'strategic-ai',
+            ...strategicInsight
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error generating AI strategic insight:', error);
+    }
+  
+    // Sort by priority
+    return insights.sort((a, b) => b.priority - a.priority);
+  },
+  ['dashboard-insights'],
+  { revalidate: 1800, tags: ['dashboard-metrics'] }
+);
 
 /**
  * Rule: Detect PRs waiting too long for reviews (Z-Score > 2)

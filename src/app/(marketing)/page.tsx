@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity, BarChart3, Shield, Key, RefreshCw, Sparkles } from 'lucide-react';
+import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity, BarChart3, Shield, Key, RefreshCw, Sparkles, CheckCircle } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -207,6 +207,132 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="relative z-10 container mx-auto px-6 py-24">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
+            Simple, transparent <span className="text-violet-400">pricing</span>
+          </h2>
+          <p className="text-slate-400">
+            Start for free, upgrade when you need more power. No hidden fees.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {[
+            {
+              name: 'Hobby',
+              price: '$0',
+              desc: 'For personal projects',
+              features: ['3 Repositories', '30-day History', 'Basic Metrics', 'Community Support'],
+              cta: 'Start Free',
+              highlight: false,
+            },
+            {
+              name: 'Pro',
+              price: '$19',
+              period: '/mo',
+              desc: 'For growing teams',
+              features: ['Unlimited Repos', 'Unlimited History', 'Advanced Insights', 'Priority Support', 'AI Analysis'],
+              cta: 'Start Trial',
+              highlight: true,
+            },
+            {
+              name: 'Team',
+              price: '$49',
+              period: '/mo',
+              desc: 'For organizations',
+              features: ['SAML SSO', 'Audit Logs', 'Dedicated Success', 'SLA Guarantee', 'Custom Reports'],
+              cta: 'Contact Sales',
+              highlight: false,
+            },
+          ].map((tier) => (
+            <div
+              key={tier.name}
+              className={`glass-card p-8 flex flex-col relative ${
+                tier.highlight ? 'border-violet-500/50 bg-violet-500/[0.04]' : ''
+              }`}
+            >
+              {tier.highlight && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500 text-white text-xs font-medium shadow-glow">
+                  Most Popular
+                </div>
+              )}
+              <h3 className="text-lg font-semibold text-white mb-2">{tier.name}</h3>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-3xl font-bold text-white">{tier.price}</span>
+                {tier.period && <span className="text-slate-500 text-sm">{tier.period}</span>}
+              </div>
+              <p className="text-sm text-slate-400 mb-6">{tier.desc}</p>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {tier.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle className={`h-4 w-4 ${tier.highlight ? 'text-violet-400' : 'text-slate-500'}`} />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/setup"
+                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-center ${
+                  tier.highlight
+                    ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-glow'
+                    : 'bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.05]'
+                }`}
+              >
+                {tier.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Documentation / Resources Section */}
+      <section id="docs" className="relative z-10 container mx-auto px-6 py-24 border-t border-white/[0.06]">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
+            Built for <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">developers</span>
+          </h2>
+          <p className="text-slate-400">
+            Everything you need to integrate, customize, and extend Meridian.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="glass-card p-6 group hover:bg-white/[0.02] transition-colors cursor-pointer">
+            <div className="h-10 w-10 rounded-lg bg-teal-500/10 flex items-center justify-center mb-4 text-teal-400 group-hover:scale-110 transition-transform">
+              <Zap className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-teal-400 transition-colors">
+              Quick Start Guide
+            </h3>
+            <p className="text-sm text-slate-400 mb-4">
+              Get up and running in less than 5 minutes. Connect your repo and see your first metrics.
+            </p>
+            <div className="flex items-center text-teal-400 text-sm font-medium">
+              Read Guide <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+            </div>
+          </div>
+
+          <div className="glass-card p-6 group hover:bg-white/[0.02] transition-colors cursor-pointer">
+            <div className="h-10 w-10 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4 text-violet-400 group-hover:scale-110 transition-transform">
+              <Shield className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-violet-400 transition-colors">
+              Security & Compliance
+            </h3>
+            <p className="text-sm text-slate-400 mb-4">
+              Learn how we handle your data, encryption standards, and SOC2 compliance details.
+            </p>
+            <div className="flex items-center text-violet-400 text-sm font-medium">
+              View Security <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] mt-20">

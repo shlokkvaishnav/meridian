@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 
@@ -10,241 +11,252 @@ import { calculateContributorRisk } from '@/services/risk';
 /**
  * Get top contributors by PR count (scoped to ownerId)
  */
-export async function getTopContributors(ownerId: string, limit: number = 10, authorLogin?: string): Promise<ContributorStats[]> {
-  // Get repositories for this owner
-  const repos = await db.repository.findMany({
-    where: { ownerId },
-    select: { id: true },
-  });
-
-  const repoIds = repos.map((r) => r.id);
-  if (repoIds.length === 0) return [];
-
-  const filter = {
-    repositoryId: { in: repoIds },
-    ...(authorLogin ? { authorLogin } : {}),
-  };
-
-  // Aggregate PR statistics by author
-  const prStats = await db.pullRequest.groupBy({
-    by: ['authorLogin'],
-    where: filter,
-    _count: { id: true },
-    _sum: {
-      linesAdded: true,
-      linesDeleted: true,
-    },
-  });
-
-  // Get merged stats
-  const mergedStats = await db.pullRequest.groupBy({
-    by: ['authorLogin'],
-    where: {
-      ...filter,
-      state: 'MERGED',
-    },
-    _count: { id: true },
-    _avg: { timeToMerge: true },
-  });
-
-  // Get review stats
-  const reviewStats = await db.review.groupBy({
-    by: ['reviewerLogin'],
-    where: {
-      pullRequest: { repositoryId: { in: repoIds } }, // Reviewer filter is harder, usually we don't filter reviewers by authorLogin (that would be reviews DONE BY this author)
-       // If authorLogin is set, we want reviews DONE by this author.
-       ...(authorLogin ? { reviewerLogin: authorLogin } : {}),
-    },
-    _count: { id: true },
-  });
-
-  // Build the map
-  const contributorMap = new Map<string, ContributorStats>();
-
-  for (const stat of prStats) {
-    contributorMap.set(stat.authorLogin, {
-      login: stat.authorLogin,
-      avatarUrl: `https://avatars.githubusercontent.com/${stat.authorLogin}`,
-      prsOpened: stat._count.id,
-      prsMerged: 0,
-      reviewsGiven: 0,
-      linesAdded: stat._sum.linesAdded || 0,
-      linesDeleted: stat._sum.linesDeleted || 0,
-      avgTimeToMerge: null,
-      riskScore: 0,
+export const getTopContributors = unstable_cache(
+  async (ownerId: string, limit: number = 10, authorLogin?: string): Promise<ContributorStats[]> => {
+    // Get repositories for this owner
+    const repos = await db.repository.findMany({
+      where: { ownerId },
+      select: { id: true },
     });
-  }
 
-  for (const stat of mergedStats) {
-    const existing = contributorMap.get(stat.authorLogin);
-    if (existing) {
-      existing.prsMerged = stat._count.id;
-      existing.avgTimeToMerge = stat._avg.timeToMerge ? Math.round(stat._avg.timeToMerge) : null;
-    }
-  }
+    const repoIds = repos.map((r) => r.id);
+    if (repoIds.length === 0) return [];
 
-  for (const stat of reviewStats) {
-    const login = stat.reviewerLogin;
-    const existing = contributorMap.get(login);
-    if (existing) {
-      existing.reviewsGiven = stat._count.id;
-    } else {
-      contributorMap.set(login, {
-        login,
-        avatarUrl: `https://avatars.githubusercontent.com/${login}`,
-        prsOpened: 0,
+    const filter = {
+      repositoryId: { in: repoIds },
+      ...(authorLogin ? { authorLogin } : {}),
+    };
+
+    // Aggregate PR statistics by author
+    const prStats = await db.pullRequest.groupBy({
+      by: ['authorLogin'],
+      where: filter,
+      _count: { id: true },
+      _sum: {
+        linesAdded: true,
+        linesDeleted: true,
+      },
+    });
+
+    // Get merged stats
+    const mergedStats = await db.pullRequest.groupBy({
+      by: ['authorLogin'],
+      where: {
+        ...filter,
+        state: 'MERGED',
+      },
+      _count: { id: true },
+      _avg: { timeToMerge: true },
+    });
+
+    // Get review stats
+    const reviewStats = await db.review.groupBy({
+      by: ['reviewerLogin'],
+      where: {
+        pullRequest: { repositoryId: { in: repoIds } },
+        ...(authorLogin ? { reviewerLogin: authorLogin } : {}),
+      },
+      _count: { id: true },
+    });
+
+    // Build the map
+    const contributorMap = new Map<string, ContributorStats>();
+
+    for (const stat of prStats) {
+      contributorMap.set(stat.authorLogin, {
+        login: stat.authorLogin,
+        avatarUrl: `https://avatars.githubusercontent.com/${stat.authorLogin}`,
+        prsOpened: stat._count.id,
         prsMerged: 0,
-        reviewsGiven: stat._count.id,
-        linesAdded: 0,
-        linesDeleted: 0,
+        reviewsGiven: 0,
+        linesAdded: stat._sum.linesAdded || 0,
+        linesDeleted: stat._sum.linesDeleted || 0,
         avgTimeToMerge: null,
         riskScore: 0,
       });
     }
-  }
 
-  // Calculate risk scores and sort
-  const allStats = Array.from(contributorMap.values());
-  const maxPrs = Math.max(...allStats.map((s) => s.prsOpened), 0);
-  const maxReviews = Math.max(...allStats.map((s) => s.reviewsGiven), 0);
-  const validMergeTimes = allStats.map((s) => s.avgTimeToMerge).filter((t) => t !== null) as number[];
-  const avgMergeTime =
-    validMergeTimes.length > 0 ? validMergeTimes.reduce((a, b) => a + b, 0) / validMergeTimes.length : 0;
+    for (const stat of mergedStats) {
+      const existing = contributorMap.get(stat.authorLogin);
+      if (existing) {
+        existing.prsMerged = stat._count.id;
+        existing.avgTimeToMerge = stat._avg.timeToMerge ? Math.round(stat._avg.timeToMerge) : null;
+      }
+    }
 
-  return allStats
-    .map((stat) => ({
-      ...stat,
-      riskScore: calculateContributorRisk(stat, { maxPrs, maxReviews, avgMergeTime }),
-    }))
-    .sort((a, b) => b.prsOpened * 2 + b.reviewsGiven - (a.prsOpened * 2 + a.reviewsGiven))
-    .slice(0, limit);
-}
+    for (const stat of reviewStats) {
+      const login = stat.reviewerLogin;
+      const existing = contributorMap.get(login);
+      if (existing) {
+        existing.reviewsGiven = stat._count.id;
+      } else {
+        contributorMap.set(login, {
+          login,
+          avatarUrl: `https://avatars.githubusercontent.com/${login}`,
+          prsOpened: 0,
+          prsMerged: 0,
+          reviewsGiven: stat._count.id,
+          linesAdded: 0,
+          linesDeleted: 0,
+          avgTimeToMerge: null,
+          riskScore: 0,
+        });
+      }
+    }
+
+    // Calculate risk scores and sort
+    const allStats = Array.from(contributorMap.values());
+    const maxPrs = Math.max(...allStats.map((s) => s.prsOpened), 0);
+    const maxReviews = Math.max(...allStats.map((s) => s.reviewsGiven), 0);
+    const validMergeTimes = allStats.map((s) => s.avgTimeToMerge).filter((t) => t !== null) as number[];
+    const avgMergeTime =
+      validMergeTimes.length > 0 ? validMergeTimes.reduce((a, b) => a + b, 0) / validMergeTimes.length : 0;
+
+    return allStats
+      .map((stat) => ({
+        ...stat,
+        riskScore: calculateContributorRisk(stat, { maxPrs, maxReviews, avgMergeTime }),
+      }))
+      .sort((a, b) => b.prsOpened * 2 + b.reviewsGiven - (a.prsOpened * 2 + a.reviewsGiven))
+      .slice(0, limit);
+  },
+  ['dashboard-contributors'],
+  { revalidate: 1800, tags: ['dashboard-metrics'] }
+);
 
 /**
  * Get metrics for a specific repository
  */
-export async function getRepositoryMetrics(repositoryId: string): Promise<RepositoryMetrics | null> {
-  const repo = await db.repository.findUnique({
-    where: { id: repositoryId },
-    select: { name: true, id: true },
-  });
+export const getRepositoryMetrics = unstable_cache(
+  async (repositoryId: string): Promise<RepositoryMetrics | null> => {
+    const repo = await db.repository.findUnique({
+      where: { id: repositoryId },
+      select: { name: true, id: true },
+    });
 
-  if (!repo) return null;
+    if (!repo) return null;
 
-  const [totalPRs, mergedPRs, openPRs] = await Promise.all([
-    db.pullRequest.count({ where: { repositoryId } }),
-    db.pullRequest.count({ where: { repositoryId, state: 'MERGED' } }),
-    db.pullRequest.count({ where: { repositoryId, state: 'OPEN' } }),
-  ]);
+    const [totalPRs, mergedPRs, openPRs] = await Promise.all([
+      db.pullRequest.count({ where: { repositoryId } }),
+      db.pullRequest.count({ where: { repositoryId, state: 'MERGED' } }),
+      db.pullRequest.count({ where: { repositoryId, state: 'OPEN' } }),
+    ]);
 
-  const cycleTimeAgg = await db.pullRequest.aggregate({
-    where: { repositoryId, state: 'MERGED', timeToMerge: { not: null } },
-    _avg: { timeToMerge: true },
-  });
+    const cycleTimeAgg = await db.pullRequest.aggregate({
+      where: { repositoryId, state: 'MERGED', timeToMerge: { not: null } },
+      _avg: { timeToMerge: true },
+    });
 
-  const timeToReviewAgg = await db.pullRequest.aggregate({
-    where: { repositoryId, timeToFirstReview: { not: null } },
-    _avg: { timeToFirstReview: true },
-  });
+    const timeToReviewAgg = await db.pullRequest.aggregate({
+      where: { repositoryId, timeToFirstReview: { not: null } },
+      _avg: { timeToFirstReview: true },
+    });
 
-  const cycleTimes = await db.pullRequest.findMany({
-    where: { repositoryId, state: 'MERGED', timeToMerge: { not: null } },
-    select: { timeToMerge: true },
-    orderBy: { timeToMerge: 'asc' },
-  });
+    const cycleTimes = await db.pullRequest.findMany({
+      where: { repositoryId, state: 'MERGED', timeToMerge: { not: null } },
+      select: { timeToMerge: true },
+      orderBy: { timeToMerge: 'asc' },
+    });
 
-  const times = cycleTimes.map((pr: { timeToMerge: number | null }) => pr.timeToMerge!);
-  const p50CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.5)] : null;
-  const p75CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.75)] : null;
+    const times = cycleTimes.map((pr: { timeToMerge: number | null }) => pr.timeToMerge!);
+    const p50CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.5)] : null;
+    const p75CycleTime = times.length > 0 ? times[Math.floor(times.length * 0.75)] : null;
 
-  const timeToFirstReview = timeToReviewAgg._avg.timeToFirstReview
-    ? Math.round(timeToReviewAgg._avg.timeToFirstReview)
-    : null;
+    const timeToFirstReview = timeToReviewAgg._avg.timeToFirstReview
+      ? Math.round(timeToReviewAgg._avg.timeToFirstReview)
+      : null;
 
-  return {
-    repositoryId: repo.id,
-    repositoryName: repo.name,
-    totalPRs,
-    mergedPRs,
-    openPRs,
-    avgCycleTime: cycleTimeAgg._avg.timeToMerge ? Math.round(cycleTimeAgg._avg.timeToMerge) : null,
-    p50CycleTime,
-    p75CycleTime,
-    avgTimeToFirstReview: timeToFirstReview,
-  };
-}
+    return {
+      repositoryId: repo.id,
+      repositoryName: repo.name,
+      totalPRs,
+      mergedPRs,
+      openPRs,
+      avgCycleTime: cycleTimeAgg._avg.timeToMerge ? Math.round(cycleTimeAgg._avg.timeToMerge) : null,
+      p50CycleTime,
+      p75CycleTime,
+      avgTimeToFirstReview: timeToFirstReview,
+    };
+  },
+  ['dashboard-repo-metrics'],
+  { revalidate: 1800, tags: ['dashboard-metrics'] }
+);
 
 /**
  * Get time-series data for the last N days (scoped to ownerId)
  */
-export async function getTimeSeriesData(ownerId: string, days: number = 30, authorLogin?: string): Promise<TimeSeriesDataPoint[]> {
-  const startDate = subDays(new Date(), days);
+export const getTimeSeriesData = unstable_cache(
+  async (ownerId: string, days: number = 30, authorLogin?: string): Promise<TimeSeriesDataPoint[]> => {
+    const startDate = subDays(new Date(), days);
 
-  // Get repositories for this owner
-  const repos = await db.repository.findMany({
-    where: { ownerId },
-    select: { id: true },
-  });
-  const repoIds = repos.map((r) => r.id);
-
-  const prs = await db.pullRequest.findMany({
-    where: {
-      createdAt: { gte: startDate },
-      repositoryId: { in: repoIds },
-      ...(authorLogin ? { authorLogin } : {}),
-    },
-    select: {
-      createdAt: true,
-      mergedAt: true,
-      timeToMerge: true,
-    },
-  });
-
-  const dataByDate = new Map<string, TimeSeriesDataPoint>();
-
-  for (let i = 0; i < days; i++) {
-    const date = subDays(new Date(), days - i);
-    const dateStr = startOfDay(date).toISOString().split('T')[0];
-    dataByDate.set(dateStr, {
-      date: dateStr,
-      prsOpened: 0,
-      prsMerged: 0,
-      avgCycleTime: null,
+    // Get repositories for this owner
+    const repos = await db.repository.findMany({
+      where: { ownerId },
+      select: { id: true },
     });
-  }
+    const repoIds = repos.map((r) => r.id);
 
-  for (const pr of prs) {
-    const createdDateStr = startOfDay(pr.createdAt).toISOString().split('T')[0];
-    const createdPoint = dataByDate.get(createdDateStr);
-    if (createdPoint) createdPoint.prsOpened++;
+    const prs = await db.pullRequest.findMany({
+      where: {
+        createdAt: { gte: startDate },
+        repositoryId: { in: repoIds },
+        ...(authorLogin ? { authorLogin } : {}),
+      },
+      select: {
+        createdAt: true,
+        mergedAt: true,
+        timeToMerge: true,
+      },
+    });
 
-    if (pr.mergedAt) {
-      const mergedDateStr = startOfDay(pr.mergedAt).toISOString().split('T')[0];
-      const mergedPoint = dataByDate.get(mergedDateStr);
-      if (mergedPoint) mergedPoint.prsMerged++;
+    const dataByDate = new Map<string, TimeSeriesDataPoint>();
+
+    for (let i = 0; i < days; i++) {
+      const date = subDays(new Date(), days - i);
+      const dateStr = startOfDay(date).toISOString().split('T')[0];
+      dataByDate.set(dateStr, {
+        date: dateStr,
+        prsOpened: 0,
+        prsMerged: 0,
+        avgCycleTime: null,
+      });
     }
-  }
 
-  for (const [dateStr, point] of dataByDate.entries()) {
-    const dayStart = new Date(dateStr);
-    const dayEnd = endOfDay(dayStart);
+    for (const pr of prs) {
+      const createdDateStr = startOfDay(pr.createdAt).toISOString().split('T')[0];
+      const createdPoint = dataByDate.get(createdDateStr);
+      if (createdPoint) createdPoint.prsOpened++;
 
-    const mergedOnDay = prs.filter(
-      (pr: { mergedAt: Date | null; timeToMerge: number | null }) =>
-        pr.mergedAt && pr.mergedAt >= dayStart && pr.mergedAt <= dayEnd && pr.timeToMerge
-    );
+      if (pr.mergedAt) {
+        const mergedDateStr = startOfDay(pr.mergedAt).toISOString().split('T')[0];
+        const mergedPoint = dataByDate.get(mergedDateStr);
+        if (mergedPoint) mergedPoint.prsMerged++;
+      }
+    }
 
-    if (mergedOnDay.length > 0) {
-      const totalTime = mergedOnDay.reduce(
-        (sum: number, pr: { timeToMerge: number | null }) => sum + (pr.timeToMerge || 0),
-        0
+    for (const [dateStr, point] of dataByDate.entries()) {
+      const dayStart = new Date(dateStr);
+      const dayEnd = endOfDay(dayStart);
+
+      const mergedOnDay = prs.filter(
+        (pr: { mergedAt: Date | null; timeToMerge: number | null }) =>
+          pr.mergedAt && pr.mergedAt >= dayStart && pr.mergedAt <= dayEnd && pr.timeToMerge
       );
-      point.avgCycleTime = Math.round(totalTime / mergedOnDay.length);
-    }
-  }
 
-  return Array.from(dataByDate.values());
-}
+      if (mergedOnDay.length > 0) {
+        const totalTime = mergedOnDay.reduce(
+          (sum: number, pr: { timeToMerge: number | null }) => sum + (pr.timeToMerge || 0),
+          0
+        );
+        point.avgCycleTime = Math.round(totalTime / mergedOnDay.length);
+      }
+    }
+
+    return Array.from(dataByDate.values());
+  },
+  ['dashboard-timeseries'],
+  { revalidate: 1800, tags: ['dashboard-metrics'] }
+);
 
 /**
  * Snapshot metrics for a specific repository for the current day

@@ -113,6 +113,8 @@ model PullRequest {
   @@index([state])
   @@index([mergedAt])
   @@index([updatedAt])
+  @@index([authorLogin])
+  @@index([repositoryId, authorLogin])
 }
 
 enum PRState {
