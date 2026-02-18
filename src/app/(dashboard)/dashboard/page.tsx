@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 import { DateRangePicker } from '@/components/common/DateRangePicker';
 import { ContributorFilter } from '@/components/dashboard/ContributorFilter';
 import { DashboardWidgets } from '@/components/dashboard/DashboardWidgets';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 
 
@@ -187,6 +188,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                   : 'Not synced yet'}
               </span>
             </div>
+            <ThemeToggle />
             <Link
               href="/setup"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white border border-white/[0.06] hover:border-white/[0.12] transition-all"

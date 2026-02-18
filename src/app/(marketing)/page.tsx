@@ -1,7 +1,33 @@
+'use client';
+
 import Link from 'next/link';
 import { Github, TrendingUp, Zap, Brain, ArrowRight, Activity, BarChart3, Shield, Key, RefreshCw, Sparkles, CheckCircle } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { InteractiveHero } from '@/components/marketing/InteractiveHero';
+import { PricingToggle } from '@/components/marketing/PricingToggle';
+import { FeatureComparison } from '@/components/marketing/FeatureComparison';
+import { TestimonialsCarousel } from '@/components/marketing/TestimonialsCarousel';
+import { TrustedBy } from '@/components/marketing/TrustedBy';
+import { SecurityBadge } from '@/components/marketing/SecurityBadge';
+import { useState } from 'react';
 
 export default function LandingPage() {
+  const [isAnnual, setIsAnnual] = useState(false);
+
+  const calculatePrice = (monthlyPrice: number) => {
+    if (isAnnual) {
+      return Math.round(monthlyPrice * 12 * 0.8); // 20% discount
+    }
+    return monthlyPrice;
+  };
+
+  const formatPrice = (price: number) => {
+    if (isAnnual) {
+      return `$${price}/yr`;
+    }
+    return `$${price}/mo`;
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
       {/* Animated grid background */}
@@ -38,12 +64,15 @@ export default function LandingPage() {
             </Link>
           </nav>
 
-          <Link
-            href="/setup"
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:text-white border border-violet-500/30 hover:border-violet-500/50 bg-violet-600/20 hover:bg-violet-600/30 transition-all duration-300"
-          >
-            Get Started
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link
+              href="/setup"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:text-white border border-violet-500/30 hover:border-violet-500/50 bg-violet-600/20 hover:bg-violet-600/30 transition-all duration-300"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -76,11 +105,27 @@ export default function LandingPage() {
               Start Analyzing
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
+            <Link
+              href="#demo"
+              className="px-7 py-3.5 rounded-xl text-slate-300 font-medium border border-white/[0.1] hover:border-white/[0.2] hover:text-white transition-all duration-300"
+            >
+              View Demo
+            </Link>
           </div>
         </div>
 
+        {/* Interactive Dashboard Preview */}
+        <div id="demo" className="mt-16">
+          <InteractiveHero />
+        </div>
+
+        {/* Trusted By Section */}
+        <div className="mt-20">
+          <TrustedBy />
+        </div>
+
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-5 mt-20 max-w-4xl mx-auto">
+        <div id="features" className="grid md:grid-cols-3 gap-5 mt-20 max-w-4xl mx-auto">
           {[
             {
               icon: TrendingUp,
@@ -214,16 +259,18 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
             Simple, transparent <span className="text-violet-400">pricing</span>
           </h2>
-          <p className="text-slate-400">
+          <p className="text-slate-400 mb-8">
             Start for free, upgrade when you need more power. No hidden fees.
           </p>
+          
+          <PricingToggle onToggle={setIsAnnual} />
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {[
             {
               name: 'Hobby',
-              price: '$0',
+              monthlyPrice: 0,
               desc: 'For personal projects',
               features: ['3 Repositories', '30-day History', 'Basic Metrics', 'Community Support'],
               cta: 'Start Free',
@@ -231,62 +278,94 @@ export default function LandingPage() {
             },
             {
               name: 'Pro',
-              price: '$19',
-              period: '/mo',
+              monthlyPrice: 19,
               desc: 'For growing teams',
-              features: ['Unlimited Repos', 'Unlimited History', 'Advanced Insights', 'Priority Support', 'AI Analysis'],
-              cta: 'Start Trial',
+              features: ['Unlimited Repos', 'Unlimited History', 'Advanced Insights', 'Priority Support', 'AI Analysis', 'DORA Metrics'],
+              cta: 'Start 14-Day Trial',
               highlight: true,
             },
             {
               name: 'Team',
-              price: '$49',
-              period: '/mo',
+              monthlyPrice: 49,
               desc: 'For organizations',
-              features: ['SAML SSO', 'Audit Logs', 'Dedicated Success', 'SLA Guarantee', 'Custom Reports'],
+              features: ['Everything in Pro', 'SAML SSO', 'Audit Logs', 'Dedicated Success', 'SLA Guarantee', 'Custom Reports'],
               cta: 'Contact Sales',
               highlight: false,
             },
-          ].map((tier) => (
-            <div
-              key={tier.name}
-              className={`glass-card p-8 flex flex-col relative ${
-                tier.highlight ? 'border-violet-500/50 bg-violet-500/[0.04]' : ''
-              }`}
-            >
-              {tier.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500 text-white text-xs font-medium shadow-glow">
-                  Most Popular
-                </div>
-              )}
-              <h3 className="text-lg font-semibold text-white mb-2">{tier.name}</h3>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-3xl font-bold text-white">{tier.price}</span>
-                {tier.period && <span className="text-slate-500 text-sm">{tier.period}</span>}
-              </div>
-              <p className="text-sm text-slate-400 mb-6">{tier.desc}</p>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm text-slate-300">
-                    <CheckCircle className={`h-4 w-4 ${tier.highlight ? 'text-violet-400' : 'text-slate-500'}`} />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/setup"
-                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-center ${
-                  tier.highlight
-                    ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-glow'
-                    : 'bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.05]'
+          ].map((tier) => {
+            const price = calculatePrice(tier.monthlyPrice);
+            const displayPrice = tier.monthlyPrice === 0 ? '$0' : formatPrice(price);
+            const period = tier.monthlyPrice === 0 ? '' : isAnnual ? '/yr' : '/mo';
+            
+            return (
+              <div
+                key={tier.name}
+                className={`glass-card p-8 flex flex-col relative ${
+                  tier.highlight ? 'border-violet-500/50 bg-violet-500/[0.04]' : ''
                 }`}
               >
-                {tier.cta}
-              </Link>
-            </div>
-          ))}
+                {tier.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500 text-white text-xs font-medium shadow-glow">
+                    Most teams start here
+                  </div>
+                )}
+                <h3 className="text-lg font-semibold text-white mb-2">{tier.name}</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-3xl font-bold text-white font-metric">{displayPrice}</span>
+                  {period && <span className="text-slate-500 text-sm">{period}</span>}
+                </div>
+                {isAnnual && tier.monthlyPrice > 0 && (
+                  <p className="text-xs text-emerald-400 mb-2">
+                    ${tier.monthlyPrice}/mo billed annually
+                  </p>
+                )}
+                <p className="text-sm text-slate-400 mb-6">{tier.desc}</p>
+
+                <ul className="space-y-3 mb-8 flex-1">
+                  {tier.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-sm text-slate-300">
+                      <CheckCircle className={`h-4 w-4 ${tier.highlight ? 'text-violet-400' : 'text-slate-500'}`} />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href="/setup"
+                  className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-center ${
+                    tier.highlight
+                      ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-glow'
+                      : 'bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.05]'
+                  }`}
+                >
+                  {tier.cta}
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Feature Comparison Table */}
+        <FeatureComparison />
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="relative z-10 container mx-auto px-6 py-24 border-t border-white/[0.06]">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
+            Loved by <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">engineering teams</span>
+          </h2>
+          <p className="text-slate-400">
+            See how teams are using Meridian to ship faster and reduce burnout.
+          </p>
+        </div>
+        <TestimonialsCarousel />
+      </section>
+
+      {/* Security Section */}
+      <section className="relative z-10 container mx-auto px-6 py-24 border-t border-white/[0.06]">
+        <div className="max-w-4xl mx-auto">
+          <SecurityBadge />
         </div>
       </section>
 
