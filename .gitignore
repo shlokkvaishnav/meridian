@@ -6,12 +6,12 @@ node_modules/
 # Testing
 /coverage
 
-# Next.js
-/.next/
-/out/
+# Next.js (frontend/ workspace)
+.next/
+out/
 
 # Production
-/build
+build/
 
 # Misc
 .DS_Store

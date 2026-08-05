@@ -90,11 +90,11 @@ flowchart TD
     Strategic --> Findings
 ```
 
-Each rule is a pure function — same input, same output, no shared state — which is what makes this table possible to write and test in isolation (see `src/services/stats.test.ts`, `src/lib/encryption.test.ts`).
+Each rule is a pure function — same input, same output, no shared state — which is what makes this table possible to write and test in isolation (see `backend/src/services/stats.test.ts`, `backend/src/lib/encryption.test.ts`).
 
 ## API Reference
 
-All routes live under `src/app/api/`. Every route except the cron and webhook endpoints requires a valid session cookie.
+All routes live under `frontend/src/app/api/`. Every route except the cron and webhook endpoints requires a valid session cookie.
 
 | Route | Method | Purpose |
 | :--- | :--- | :--- |
@@ -111,5 +111,5 @@ All routes live under `src/app/api/`. Every route except the cron and webhook en
 
 - GitHub tokens are AES-256-GCM encrypted before storage; the encryption key is never derived from anything stored in the database.
 - Webhook payloads are verified against `GITHUB_WEBHOOK_SECRET` via HMAC-SHA256 before any data is written.
-- API error responses never forward raw exception messages to the client — see `src/lib/api-error.ts`.
-- Sensitive/expensive endpoints are rate-limited per session or IP — see `src/lib/rate-limit.ts`.
+- API error responses never forward raw exception messages to the client — see `backend/src/lib/api-error.ts`.
+- Sensitive/expensive endpoints are rate-limited per session or IP — see `backend/src/lib/rate-limit.ts`.

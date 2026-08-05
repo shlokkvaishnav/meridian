@@ -1,0 +1,27 @@
+{
+  "name": "@meridian/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.4",
+    "octokit": "^4.0.2",
+    "pg": "^8.18.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.16.0",
+    "next": "^15.5.12",
+    "prisma": "^7.4.0"
+  }
+}
