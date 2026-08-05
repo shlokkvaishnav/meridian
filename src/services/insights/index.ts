@@ -2,6 +2,11 @@ import { db } from '@/lib/db';
 import { subDays, differenceInDays } from 'date-fns';
 import { calculateMean, calculateStdDev, calculateZScore } from '../stats';
 import { generateStrategicInsight } from '../ai';
+import { unstable_cache } from 'next/cache';
+import type { PullRequest, Repository, Review } from '@/generated/prisma/client';
+
+/** A PR joined with the relations every rule below needs. */
+type PRWithRelations = PullRequest & { repository: Repository; reviews: Review[] };
 
 export type InsightType = 'WARNING' | 'CAUTION' | 'INFO' | 'SUCCESS';
 export type InsightCategory = 
@@ -28,15 +33,9 @@ export interface Insight {
 }
 
 /**
- * Generate insights from PR data using rule-based analysis
- */
-/**
- * Generate insights from PR data using rule-based analysis
- */
-import { unstable_cache } from 'next/cache';
-
-/**
- * Generate insights from PR data using rule-based analysis
+ * Runs every rule below against a user's last 30 days of PR activity and
+ * returns the findings, sorted by priority. Cached for 30 minutes since
+ * this scans the full PR history on every call.
  */
 export const generateInsights = unstable_cache(
   async (ownerId: string, authorLogin?: string): Promise<Insight[]> => {
@@ -114,7 +113,7 @@ export const generateInsights = unstable_cache(
 /**
  * Rule: Detect PRs waiting too long for reviews (Z-Score > 2)
  */
-function detectReviewBottlenecks(prs: any[]): Insight[] {
+function detectReviewBottlenecks(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
   if (prs.length === 0) return insights;
   
@@ -165,7 +164,7 @@ function detectReviewBottlenecks(prs: any[]): Insight[] {
 /**
  * Rule: Detect increasing cycle times using Z-Score deviation
  */
-function detectCycleTimeIssues(prs: any[]): Insight[] {
+function detectCycleTimeIssues(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
 
   const mergedPRs = prs.filter((pr) => pr.state === 'MERGED' && pr.timeToMerge);
@@ -186,11 +185,8 @@ function detectCycleTimeIssues(prs: any[]): Insight[] {
   const recentTimes = recentMerged.map(pr => pr.timeToMerge!);
   const recentMean = calculateMean(recentTimes);
 
-  // Calculate Z-Score of the recent MEAN against the baseline distribution
-  // Standard Error of the Mean (SEM) = stdDev / sqrt(N)
-  // z = (recentMean - baselineMean) / SEM
-  // But for simplicity, let's just see if recentMean is > 1.5 std devs away from baseline mean
-  
+  // Flag when the recent mean has drifted more than 1.5 baseline std devs
+  // above the older mean -- a real trend, not just day-to-day noise.
   if (baselineStdDev > 0) {
     const zScore = (recentMean - baselineMean) / baselineStdDev;
 
@@ -218,7 +214,7 @@ function detectCycleTimeIssues(prs: any[]): Insight[] {
 /**
  * Rule: Detect workload imbalance using Z-Scores
  */
-function detectWorkloadImbalance(prs: any[]): Insight[] {
+function detectWorkloadImbalance(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
 
   // Count PRs per author
@@ -260,7 +256,7 @@ function detectWorkloadImbalance(prs: any[]): Insight[] {
 /**
  * Rule: Detect potential burnout signals
  */
-function detectBurnoutSignals(prs: any[]): Insight[] {
+function detectBurnoutSignals(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
 
   // Check for weekend commits (simplified - assumes createdAt reflects work time)
@@ -293,7 +289,7 @@ function detectBurnoutSignals(prs: any[]): Insight[] {
 /**
  * Rule: Detect stale PRs
  */
-function detectStalePRs(prs: any[]): Insight[] {
+function detectStalePRs(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
 
   const stalePRs = prs.filter(
@@ -322,7 +318,7 @@ function detectStalePRs(prs: any[]): Insight[] {
 /**
  * Rule: Detect review capacity issues
  */
-function detectReviewCapacityIssues(prs: any[]): Insight[] {
+function detectReviewCapacityIssues(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
 
   const openPRs = prs.filter((pr) => pr.state === 'OPEN');
@@ -349,7 +345,7 @@ function detectReviewCapacityIssues(prs: any[]): Insight[] {
 /**
  * Rule: Detect positive patterns worth celebrating
  */
-function detectPositivePatterns(prs: any[]): Insight[] {
+function detectPositivePatterns(prs: PRWithRelations[]): Insight[] {
   const insights: Insight[] = [];
 
   const mergedPRs = prs.filter((pr) => pr.state === 'MERGED' && pr.timeToMerge);

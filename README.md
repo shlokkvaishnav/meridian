@@ -60,34 +60,13 @@ Every metric in the dashboard was chosen for a specific decision it supports, no
 - **Insight engine** — rule-based detection for review bottlenecks, workload imbalance, burnout risk, and stale PRs, each with a defined, documented threshold (not a black box)
 - **AI layer (optional)** — Claude-generated PR summaries and narrative work reports, additive on top of the rule-based engine, not a replacement for it
 - **Team analytics** — group contributors into teams independent of GitHub's own org structure, with aggregate and per-contributor views
-- **Real-time sync** — on-demand sync, a daily scheduled sync, and GitHub webhooks for live updates, all incremental (only fetches what changed)
+- **Always current** — a daily scheduled sync plus GitHub webhooks mean the data refreshes itself once connected; nobody has to remember to re-sync before checking the dashboard
 - **Encrypted at rest** — GitHub tokens are AES-256-GCM encrypted before they touch the database; the raw token is never logged or exposed to the client
 
 <!-- Screenshot: insight detail / sample report -->
 <!-- ![Insight detail](./docs/screenshot-insights.png) -->
 
-## Tech Stack
-
-| Layer | Choice |
-| :--- | :--- |
-| Framework | Next.js 15 (App Router), React 19, TypeScript (strict) |
-| Data | PostgreSQL, Prisma ORM |
-| AI | Anthropic Claude |
-| UI | Tailwind CSS, Radix primitives, Recharts |
-| Auth | Encrypted-token sessions (no third-party auth provider) |
-
-## Architecture
-
-```
-src/
-├── app/            Routes and API handlers (Next.js App Router)
-├── components/     UI, organized by feature area
-├── services/       Business logic — metrics, insights, GitHub sync, AI
-├── lib/            Shared utilities (db, encryption, session, env)
-└── generated/      Prisma client (generated, not hand-written)
-```
-
-The insight engine (`src/services/insights/`) and metrics calculations (`src/services/stats.ts`, `src/services/metrics.ts`) are the core of the project — pure, tested functions with no framework dependency, callable independently of the web layer.
+For the stack, project structure, data flow, and API reference, see [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
 
 ## Getting Started
 

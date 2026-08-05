@@ -160,6 +160,28 @@ export default function LandingPage() {
           <InteractiveHero />
         </div>
 
+        {/* Problem / Approach — why this exists, in plain terms */}
+        <motion.div {...revealUp} className="mt-24 max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+          <div className="glass-card p-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              The Problem
+            </h3>
+            <p className="text-foreground/90 leading-relaxed">
+              Engineering managers get asked why a sprint slipped, or who&apos;s overloaded, or whether the team is
+              actually faster than last quarter. The answer lives in GitHub — scattered across hundreds of PRs
+              nobody has time to read.
+            </p>
+          </div>
+          <div className="glass-card p-8">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">The Approach</h3>
+            <p className="text-foreground/90 leading-relaxed">
+              Meridian syncs that history automatically, computes a fixed set of engineering metrics, and runs a
+              rule-based engine that names specific patterns — a bottleneck, an overload, a burnout signal — instead
+              of leaving you to read the numbers yourself.
+            </p>
+          </div>
+        </motion.div>
+
         {/* Trusted By Section */}
         <motion.div {...revealUp} className="mt-20">
           <TrustedBy />
@@ -204,14 +226,33 @@ export default function LandingPage() {
         <motion.div {...revealUp} className="mt-16 max-w-3xl mx-auto">
           <div className="glass-card p-8 grid grid-cols-3 gap-8 text-center border-t-2 border-t-primary/20">
             {[
-              { icon: BarChart3, value: '7+', label: 'Key Metrics', color: 'text-primary' },
-              { icon: Shield, value: 'AES-256', label: 'Encrypted Tokens', color: 'text-emerald' },
-              { icon: Zap, value: '<60s', label: 'Setup Time', color: 'text-amber' },
+              {
+                icon: BarChart3,
+                value: '7+',
+                label: 'Key Metrics',
+                color: 'text-primary',
+                why: 'Each tied to a specific decision, not just a chart',
+              },
+              {
+                icon: Shield,
+                value: 'AES-256',
+                label: 'Encrypted Tokens',
+                color: 'text-emerald',
+                why: 'Your GitHub token is never stored in plain text',
+              },
+              {
+                icon: Zap,
+                value: '<60s',
+                label: 'Setup Time',
+                color: 'text-amber',
+                why: 'No infra to stand up before you see real data',
+              },
             ].map((stat) => (
               <div key={stat.label} className="flex flex-col items-center gap-3">
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />
                 <span className="text-3xl font-bold text-foreground font-mono-num">{stat.value}</span>
                 <span className="text-sm text-muted-foreground font-medium">{stat.label}</span>
+                <span className="text-xs text-muted-foreground/70 -mt-1">{stat.why}</span>
               </div>
             ))}
           </div>
@@ -278,6 +319,55 @@ export default function LandingPage() {
                 <h4 className="text-foreground font-semibold mb-2 text-lg">{step.title}</h4>
                 <p className="text-sm text-muted-foreground mb-1.5">{step.desc}</p>
                 <p className="text-xs text-muted-foreground/70">{step.benefit}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Sample Insights — what the engine actually outputs, in plain language */}
+        <motion.div {...revealUp} className="mt-24 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-3 tracking-tight">What it actually tells you</h2>
+          <p className="text-center text-muted-foreground text-sm mb-12">
+            Not raw numbers — findings, written the way you&apos;d explain them in a standup.
+          </p>
+
+          <div className="space-y-4">
+            {[
+              {
+                icon: TrendingUp,
+                color: 'primary',
+                title: 'Review bottleneck detected',
+                body: "PRs in api-gateway are waiting a median of 3.2 days for first review — 2.3x the team's usual pace. Three of the last five delayed PRs went to one reviewer who also merged 40% of this sprint's work.",
+              },
+              {
+                icon: Shield,
+                color: 'amber',
+                title: 'Burnout risk flagged',
+                body: "One contributor's weekend activity share has climbed to 34% over the last three weeks, well above the team baseline of 8%. Worth a check-in before it shows up as attrition.",
+              },
+              {
+                icon: BarChart3,
+                color: 'emerald',
+                title: 'Velocity trend, quantified',
+                body: 'Cycle time improved 18% this month after async review guidelines shipped — the kind of before/after you can actually put in a retro.',
+              },
+            ].map((insight) => (
+              <div key={insight.title} className="glass-card p-6 flex gap-4">
+                <div
+                  className={`h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    insight.color === 'primary'
+                      ? 'bg-primary/10 text-primary'
+                      : insight.color === 'amber'
+                      ? 'bg-amber/10 text-amber'
+                      : 'bg-emerald/10 text-emerald'
+                  }`}
+                >
+                  <insight.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">{insight.title}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{insight.body}</p>
+                </div>
               </div>
             ))}
           </div>
