@@ -18,28 +18,28 @@ export function PricingToggle({ onToggle, defaultAnnual = false }: PricingToggle
 
   return (
     <div className="flex items-center justify-center gap-3 mb-8">
-      <span className={cn('text-sm transition-colors', isAnnual ? 'text-slate-400' : 'text-white font-medium')}>
+      <span className={cn('text-sm transition-colors', isAnnual ? 'text-muted-foreground' : 'text-foreground font-medium')}>
         Monthly
       </span>
       <button
         onClick={() => handleToggle(!isAnnual)}
-        className="relative inline-flex h-8 w-14 items-center rounded-full bg-white/[0.08] border border-white/[0.1] transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:ring-offset-2 focus:ring-offset-transparent"
+        className="relative inline-flex h-8 w-14 items-center rounded-full bg-foreground/[0.08] border border-foreground/[0.1] transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-transparent"
         role="switch"
         aria-checked={isAnnual}
       >
         <span
           className={cn(
-            'inline-block h-6 w-6 transform rounded-full bg-white transition-transform',
-            isAnnual ? 'translate-x-7 bg-violet-500' : 'translate-x-1'
+            'inline-block h-6 w-6 transform rounded-full bg-background transition-transform',
+            isAnnual ? 'translate-x-7 bg-primary' : 'translate-x-1'
           )}
         />
       </button>
       <div className="flex items-center gap-2">
-        <span className={cn('text-sm transition-colors', isAnnual ? 'text-white font-medium' : 'text-slate-400')}>
+        <span className={cn('text-sm transition-colors', isAnnual ? 'text-foreground font-medium' : 'text-muted-foreground')}>
           Annual
         </span>
         {isAnnual && (
-          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-medium border border-emerald-500/30">
+          <span className="px-2 py-0.5 rounded-full bg-emerald/20 text-emerald text-xs font-medium border border-emerald/30">
             Save 20%
           </span>
         )}

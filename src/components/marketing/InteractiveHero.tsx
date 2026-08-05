@@ -1,71 +1,60 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TrendingUp, Clock, Users, GitMerge } from 'lucide-react';
+
+const metrics = [
+  { id: 'cycle-time', label: 'P95 Cycle Time', value: '2.3d', trend: '+12%', icon: Clock, color: 'text-primary' },
+  { id: 'velocity', label: 'Review Velocity', value: '18/hr', trend: '+8%', icon: TrendingUp, color: 'text-emerald' },
+  { id: 'throughput', label: 'PR Throughput', value: '42', trend: '+15%', icon: GitMerge, color: 'text-amber' },
+  { id: 'contributors', label: 'Active Contributors', value: '24', trend: '+3', icon: Users, color: 'text-primary' },
+];
+
+// Deterministic bar heights (not Math.random()) so server and client render
+// identically — a random value here would cause a hydration mismatch.
+const CHART_HEIGHTS = [42, 55, 38, 61, 48, 67, 52, 71, 58, 64, 45, 69, 56, 73];
 
 export function InteractiveHero() {
   const [hoveredMetric, setHoveredMetric] = useState<string | null>(null);
 
-  const metrics = [
-    { id: 'cycle-time', label: 'P95 Cycle Time', value: '2.3d', trend: '+12%', icon: Clock, color: 'violet' },
-    { id: 'velocity', label: 'Review Velocity', value: '18/hr', trend: '+8%', icon: TrendingUp, color: 'teal' },
-    { id: 'throughput', label: 'PR Throughput', value: '42', trend: '+15%', icon: GitMerge, color: 'amber' },
-    { id: 'contributors', label: 'Active Contributors', value: '24', trend: '+3', icon: Users, color: 'cyan' },
-  ];
-
   return (
     <div className="relative mt-12 max-w-5xl mx-auto">
-      {/* Mock Dashboard Preview */}
-      <div className="glass-card noise p-8 border-2 border-violet-500/20 bg-gradient-to-br from-violet-500/[0.08] to-teal-500/[0.05]">
+      <div className="glass-card noise p-8 border-2 border-primary/20 bg-gradient-to-br from-primary/[0.08] to-emerald/[0.05]">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {metrics.map((metric) => (
             <div
               key={metric.id}
               className={`glass-card p-4 cursor-pointer transition-all duration-300 ${
                 hoveredMetric === metric.id
-                  ? 'scale-105 border-violet-500/40 bg-violet-500/10'
-                  : 'hover:border-white/[0.1]'
+                  ? 'scale-105 border-primary/40 bg-primary/10'
+                  : 'hover:border-foreground/[0.1]'
               }`}
               onMouseEnter={() => setHoveredMetric(metric.id)}
               onMouseLeave={() => setHoveredMetric(null)}
             >
               <div className="flex items-center justify-between mb-2">
-                <metric.icon
-                  className={`h-4 w-4 ${
-                    metric.color === 'violet'
-                      ? 'text-violet-400'
-                      : metric.color === 'teal'
-                      ? 'text-teal-400'
-                      : metric.color === 'amber'
-                      ? 'text-amber-400'
-                      : 'text-cyan-400'
-                  }`}
-                />
-                <span className="text-xs text-emerald-400 font-medium">{metric.trend}</span>
+                <metric.icon className={`h-4 w-4 ${metric.color}`} />
+                <span className="text-xs text-emerald font-medium">{metric.trend}</span>
               </div>
-              <div className="font-metric text-2xl text-white mb-1">{metric.value}</div>
-              <div className="text-xs text-slate-400">{metric.label}</div>
+              <div className="font-metric text-2xl text-foreground mb-1">{metric.value}</div>
+              <div className="text-xs text-muted-foreground">{metric.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Mini Chart Preview */}
-        <div className="h-32 bg-white/[0.02] rounded-lg border border-white/[0.05] flex items-end justify-center gap-1 p-4">
-          {Array.from({ length: 14 }).map((_, i) => (
+        <div className="h-32 bg-foreground/[0.02] rounded-lg border border-foreground/[0.05] flex items-end justify-center gap-1 p-4">
+          {CHART_HEIGHTS.map((height, i) => (
             <div
               key={i}
-              className="flex-1 bg-gradient-to-t from-violet-500/40 to-violet-500/20 rounded-t transition-all duration-500 hover:from-violet-500/60 hover:to-violet-500/40"
-              style={{
-                height: `${30 + Math.sin(i / 2) * 20 + Math.random() * 15}%`,
-                animationDelay: `${i * 50}ms`,
-              }}
+              className="flex-1 bg-gradient-to-t from-primary/40 to-primary/20 rounded-t transition-all duration-500 hover:from-primary/60 hover:to-primary/40"
+              style={{ height: `${height}%` }}
             />
           ))}
         </div>
 
         {hoveredMetric && (
-          <div className="mt-4 p-3 bg-violet-500/10 border border-violet-500/20 rounded-lg text-sm text-slate-300">
-            <span className="text-violet-400 font-medium">Insight:</span>{' '}
+          <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-lg text-sm text-muted-foreground">
+            <span className="text-primary font-medium">Insight:</span>{' '}
             {hoveredMetric === 'cycle-time'
               ? 'Cycle time increased due to 3 PRs stuck in review for 5+ days'
               : hoveredMetric === 'velocity'
@@ -77,12 +66,11 @@ export function InteractiveHero() {
         )}
       </div>
 
-      {/* CTA Overlay */}
       <div className="absolute -bottom-6 left-1/2 -translate-x-1/2">
-        <div className="glass-card px-6 py-3 flex items-center gap-3 border-violet-500/30">
-          <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-sm text-slate-300">
-            <span className="text-white font-medium">Try it free</span> — No credit card required
+        <div className="glass-card px-6 py-3 flex items-center gap-3 border-primary/30">
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-sm text-muted-foreground">
+            <span className="text-foreground font-medium">Try it free</span> — No credit card required
           </span>
         </div>
       </div>
