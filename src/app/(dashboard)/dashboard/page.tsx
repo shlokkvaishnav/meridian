@@ -175,7 +175,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-5">
             <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-              <LogoMark size={28} className="text-primary" />
+              <LogoMark size={28} className="text-primary" decorative />
               <span className="text-base font-semibold text-foreground tracking-tight">Meridian</span>
             </Link>
 

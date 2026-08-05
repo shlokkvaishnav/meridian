@@ -87,6 +87,7 @@ export function TestimonialsCarousel() {
                 variant="ghost"
                 size="icon"
                 onClick={goToPrevious}
+                aria-label="Previous testimonial"
                 className="h-8 w-8 border border-foreground/[0.06] hover:bg-foreground/[0.05]"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -95,6 +96,7 @@ export function TestimonialsCarousel() {
                 variant="ghost"
                 size="icon"
                 onClick={goToNext}
+                aria-label="Next testimonial"
                 className="h-8 w-8 border border-foreground/[0.06] hover:bg-foreground/[0.05]"
               >
                 <ChevronRight className="h-4 w-4" />

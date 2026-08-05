@@ -5,6 +5,7 @@ import { SyncService } from '@/services/github/sync';
 import { GitHubClient } from '@/services/github/github-client';
 import { PRState } from '@/generated/prisma/client';
 import { apiError } from '@/lib/api-error';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +17,14 @@ export async function POST() {
     }
 
     const { settings } = session;
+
+    const rateLimit = checkRateLimit(`sync:${settings.id}`, 1, 60 * 1000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Sync already in progress or just ran. Please wait a moment.' },
+        { status: 429 }
+      );
+    }
 
     // Get GitHub client for this user
     const github = await GitHubClient.initializeWithSettings(settings);

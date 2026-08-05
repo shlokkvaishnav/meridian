@@ -59,7 +59,7 @@ export default function LandingPage() {
       <header className="relative z-10 border-b border-foreground/[0.06]">
         <div className="container mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <LogoMark size={32} className="text-primary" />
+            <LogoMark size={32} className="text-primary" decorative />
             <span className="text-lg font-semibold text-foreground tracking-tight">Meridian</span>
           </div>
 

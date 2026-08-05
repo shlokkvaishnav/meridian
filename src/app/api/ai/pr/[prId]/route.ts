@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { analyzePR, generateWorkSummary } from '@/services/ai';
 import { apiError } from '@/lib/api-error';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,6 +21,11 @@ export async function GET(
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const rateLimit = checkRateLimit(`ai-pr:${session.settings.id}`, 20, 60 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
     }
 
     const { prId } = await params;

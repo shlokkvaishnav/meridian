@@ -72,9 +72,22 @@ export function MetricCard({
   return (
     <div
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={cn(
         "group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300",
-        onClick && "cursor-pointer hover:border-primary/30 hover:shadow-glow active:scale-[0.98]",
+        onClick &&
+          "cursor-pointer hover:border-primary/30 hover:shadow-glow active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className
       )}
     >

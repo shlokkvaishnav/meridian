@@ -3,11 +3,20 @@ import { db } from '@/lib/db';
 import { encrypt } from '@/lib/encryption';
 import { Octokit } from 'octokit';
 import crypto from 'crypto';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(`auth-setup:${getClientIp(request)}`, 5, 15 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const { token } = await request.json();
 
     if (!token || typeof token !== 'string') {

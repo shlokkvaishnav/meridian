@@ -185,12 +185,25 @@ src/
 
 ## 🚢 Deployment
 
-Deploying to Vercel:
+### Vercel
 
 1. Set `DATABASE_URL`, `ENCRYPTION_KEY`, `CRON_SECRET`, and `GITHUB_WEBHOOK_SECRET` as project environment variables before the first deploy (see `.env.example`). `DATABASE_URL` must be reachable at build time.
 2. Vercel automatically runs the `vercel-build` script (`prisma generate && prisma migrate deploy && next build`) instead of `build`, so pending migrations apply before the app builds — no manual migration step needed.
 3. If using GitHub webhooks, configure the webhook URL (`https://your-domain.com/api/webhooks/github`) in the repo/org settings with a secret matching `GITHUB_WEBHOOK_SECRET`.
 4. The daily sync cron (`vercel.json`) is picked up automatically by Vercel Cron.
+
+### Render
+
+A `render.yaml` Blueprint is included at the repo root.
+
+1. In the Render dashboard, **New → Blueprint**, connect this repo. Render reads `render.yaml` and creates the `meridian-web` service.
+2. Set the env vars listed in `render.yaml` (`DATABASE_URL`, `ENCRYPTION_KEY`, `NEXT_PUBLIC_APP_URL`, `CRON_SECRET`, `GITHUB_WEBHOOK_SECRET`, and optionally `ANTHROPIC_API_KEY`/`NEXT_PUBLIC_SUPABASE_*`) in the service's Environment tab — Render won't deploy successfully without `DATABASE_URL` and `ENCRYPTION_KEY` at minimum.
+3. The build command runs `prisma migrate deploy` automatically, same as the Vercel path.
+4. Render has no built-in equivalent to `vercel.json`'s cron — add a separate **Cron Job** in the Render dashboard (Render → New → Cron Job) that runs once daily and calls:
+   ```bash
+   curl -H "Authorization: Bearer $CRON_SECRET" https://<your-render-service>.onrender.com/api/cron/sync
+   ```
+5. GitHub webhook setup is the same as the Vercel path — point at `https://<your-render-service>.onrender.com/api/webhooks/github`.
 
 ---
 

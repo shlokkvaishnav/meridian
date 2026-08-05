@@ -3,6 +3,7 @@ import { generateInsights } from '@/services/insights';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { apiError } from '@/lib/api-error';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60; // Allow up to 60s for AI + DB work (Vercel Pro)
@@ -18,6 +19,11 @@ export async function POST() {
     }
 
     const { settings } = session;
+
+    const rateLimit = checkRateLimit(`insights:${settings.id}`, 10, 60 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+    }
 
     // Generate insights for this user
     const insights = await generateInsights(settings.id);
