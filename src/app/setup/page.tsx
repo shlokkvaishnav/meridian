@@ -167,7 +167,7 @@ export default function SetupPage() {
                   <div>
                     <h3 className="text-sm font-semibold text-emerald-300 mb-1">Enterprise-Grade Security</h3>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Your token is encrypted with <span className="text-emerald-400 font-medium">AES-256</span> and never exposed in logs or analytics. We store only what's needed to sync your data.
+                      Your token is encrypted with <span className="text-emerald-400 font-medium">AES-256</span> and never exposed in logs or analytics. We store only what&apos;s needed to sync your data.
                     </p>
                   </div>
                 </div>

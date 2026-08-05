@@ -64,30 +64,30 @@ export function TestimonialsCarousel() {
   return (
     <div className="relative">
       <div className="glass-card noise p-8 md:p-12 relative overflow-hidden">
-        <Quote className="absolute top-6 left-6 h-8 w-8 text-violet-500/20" />
-        
+        <Quote className="absolute top-6 left-6 h-8 w-8 text-primary/20" />
+
         <div className="relative z-10">
-          <p className="text-lg md:text-xl text-slate-200 mb-6 leading-relaxed max-w-3xl">
-            "{current.quote}"
+          <p className="text-lg md:text-xl text-foreground/90 mb-6 leading-relaxed max-w-3xl line-clamp-3">
+            &quot;{current.quote}&quot;
           </p>
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-semibold text-white mb-1">{current.author}</div>
-              <div className="text-sm text-slate-400">
+              <div className="font-semibold text-foreground mb-1">{current.author}</div>
+              <div className="text-sm text-muted-foreground">
                 {current.role} at {current.company}
               </div>
-              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                <span className="text-xs font-medium text-emerald-400">{current.metric}</span>
+              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald/10 border border-emerald/20">
+                <span className="text-xs font-medium text-emerald">{current.metric}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={goToPrevious}
-                className="h-8 w-8 border border-white/[0.06] hover:bg-white/[0.05]"
+                className="h-8 w-8 border border-foreground/[0.06] hover:bg-foreground/[0.05]"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -95,7 +95,7 @@ export function TestimonialsCarousel() {
                 variant="ghost"
                 size="icon"
                 onClick={goToNext}
-                className="h-8 w-8 border border-white/[0.06] hover:bg-white/[0.05]"
+                className="h-8 w-8 border border-foreground/[0.06] hover:bg-foreground/[0.05]"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -104,7 +104,6 @@ export function TestimonialsCarousel() {
         </div>
       </div>
 
-      {/* Dots indicator */}
       <div className="flex items-center justify-center gap-2 mt-6">
         {testimonials.map((_, index) => (
           <button
@@ -112,8 +111,8 @@ export function TestimonialsCarousel() {
             onClick={() => goToSlide(index)}
             className={`h-2 rounded-full transition-all ${
               index === currentIndex
-                ? 'w-8 bg-violet-500'
-                : 'w-2 bg-white/[0.2] hover:bg-white/[0.3]'
+                ? 'w-8 bg-primary'
+                : 'w-2 bg-foreground/[0.2] hover:bg-foreground/[0.3]'
             }`}
             aria-label={`Go to testimonial ${index + 1}`}
           />

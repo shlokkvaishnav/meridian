@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { env } from '@/lib/env';
 import { GitHubClient } from '@/services/github/github-client';
 
 export const runtime = 'nodejs';
@@ -7,24 +8,26 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Background sync cron job
- * 
+ *
  * This endpoint should be called by a cron service (e.g., Vercel Cron, GitHub Actions, or external scheduler).
  * It syncs data for all users with active sessions.
- * 
+ *
  * To secure this endpoint, set CRON_SECRET in your .env file and pass it as Authorization header:
  * Authorization: Bearer <CRON_SECRET>
+ *
+ * CRON_SECRET is required in production (enforced by src/lib/env.ts) — this
+ * endpoint always 401s there if the header doesn't match.
  */
 export async function GET(request: Request) {
   try {
     // Verify cron secret
     const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
 
-    if (!cronSecret) {
-      console.warn('CRON_SECRET not set. Cron endpoint is unprotected!');
+    if (!env.CRON_SECRET) {
+      console.warn('CRON_SECRET not set. Cron endpoint is unprotected! (allowed only outside production)');
     } else {
       const token = authHeader?.replace('Bearer ', '');
-      if (token !== cronSecret) {
+      if (token !== env.CRON_SECRET) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
     }

@@ -46,7 +46,7 @@ export function InsightList({
                   Review Bottleneck Detected
                 </h3>
                 <p className="text-xs text-slate-400 leading-relaxed mb-2">
-                  PRs are waiting an average of 3.2 days for first review. This is 40% longer than your team's usual pace.
+                  PRs are waiting an average of 3.2 days for first review. This is 40% longer than your team&apos;s usual pace.
                 </p>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="text-violet-400">→ Recommended:</span>

@@ -57,7 +57,7 @@ Engineering metrics that matter:
 
 ### 5. 🔄 Robust Data Synchronization
 - **Incremental Sync:** Tracks `lastSyncedAt` to fetch only new or updated PRs.
-- **Resilient Cron Jobs:** A daily Vercel Cron job (`/api/cron/daily-sync`) keeps data fresh automatically.
+- **Resilient Cron Jobs:** A daily Vercel Cron job (`/api/cron/sync`) keeps data fresh automatically.
 - **Webhook Support:** Real-time updates via GitHub webhooks (`/api/webhooks`).
 - **Rate Limit Handling:** Built-in safeguards in the GitHub client (`src/services/github/`).
 
@@ -72,7 +72,7 @@ Engineering metrics that matter:
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
-| **Framework** | **Next.js 14 (App Router)** | Server-side rendering, API routes, and modern React patterns. |
+| **Framework** | **Next.js 15 (App Router)** | Server-side rendering, API routes, and modern React patterns. |
 | **Language** | **TypeScript** | Strict type safety for robust data handling and refactoring. |
 | **Database** | **PostgreSQL (Supabase)** | Relational data model for robust querying. |
 | **ORM** | **Prisma** | Type-safe database queries and schema management. |
@@ -161,12 +161,13 @@ src/
     ```
 
 2. **Environment Setup**
-    Create a `.env` file:
-    ```env
-    DATABASE_URL="postgres://..."
-    ENCRYPTION_KEY="<32-byte-random-string>"
-    ANTHROPIC_API_KEY="sk-ant-..."
+    Copy `.env.example` to `.env` and fill in the values:
+    ```bash
+    cp .env.example .env
     ```
+    `DATABASE_URL`, `ENCRYPTION_KEY`, and `NEXT_PUBLIC_APP_URL` are required.
+    `ANTHROPIC_API_KEY` and the `NEXT_PUBLIC_SUPABASE_*` vars are optional (AI features / realtime updates degrade gracefully without them).
+    `CRON_SECRET` and `GITHUB_WEBHOOK_SECRET` are optional in development but **required in production** — the app fails to start without them once `NODE_ENV=production`.
 
 3. **Database Migration**
     ```bash
@@ -179,6 +180,17 @@ src/
     npm run dev
     ```
     Visit `http://localhost:3000`
+
+---
+
+## 🚢 Deployment
+
+Deploying to Vercel:
+
+1. Set `DATABASE_URL`, `ENCRYPTION_KEY`, `CRON_SECRET`, and `GITHUB_WEBHOOK_SECRET` as project environment variables before the first deploy (see `.env.example`). `DATABASE_URL` must be reachable at build time.
+2. Vercel automatically runs the `vercel-build` script (`prisma generate && prisma migrate deploy && next build`) instead of `build`, so pending migrations apply before the app builds — no manual migration step needed.
+3. If using GitHub webhooks, configure the webhook URL (`https://your-domain.com/api/webhooks/github`) in the repo/org settings with a secret matching `GITHUB_WEBHOOK_SECRET`.
+4. The daily sync cron (`vercel.json`) is picked up automatically by Vercel Cron.
 
 ---
 

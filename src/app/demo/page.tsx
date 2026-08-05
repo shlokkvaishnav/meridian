@@ -64,7 +64,7 @@ export default function DemoPage() {
             <div>
               <h1 className="text-2xl font-bold text-white mb-2">Interactive Demo Dashboard</h1>
               <p className="text-slate-400">
-                Explore Meridian's features with sample data. Connect your GitHub to see your real metrics.
+                Explore Meridian&apos;s features with sample data. Connect your GitHub to see your real metrics.
               </p>
             </div>
             <Link

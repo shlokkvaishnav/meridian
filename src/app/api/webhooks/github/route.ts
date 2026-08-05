@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { env } from '@/lib/env';
 import crypto from 'crypto';
 import { PRState } from '@/generated/prisma/client';
 
@@ -42,11 +43,10 @@ export async function POST(request: Request) {
     const payload = JSON.parse(rawBody);
 
     // Verify signature
-    const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      console.warn('GITHUB_WEBHOOK_SECRET not set. Webhook is unprotected!');
+    if (!env.GITHUB_WEBHOOK_SECRET) {
+      console.warn('GITHUB_WEBHOOK_SECRET not set. Webhook is unprotected! (allowed only outside production)');
     } else {
-      if (!verifySignature(rawBody, signature, webhookSecret)) {
+      if (!verifySignature(rawBody, signature, env.GITHUB_WEBHOOK_SECRET)) {
         console.error('Invalid webhook signature');
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
       }

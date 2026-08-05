@@ -141,7 +141,7 @@ export function DORAMetrics({ metrics }: DORAMetricsProps) {
             rel="noopener noreferrer"
             className="text-violet-400 hover:text-violet-300 underline"
           >
-            Google's DevOps Research and Assessment (DORA)
+            Google&apos;s DevOps Research and Assessment (DORA)
           </a>
           {' '}research. Elite performers typically deploy multiple times per day with lead times under an hour.
         </p>
