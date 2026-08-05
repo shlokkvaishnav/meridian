@@ -4,8 +4,9 @@ import DashboardClient from '@/components/dashboard/DashboardClient';
 import { getTopContributors, getTimeSeriesData } from '@/services/metrics';
 import InsightsDisplay from '@/components/insights/InsightsDisplay';
 import { generateInsights } from '@/services/insights';
-import { Activity, Clock, LogOut } from 'lucide-react';
+import { Clock, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { LogoMark } from '@/components/brand/LogoMark';
 import Image from 'next/image';
 import { getSession } from '@/lib/session';
 import { DateRangePicker } from '@/components/common/DateRangePicker';
@@ -164,24 +165,22 @@ export default async function DashboardPage(props: DashboardPageProps) {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Ambient glow */}
+      {/* Ambient background: CSS-only gradient mesh, no WebGL — this page is
+          open all day so it stays cheap rather than running a render loop. */}
       <div className="pointer-events-none fixed inset-0 bg-grid-pattern" />
-      <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-200px] left-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="pointer-events-none fixed inset-0 ambient-mesh opacity-60" />
 
       {/* Header */}
-      <header className="sticky z-10 border-b border-white/[0.06] top-0 bg-[#0a0a0f]/80 backdrop-blur-xl">
+      <header className="sticky z-10 border-b border-foreground/[0.06] top-0 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-5">
             <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-              <div className="h-7 w-7 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-                <Activity className="h-3.5 w-3.5 text-violet-400" />
-              </div>
-              <span className="text-base font-semibold text-white tracking-tight">Meridian</span>
+              <LogoMark size={28} className="text-primary" />
+              <span className="text-base font-semibold text-foreground tracking-tight">Meridian</span>
             </Link>
 
             {settings.avatarUrl && (
-              <div className="flex items-center gap-2 pl-5 border-l border-white/[0.06]">
+              <div className="flex items-center gap-2 pl-5 border-l border-foreground/[0.06]">
                 <Image
                   src={settings.avatarUrl}
                   alt={settings.name || settings.githubLogin || 'User'}

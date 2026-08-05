@@ -2,6 +2,7 @@
 
 import { TrendingUp, TrendingDown, Minus, LucideIcon } from 'lucide-react';
 import { cn, formatCompactNumber } from '@/lib/utils';
+import { AnimatedNumber } from '@/components/metrics/AnimatedNumber';
 
 interface MetricCardProps {
   title: string;
@@ -53,21 +54,17 @@ export function MetricCard({
     );
   }
 
-  const formattedValue =
-    typeof value === "string"
-      ? value
-      : format === "duration"
-        ? formatDuration(value as number)
-        : format === "percentage"
-          ? `${value}%`
-          : formatCompactNumber(value);
+  const formatNumericValue = (n: number) =>
+    format === "duration" ? formatDuration(n) : format === "percentage" ? `${n}%` : formatCompactNumber(n);
+
+  const formattedValue = typeof value === "string" ? value : formatNumericValue(value);
 
   const TrendIcon = change?.trend === "up" ? TrendingUp : change?.trend === "down" ? TrendingDown : Minus;
 
   const trendColor = !change
     ? ""
     : change.isPositive
-      ? "text-emerald-500"
+      ? "text-emerald"
       : change.isPositive === false
         ? "text-destructive"
         : "text-muted-foreground";
@@ -77,7 +74,7 @@ export function MetricCard({
       onClick={onClick}
       className={cn(
         "group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300",
-        onClick && "cursor-pointer hover:border-primary/30 hover:shadow-glow",
+        onClick && "cursor-pointer hover:border-primary/30 hover:shadow-glow active:scale-[0.98]",
         className
       )}
     >
@@ -95,7 +92,17 @@ export function MetricCard({
         </div>
 
         <div className="mt-3 flex items-end gap-2">
-          <span className="font-mono-num text-3xl font-bold tracking-tight text-foreground">{isEmpty ? "—" : formattedValue}</span>
+          {isEmpty ? (
+            <span className="font-mono-num text-3xl font-bold tracking-tight text-foreground">—</span>
+          ) : typeof value === "number" ? (
+            <AnimatedNumber
+              value={value}
+              format={formatNumericValue}
+              className="font-mono-num text-3xl font-bold tracking-tight text-foreground"
+            />
+          ) : (
+            <span className="font-mono-num text-3xl font-bold tracking-tight text-foreground">{formattedValue}</span>
+          )}
           {unit && <span className="mb-1 text-sm text-muted-foreground">{unit}</span>}
         </div>
 
