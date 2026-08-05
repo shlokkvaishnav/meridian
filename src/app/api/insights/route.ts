@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { generateInsights } from '@/services/insights';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60; // Allow up to 60s for AI + DB work (Vercel Pro)
@@ -56,9 +57,7 @@ export async function POST() {
       insights,
     });
   } catch (error: unknown) {
-    console.error('Insights generation error:', error);
-    const msg = error instanceof Error ? error.message : 'Failed to generate insights';
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return apiError(error, 'Failed to generate insights');
   }
 }
 

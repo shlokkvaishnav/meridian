@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
 /**
+ * .env files represent "unset" as an empty string, not a missing key —
+ * treat "" the same as undefined so optional fields (and their .url()/.min()
+ * checks) don't fail just because a placeholder was left empty.
+ */
+const optionalEnvString = () => z.preprocess((val) => (val === '' ? undefined : val), z.string().optional());
+
+/**
  * Environment variable schema — only require what the app actually uses.
  */
 const envSchema = z
@@ -9,18 +16,21 @@ const envSchema = z
     DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
     ENCRYPTION_KEY: z.string().min(32, 'ENCRYPTION_KEY must be at least 32 characters'),
     NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
-    ANTHROPIC_API_KEY: z.string().optional(),
+    ANTHROPIC_API_KEY: optionalEnvString(),
     // Required in production — protects the cron and webhook endpoints from
     // running unauthenticated. Optional in dev for local testing convenience.
-    CRON_SECRET: z.string().min(16, 'CRON_SECRET must be at least 16 characters').optional(),
-    GITHUB_WEBHOOK_SECRET: z
-      .string()
-      .min(16, 'GITHUB_WEBHOOK_SECRET must be at least 16 characters')
-      .optional(),
+    CRON_SECRET: z.preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.string().min(16, 'CRON_SECRET must be at least 16 characters').optional()
+    ),
+    GITHUB_WEBHOOK_SECRET: z.preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.string().min(16, 'GITHUB_WEBHOOK_SECRET must be at least 16 characters').optional()
+    ),
     // Optional — only used for realtime dashboard updates; feature degrades
     // gracefully when unset.
-    NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
+    NEXT_PUBLIC_SUPABASE_URL: z.preprocess((val) => (val === '' ? undefined : val), z.string().url().optional()),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: optionalEnvString(),
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV !== 'production') return;

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { analyzePR, generateWorkSummary } from '@/services/ai';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -55,11 +56,7 @@ export async function GET(
     });
 
     return NextResponse.json(analysis);
-  } catch (error: any) {
-    console.error('AI PR analysis error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Analysis failed' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Analysis failed');
   }
 }

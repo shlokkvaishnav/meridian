@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { generateWorkSummary } from '@/services/ai';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -69,11 +70,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(summary);
-  } catch (error: any) {
-    console.error('Work summary generation error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Summary generation failed' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Summary generation failed');
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,12 +24,8 @@ export async function GET() {
     });
 
     return NextResponse.json({ teams });
-  } catch (error: any) {
-    console.error('Error fetching teams:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch teams' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Failed to fetch teams');
   }
 }
 
@@ -58,12 +55,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ team }, { status: 201 });
-  } catch (error: any) {
-    console.error('Error creating team:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create team' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Failed to create team');
   }
 }
 
@@ -107,12 +100,8 @@ export async function PATCH(request: NextRequest) {
     });
 
     return NextResponse.json({ team });
-  } catch (error: any) {
-    console.error('Error updating team:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to update team' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Failed to update team');
   }
 }
 
@@ -148,11 +137,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting team:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to delete team' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Failed to delete team');
   }
 }

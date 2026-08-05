@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { GitHubClient } from '@/services/github/github-client';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -136,11 +137,11 @@ export async function GET(request: Request) {
           repos: repos.length,
           prs: prCount,
         });
-      } catch (error: any) {
+      } catch (error) {
         console.error(`Failed to sync user ${settings.githubLogin}:`, error);
         results.push({
           user: settings.githubLogin,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'Sync failed',
         });
       }
     }
@@ -150,11 +151,7 @@ export async function GET(request: Request) {
       synced: results.length,
       results,
     });
-  } catch (error: any) {
-    console.error('Cron sync error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Cron sync failed' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Cron sync failed');
   }
 }

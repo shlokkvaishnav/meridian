@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
+import { apiError } from '@/lib/api-error';
 import crypto from 'crypto';
 import { PRState } from '@/generated/prisma/client';
 
@@ -274,11 +275,7 @@ export async function POST(request: Request) {
       event,
       action: 'ignored',
     });
-  } catch (error: any) {
-    console.error('Webhook error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Webhook processing failed' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error, 'Webhook processing failed');
   }
 }

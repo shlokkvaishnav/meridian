@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { SyncService } from '@/services/github/sync';
 import { GitHubClient } from '@/services/github/github-client';
 import { PRState } from '@/generated/prisma/client';
+import { apiError } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -168,9 +169,7 @@ export async function POST() {
       throw error;
     }
   } catch (error: unknown) {
-    console.error('Sync error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Sync failed';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return apiError(error, 'Sync failed');
   }
 }
 
