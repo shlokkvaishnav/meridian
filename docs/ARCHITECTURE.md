@@ -1,5 +1,22 @@
 # Architecture
 
+<!-- Optional: replace the diagram below with a custom-designed version at ./images/architecture.png -->
+
+```mermaid
+flowchart LR
+    User([Engineering Manager]) -->|GitHub PAT| Setup[/api/auth/setup]
+    Setup -->|encrypted, stored| DB[(PostgreSQL)]
+
+    GitHub[(GitHub API)] -->|on-demand / daily cron / webhook| Sync[Sync Service]
+    Sync --> DB
+
+    DB --> Stats[stats.ts / metrics.ts]
+    Stats --> Insights[Insight Engine]
+    Insights -->|optional| Claude[Claude API]
+    Insights --> Dashboard[Dashboard UI]
+    Claude --> Dashboard
+```
+
 ## Stack
 
 | Layer | Choice | Why |
@@ -56,6 +73,24 @@ Each rule in `services/insights/index.ts` is an independent, pure function that 
 | Positive patterns | Cycle time under 24 hours, or merge rate above 80% | Fixed threshold |
 
 Z-score-based rules adapt to each team's own baseline instead of using a hardcoded "3 days is too slow" rule that would be wrong for both a fast-moving startup and a large regulated codebase.
+
+```mermaid
+flowchart TD
+    PRs[Last 30 days of PR data] --> R1[Review bottleneck]
+    PRs --> R2[Cycle time regression]
+    PRs --> R3[Workload imbalance]
+    PRs --> R4[Burnout signal]
+    PRs --> R5[Stale PRs]
+    PRs --> R6[Review capacity]
+    PRs --> R7[Positive patterns]
+    R1 & R2 & R3 & R4 & R5 & R6 & R7 --> Sort[Sort by priority]
+    Sort --> Optional{Claude API key set?}
+    Optional -->|yes| Strategic[Add AI strategic summary]
+    Optional -->|no| Findings[Return findings]
+    Strategic --> Findings
+```
+
+Each rule is a pure function — same input, same output, no shared state — which is what makes this table possible to write and test in isolation (see `src/services/stats.test.ts`, `src/lib/encryption.test.ts`).
 
 ## API Reference
 
