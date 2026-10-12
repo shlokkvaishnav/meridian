@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Activity, ArrowRight, TrendingUp, Clock, Users, GitMerge, BarChart3, Zap } from 'lucide-react';
 import { DORAMetrics } from '@/components/dashboard/DORAMetrics';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { SETUP_HREF } from '@/lib/demo-mode';
 
 // Mock data for demo
 const mockMetrics = {
@@ -47,7 +48,7 @@ export default function DemoPage() {
             </div>
             <ThemeToggle />
             <Link
-              href="/setup"
+              href={SETUP_HREF}
               className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all"
             >
               Get Started
@@ -68,7 +69,7 @@ export default function DemoPage() {
               </p>
             </div>
             <Link
-              href="/setup"
+              href={SETUP_HREF}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all"
             >
               Connect Your Repo
@@ -195,7 +196,7 @@ export default function DemoPage() {
             Connect your GitHub repository and get insights in under 60 seconds. No credit card required.
           </p>
           <Link
-            href="/setup"
+            href={SETUP_HREF}
             className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white font-medium bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all shadow-glow hover:shadow-glow-lg hover:scale-[1.02]"
           >
             Start Free Trial

@@ -1,0 +1,63 @@
+name: Deploy demo to GitHub Pages
+
+# GitHub Pages hosts static files only. This builds the marketing page and the
+# interactive /demo as a static site. Sign-in, the dashboard and the API need a
+# server, so they are removed from the CI checkout first (see
+# frontend/scripts/prepare-pages.mjs). The full app stays on its own host.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Remove routes that need a server
+        run: node scripts/prepare-pages.mjs
+        working-directory: frontend
+
+      - name: Build static demo
+        run: npx next build
+        working-directory: frontend
+        env:
+          GITHUB_PAGES: "true"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

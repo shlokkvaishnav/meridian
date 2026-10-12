@@ -10,7 +10,20 @@ import path from "node:path";
 config({ path: path.resolve(__dirname, "../.env.local") });
 config({ path: path.resolve(__dirname, "../.env") });
 
-const nextConfig: NextConfig = {
+// The GitHub Pages build (GITHUB_PAGES=true) is a static, demo-only export
+// served under /meridian. See scripts/prepare-pages.mjs and src/lib/demo-mode.ts.
+const isPages = process.env.GITHUB_PAGES === "true";
+
+const pagesConfig: NextConfig = {
+  reactStrictMode: true,
+  output: "export",
+  basePath: "/meridian",
+  trailingSlash: true,
+  images: { unoptimized: true },
+  env: { NEXT_PUBLIC_DEMO_ONLY: "true" },
+};
+
+const serverConfig: NextConfig = {
   reactStrictMode: true,
 
   async headers() {
@@ -94,4 +107,4 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default nextConfig;
+export default isPages ? pagesConfig : serverConfig;

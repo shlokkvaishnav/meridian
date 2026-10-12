@@ -11,6 +11,7 @@ import { PricingToggle } from '@/components/marketing/PricingToggle';
 import { SecurityBadge } from '@/components/marketing/SecurityBadge';
 import { useState } from 'react';
 import { motionTokens } from '@/lib/motion-tokens';
+import { SETUP_HREF } from '@/lib/demo-mode';
 
 const FeatureComparison = dynamic(() => import('@/components/marketing/FeatureComparison').then(m => ({ default: m.FeatureComparison })));
 const TestimonialsCarousel = dynamic(() => import('@/components/marketing/TestimonialsCarousel').then(m => ({ default: m.TestimonialsCarousel })));
@@ -74,7 +75,7 @@ export default function LandingPage() {
             <Link href="#docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Documentation
             </Link>
-            <Link href="/setup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link href={SETUP_HREF} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Sign In
             </Link>
           </nav>
@@ -82,7 +83,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link
-              href="/setup"
+              href={SETUP_HREF}
               className="px-4 py-2 rounded-lg text-sm font-medium text-foreground border border-primary/30 hover:border-primary/50 bg-primary/20 hover:bg-primary/30 transition-all duration-300"
             >
               Get Started
@@ -140,7 +141,7 @@ export default function LandingPage() {
             className="flex items-center justify-center gap-4"
           >
             <Link
-              href="/setup"
+              href={SETUP_HREF}
               className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-primary-foreground font-medium bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-all duration-300 shadow-glow hover:shadow-glow-lg hover:scale-[1.02]"
             >
               Start Analyzing
@@ -452,7 +453,7 @@ export default function LandingPage() {
                 </ul>
 
                 <Link
-                  href="/setup"
+                  href={SETUP_HREF}
                   className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-center ${
                     tier.highlight
                       ? 'bg-primary hover:opacity-90 text-primary-foreground shadow-glow'
