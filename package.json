@@ -22,7 +22,7 @@
   "devDependencies": {
     "@playwright/test": "^1.64.0",
     "@testing-library/dom": "^10.4.2",
-    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^22.10.5",
     "@vitejs/plugin-react": "^5.1.4",
