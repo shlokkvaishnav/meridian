@@ -41,9 +41,9 @@ export default function LandingPage() {
 
   const formatPrice = (price: number) => {
     if (isAnnual) {
-      return `$${price}/yr`;
+      return `$${price}`;
     }
-    return `$${price}/mo`;
+    return `$${price}`;
   };
 
   return (
@@ -99,17 +99,6 @@ export default function LandingPage() {
             <LiquidMark size={72} />
           </motion.div>
 
-          <motion.div
-            initial="initial"
-            animate="animate"
-            variants={fadeUp}
-            transition={{ delay: 0.05 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/[0.06] text-primary text-xs font-medium mb-6 tracking-wide uppercase"
-          >
-            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            Engineering Intelligence
-          </motion.div>
-
           <motion.h1
             initial="initial"
             animate="animate"
@@ -118,7 +107,7 @@ export default function LandingPage() {
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-5 leading-[1.1] tracking-tight"
           >
             Your GitHub,{' '}
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-emerald bg-clip-text text-transparent">
+            <span className="text-primary">
               decoded
             </span>
           </motion.h1>
@@ -138,18 +127,18 @@ export default function LandingPage() {
             animate="animate"
             variants={fadeUp}
             transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4"
           >
             <Link
               href={SETUP_HREF}
-              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-primary-foreground font-medium bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-all duration-300 shadow-glow hover:shadow-glow-lg hover:scale-[1.02]"
+              className="group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-primary-foreground font-medium bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-all duration-300 shadow-glow hover:shadow-glow-lg hover:scale-[1.02]"
             >
               Start Analyzing
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/demo"
-              className="px-7 py-3.5 rounded-xl text-foreground/80 font-medium border border-foreground/[0.1] hover:border-foreground/[0.2] hover:text-foreground transition-all duration-300"
+              className="px-7 py-3.5 rounded-xl text-center text-foreground/80 font-medium border border-foreground/[0.1] hover:border-foreground/[0.2] hover:text-foreground transition-all duration-300"
             >
               View Demo
             </Link>
@@ -200,6 +189,19 @@ export default function LandingPage() {
                 Cycle time, review velocity, and PR throughput — visualized beautifully, updated in real time.
               </p>
             </div>
+            <dl className="mt-8 divide-y divide-foreground/[0.06] border-t border-foreground/[0.06] text-sm">
+              {[
+                ['Cycle time', 'P50 and P95, first commit to merge'],
+                ['Time to first review', 'How long a PR waits before anyone looks'],
+                ['Workload distribution', 'PRs and reviews per contributor vs. team average'],
+                ['Merge rate', 'Merged vs. closed without merging'],
+              ].map(([term, desc]) => (
+                <div key={term} className="flex items-baseline justify-between gap-4 py-3">
+                  <dt className="font-medium text-foreground">{term}</dt>
+                  <dd className="text-right text-muted-foreground">{desc}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
           <div className="md:col-span-5 flex flex-col gap-5">
             <div className="glass-card noise p-6 flex-1">
@@ -263,7 +265,7 @@ export default function LandingPage() {
         <motion.div {...revealUp} className="mt-24 max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-3 tracking-tight">
             <span className="text-foreground">Three steps to </span>
-            <span className="bg-gradient-to-r from-primary to-emerald bg-clip-text text-transparent">clarity</span>
+            <span className="text-primary">clarity</span>
           </h2>
           <p className="text-center text-muted-foreground text-sm mb-12">
             Most teams are shipping insights within the first hour
@@ -475,7 +477,7 @@ export default function LandingPage() {
       <section className="relative z-10 container mx-auto px-6 py-24 border-t border-foreground/[0.06]">
         <motion.div {...revealUp} className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
-            Loved by <span className="bg-gradient-to-r from-primary to-emerald bg-clip-text text-transparent">engineering teams</span>
+            Loved by <span className="text-primary">engineering teams</span>
           </h2>
           <p className="text-muted-foreground">
             See how teams are using Meridian to ship faster and reduce burnout.
@@ -495,7 +497,7 @@ export default function LandingPage() {
       <section id="docs" className="relative z-10 container mx-auto px-6 py-24 border-t border-foreground/[0.06]">
         <motion.div {...revealUp} className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
-            Built for <span className="bg-gradient-to-r from-emerald to-primary bg-clip-text text-transparent">developers</span>
+            Built for <span className="text-primary">developers</span>
           </h2>
           <p className="text-muted-foreground">
             Everything you need to integrate, customize, and extend Meridian.

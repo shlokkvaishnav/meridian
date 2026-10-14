@@ -47,9 +47,11 @@ const serverConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
+              // Next.js dev mode (React Fast Refresh and its error overlay) needs eval.
+              // Production builds never use it, so it is allowed outside production only.
+              `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'"}`,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https://avatars.githubusercontent.com https://github.com",
+              "img-src 'self' data: https://avatars.githubusercontent.com https://github.com https://cdn.simpleicons.org",
               "font-src 'self' data:",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
               "frame-ancestors 'none'",
